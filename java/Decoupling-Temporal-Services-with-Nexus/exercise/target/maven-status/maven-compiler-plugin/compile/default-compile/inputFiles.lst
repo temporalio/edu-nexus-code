@@ -1,5 +1,6 @@
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/shared/nexus/ComplianceNexusService.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/payments/temporal/activity/PaymentActivity.java
+/Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/compliance/temporal/workflow/ComplianceWorkflowImpl.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/compliance/temporal/ComplianceNexusServiceImpl.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/compliance/temporal/activity/ComplianceActivity.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/payments/domain/PaymentRequest.java
@@ -9,6 +10,7 @@
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/payments/temporal/PaymentStarter.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/compliance/temporal/ComplianceWorkerApp.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/compliance/domain/ComplianceRequest.java
+/Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/compliance/temporal/workflow/ComplianceWorkflow.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/payments/temporal/activity/PaymentActivityImpl.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/payments/PaymentGateway.java
 /Users/nikolay/source/consulting/temporalio/edu-nexus-code/java/Decoupling-Temporal-Services-with-Nexus/exercise/src/main/java/compliance/temporal/activity/ComplianceActivityImpl.java

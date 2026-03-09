@@ -1,77 +1,63 @@
 package compliance.temporal;
 
 // ═══════════════════════════════════════════════════════════════════
-//  TODO 2: Implement the Nexus service handler
+//  TODO 4: Implement the Nexus service handler
 // ═══════════════════════════════════════════════════════════════════
 //
-// This is the "controller" that handles incoming Nexus requests.
+// This handler receives Nexus requests from the Payments team and
+// starts a ComplianceWorkflow to process them.
 //
-// METAPHOR: Think of a restaurant with a front desk:
-//   - ComplianceNexusService (the interface) = the menu
-//   - This class                             = the waiter taking orders
-//   - ComplianceChecker                      = the chef
+// IMPORTANT: Sync handlers should only contain Temporal primitives
+// (workflow starts, queries) — NOT arbitrary business logic.
+// The actual compliance check runs inside ComplianceWorkflow's activity.
 //
-// This is a SYNC handler — it runs inline and returns immediately.
-// No new Temporal workflow is started on the Compliance side.
-// For async handlers, see: https://docs.temporal.io/nexus
-//
-// ── Two new annotations: ────────────────────────────────────────
+// ── Two annotations: ────────────────────────────────────────────
 //   @ServiceImpl(service = ComplianceNexusService.class)  — on the class
-//   @OperationImpl                                         — on each handler method
+//   @OperationImpl                                         — on the handler method
 //
 // ── What to implement: ──────────────────────────────────────────
 //
 //   1. Add @ServiceImpl annotation pointing to ComplianceNexusService.class
-//   2. Add a ComplianceChecker field, accept it via constructor
-//   3. Create a checkCompliance() method that returns:
+//   2. Create a checkCompliance() method returning:
 //      OperationHandler<ComplianceRequest, ComplianceResult>
-//   4. Annotate it with @OperationImpl
-//   5. Return a sync handler:
-//      WorkflowClientOperationHandlers.sync(
-//          (context, details, client, input) -> checker.checkCompliance(input)
-//      )
+//   3. Annotate it with @OperationImpl
+//   4. Inside, return WorkflowClientOperationHandlers.sync(...) with a lambda that:
+//      a. Creates a ComplianceWorkflow stub (task queue "compliance-risk",
+//         workflow ID "compliance-" + input.getTransactionId())
+//      b. Starts the workflow: WorkflowClient.start(wf::run, input)
+//      c. Returns WorkflowStub.fromTyped(wf).getResult(ComplianceResult.class)
 //
-// IMPORTANT: The method name must EXACTLY match the interface method name.
-//   Interface:  checkCompliance(ComplianceRequest)
-//   Handler:    checkCompliance()  — same name, but returns OperationHandler
+// ── Pattern: ────────────────────────────────────────────────────
 //
-// ── Imports you'll need: ────────────────────────────────────────
-//   import compliance.ComplianceChecker;
-//   import compliance.domain.ComplianceRequest;
-//   import compliance.domain.ComplianceResult;
-//   import io.nexusrpc.handler.OperationHandler;
-//   import io.nexusrpc.handler.OperationImpl;
-//   import io.nexusrpc.handler.ServiceImpl;
-//   import io.temporal.nexus.WorkflowClientOperationHandlers;
-//   import shared.nexus.ComplianceNexusService;
+//   return WorkflowClientOperationHandlers.sync((ctx, details, client, input) -> {
+//       ComplianceWorkflow wf = client.newWorkflowStub(
+//               ComplianceWorkflow.class,
+//               WorkflowOptions.newBuilder()
+//                       .setTaskQueue("compliance-risk")
+//                       .setWorkflowId("compliance-" + input.getTransactionId())
+//                       .build());
+//       WorkflowClient.start(wf::run, input);
+//       return WorkflowStub.fromTyped(wf).getResult(ComplianceResult.class);
+//   });
 
-import compliance.ComplianceChecker;
 import compliance.domain.ComplianceRequest;
 import compliance.domain.ComplianceResult;
+import compliance.temporal.workflow.ComplianceWorkflow;
 import io.nexusrpc.handler.OperationHandler;
 import io.nexusrpc.handler.OperationImpl;
 import io.nexusrpc.handler.ServiceImpl;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.nexus.WorkflowClientOperationHandlers;
 import shared.nexus.ComplianceNexusService;
 
-@ServiceImpl(service = ComplianceNexusService.class)
+// TODO: Add @ServiceImpl(service = ComplianceNexusService.class) annotation
 public class ComplianceNexusServiceImpl {
 
-    // TODO: Add a ComplianceChecker field and constructor
-    ComplianceChecker complianceChecker;
-    public ComplianceNexusServiceImpl(ComplianceChecker checker){
-        complianceChecker = checker;
-    };
-
     // TODO: Add @OperationImpl and implement checkCompliance() method
-    //       Return: WorkflowClientOperationHandlers.sync(...)
-    @OperationImpl
+    //       Return: WorkflowClientOperationHandlers.sync(...) that starts a ComplianceWorkflow
     public OperationHandler<ComplianceRequest, ComplianceResult> checkCompliance() {
-        return WorkflowClientOperationHandlers.sync((context, details, client, input)
-                -> {
-                    assert input != null;
-                    return complianceChecker.checkCompliance(input);
-                }
-        );
+        return null;
     }
 }

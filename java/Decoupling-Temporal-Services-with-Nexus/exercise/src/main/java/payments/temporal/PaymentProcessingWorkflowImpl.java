@@ -5,10 +5,13 @@ import compliance.domain.ComplianceResult;
 import compliance.temporal.activity.ComplianceActivity;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
+import io.temporal.workflow.NexusOperationOptions;
+import io.temporal.workflow.NexusServiceOptions;
 import io.temporal.workflow.Workflow;
 import payments.domain.PaymentRequest;
 import payments.domain.PaymentResult;
 import payments.temporal.activity.PaymentActivity;
+import shared.nexus.ComplianceNexusService;
 
 import java.time.Duration;
 
@@ -19,13 +22,12 @@ import java.time.Duration;
  *
  * This workflow orchestrates 3 steps using activity stubs:
  *   Step 1: validatePayment   (PaymentActivity)
- *   Step 2: checkCompliance   (ComplianceActivity) ← will become Nexus
+ *   Step 2: checkCompliance   (ComplianceActivity) <-- will become Nexus
  *   Step 3: executePayment    (PaymentActivity)
  *
- * ── TODO 4: Replace the compliance ACTIVITY stub with a Nexus SERVICE stub ──
+ * ── TODO 6: Replace the compliance ACTIVITY stub with a Nexus SERVICE stub ──
  *
- * After completing TODOs 1-3 (creating the Nexus service, handler, and worker),
- * come back here and make ONE change:
+ * After completing TODOs 1-5 and creating the Nexus endpoint:
  *
  *   BEFORE: ComplianceActivity complianceActivity = Workflow.newActivityStub(...)
  *           compliance = complianceActivity.checkCompliance(compReq)
@@ -40,16 +42,7 @@ import java.time.Duration;
  *   - NexusServiceOptions with a scheduleToCloseTimeout (e.g., 10 minutes)
  *
  * The endpoint mapping ("where is this service?") is NOT set here.
- * It's set in PaymentsWorkerApp (TODO 5). This keeps the workflow portable.
- *
- * METAPHOR: Think of it like changing a restaurant order from
- * "cook it yourself in the kitchen" to "order it from the restaurant next door."
- * Same menu item, different kitchen, same plate comes back.
- *
- * Imports you'll need:
- *   import shared.nexus.ComplianceNexusService;
- *   import io.temporal.workflow.NexusServiceOptions;
- *   import io.temporal.workflow.NexusOperationOptions;
+ * It's set in PaymentsWorkerApp (TODO 7). This keeps the workflow portable.
  */
 public class PaymentProcessingWorkflowImpl implements PaymentProcessingWorkflow {
 
@@ -65,7 +58,7 @@ public class PaymentProcessingWorkflowImpl implements PaymentProcessingWorkflow 
             Workflow.newActivityStub(PaymentActivity.class, ACTIVITY_OPTIONS);
 
     // ┌─────────────────────────────────────────────────────────────┐
-    // │ TODO 4: Replace this activity stub with a Nexus service    │
+    // │ TODO 6: Replace this activity stub with a Nexus service    │
     // │ stub. Delete the two lines below and create:               │
     // │                                                            │
     // │   private final ComplianceNexusService complianceService = │
@@ -75,7 +68,7 @@ public class PaymentProcessingWorkflowImpl implements PaymentProcessingWorkflow 
     // │               .setOperationOptions(                        │
     // │                   NexusOperationOptions.newBuilder()       │
     // │                       .setScheduleToCloseTimeout(          │
-    // │                           Duration.ofMinutes(10))           │
+    // │                           Duration.ofMinutes(10))          │
     // │                       .build())                            │
     // │               .build());                                   │
     // │                                                            │
@@ -109,7 +102,7 @@ public class PaymentProcessingWorkflowImpl implements PaymentProcessingWorkflow 
                     .info("Step 2: calling compliance check for " + request.getTransactionId());
 
             // ┌─────────────────────────────────────────────────────┐
-            // │ TODO 4: Change this line from:                      │
+            // │ TODO 6: Change this line from:                      │
             // │   complianceActivity.checkCompliance(compReq)       │
             // │ to:                                                 │
             // │   complianceService.checkCompliance(compReq)        │

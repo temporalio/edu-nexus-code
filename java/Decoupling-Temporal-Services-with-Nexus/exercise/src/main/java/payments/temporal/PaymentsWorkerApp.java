@@ -6,9 +6,13 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.worker.WorkflowImplementationOptions;
+import io.temporal.workflow.NexusServiceOptions;
 import payments.PaymentGateway;
 import payments.Shared;
 import payments.temporal.activity.PaymentActivityImpl;
+
+import java.util.Collections;
 
 /**
  * ═══════════════════════════════════════════════════════════════════
@@ -18,13 +22,13 @@ import payments.temporal.activity.PaymentActivityImpl;
  * Currently this single worker handles EVERYTHING:
  *   - PaymentProcessingWorkflow
  *   - PaymentActivity (validate + execute)
- *   - ComplianceActivity (compliance check)  ← will move to its own worker
+ *   - ComplianceActivity (compliance check)  <-- will move to its own worker
  *
  * All on one task queue: "payments-processing"
  *
- * ── TODO 5: Add Nexus endpoint mapping + remove ComplianceActivity ──
+ * ── TODO 7: Add Nexus endpoint mapping + remove ComplianceActivity ──
  *
- * After completing TODOs 1-4, come back here and make TWO changes:
+ * After completing TODOs 1-6, come back here and make TWO changes:
  *
  * CHANGE 1: Register the workflow with NexusServiceOptions
  *   Currently:   worker.registerWorkflowImplementationTypes(PaymentProcessingWorkflowImpl.class)
@@ -42,14 +46,6 @@ import payments.temporal.activity.PaymentActivityImpl;
  *   The compliance check now runs on the Compliance worker via Nexus.
  *   Delete the line that registers ComplianceActivityImpl.
  *   Also remove the ComplianceChecker import and instantiation.
- *
- * Imports you'll need:
- *   import io.temporal.worker.WorkflowImplementationOptions;
- *   import io.temporal.workflow.NexusServiceOptions;
- *   import java.util.Collections;
- *
- * ANALOGY: Like removing a department from your building and setting up
- * a phone extension to their new office across the street.
  */
 public class PaymentsWorkerApp {
 
@@ -63,7 +59,7 @@ public class PaymentsWorkerApp {
         Worker worker = factory.newWorker(Shared.TASK_QUEUE);
 
         // ┌─────────────────────────────────────────────────────────────┐
-        // │ TODO 5 (CHANGE 1): Replace this simple registration with   │
+        // │ TODO 7 (CHANGE 1): Replace this simple registration with   │
         // │ WorkflowImplementationOptions that map                     │
         // │ "ComplianceNexusService" to "compliance-endpoint"          │
         // └─────────────────────────────────────────────────────────────┘
@@ -74,7 +70,7 @@ public class PaymentsWorkerApp {
         worker.registerActivitiesImplementations(new PaymentActivityImpl(gateway));
 
         // ┌─────────────────────────────────────────────────────────────┐
-        // │ TODO 5 (CHANGE 2): Delete these two lines after adding     │
+        // │ TODO 7 (CHANGE 2): Delete these two lines after adding     │
         // │ Nexus. Compliance now runs on its own worker.              │
         // └─────────────────────────────────────────────────────────────┘
         ComplianceChecker checker = new ComplianceChecker();
