@@ -40,7 +40,7 @@ public class ComplianceChecker {
         // (kill the compliance worker while this is running to see Nexus durability)
         System.out.println("[ComplianceChecker] Processing " + request.getTransactionId() + " (2s delay)...");
         try {
-            Thread.sleep(2_000);
+            Thread.sleep(10_000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
