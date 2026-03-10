@@ -42,6 +42,12 @@
   <img src="ui/scenario-overview.svg" alt="Scenario Overview: Payments and Compliance teams separated by a Nexus security boundary, with animated transaction data flowing through validate, compliance check, and execute steps" width="100%"/>
 </p>
 
+### Class Interaction Flow
+
+<p align="center">
+  <img src="ui/class-interaction.svg" alt="Class interaction flow: shows which CLI command triggers which class, method call chain across Nexus boundary, and how results flow back" width="100%"/>
+</p>
+
 > **Interactive version:** Open [`ui/nexus-decouple.html`](ui/nexus-decouple.html) in your browser to toggle between Monolith and Nexus modes with animated data flow.
 
 ---

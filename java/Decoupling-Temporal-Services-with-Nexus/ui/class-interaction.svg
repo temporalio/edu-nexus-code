@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 840" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="payGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#1a2940"/>
+    </linearGradient>
+    <linearGradient id="compGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a3d2a"/>
+      <stop offset="100%" stop-color="#162b20"/>
+    </linearGradient>
+    <linearGradient id="nexusGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f1117"/>
+      <stop offset="15%" stop-color="#f97316"/>
+      <stop offset="85%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#0f1117"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="980" height="840" fill="url(#bgGrad)" rx="12"/>
+
+  <!-- Title -->
+  <text x="490" y="32" text-anchor="middle" fill="#e6edf3" font-size="17" font-weight="700">Class Interaction Flow</text>
+  <text x="490" y="52" text-anchor="middle" fill="#8b949e" font-size="12">What happens when you run each CLI command, and how classes talk to each other</text>
+
+  <!-- ======= TERMINAL COMMANDS (top) ======= -->
+  <rect x="20" y="70" width="310" height="28" rx="6" fill="#1c2128" stroke="#8b949e" stroke-opacity="0.3"/>
+  <text x="30" y="89" fill="#a5d6ff" font-size="10" font-family="monospace">$ mvn exec:java@compliance-worker</text>
+  <text x="340" y="89" fill="#8b949e" font-size="10">Terminal 1</text>
+
+  <rect x="20" y="102" width="310" height="28" rx="6" fill="#1c2128" stroke="#8b949e" stroke-opacity="0.3"/>
+  <text x="30" y="121" fill="#a5d6ff" font-size="10" font-family="monospace">$ mvn exec:java@payments-worker</text>
+  <text x="340" y="121" fill="#8b949e" font-size="10">Terminal 2</text>
+
+  <rect x="20" y="134" width="310" height="28" rx="6" fill="#1c2128" stroke="#8b949e" stroke-opacity="0.3"/>
+  <text x="30" y="153" fill="#a5d6ff" font-size="10" font-family="monospace">$ mvn exec:java@starter</text>
+  <text x="340" y="153" fill="#8b949e" font-size="10">Terminal 3</text>
+
+  <!-- ======= PAYMENTS TEAM ZONE ======= -->
+  <rect x="20" y="185" width="440" height="485" rx="12" fill="url(#payGrad)" stroke="#3b82f6" stroke-opacity="0.4" stroke-width="1.5"/>
+  <text x="40" y="208" fill="#3b82f6" font-size="11" font-weight="700" letter-spacing="0.08em">PAYMENTS TEAM</text>
+  <text x="40" y="222" fill="#8b949e" font-size="9">Task queue: payments-processing</text>
+
+  <!-- PaymentStarter -->
+  <rect x="40" y="238" width="150" height="50" rx="8" fill="#1c2128" stroke="#a5d6ff" stroke-opacity="0.5"/>
+  <text x="115" y="260" text-anchor="middle" fill="#a5d6ff" font-size="11" font-weight="600">PaymentStarter</text>
+  <text x="115" y="276" text-anchor="middle" fill="#8b949e" font-size="9">.main()</text>
+
+  <!-- Arrow: starter to workflow -->
+  <line x1="115" y1="288" x2="115" y2="305" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
+  <polygon points="111,302 115,310 119,302" fill="#3b82f6" opacity="0.6"/>
+  <text x="125" y="304" fill="#8b949e" font-size="8">starts</text>
+
+  <!-- PaymentProcessingWorkflowImpl -->
+  <rect x="205" y="310" width="240" height="345" rx="8" fill="#1c2128" fill-opacity="0.5" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="5 3"/>
+  <text x="325" y="330" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="700">PaymentProcessing</text>
+  <text x="325" y="344" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="700">WorkflowImpl</text>
+  <text x="325" y="358" text-anchor="middle" fill="#8b949e" font-size="9">processPayment(request)</text>
+
+  <!-- Step 1: validatePayment -->
+  <rect x="45" y="375" width="145" height="60" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <rect x="45" y="375" width="145" height="16" rx="6" fill="#3b82f6" opacity="0.15"/>
+  <text x="117" y="387" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="700">STEP 1</text>
+  <text x="117" y="406" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">PaymentActivity</text>
+  <text x="117" y="422" text-anchor="middle" fill="#8b949e" font-size="9">.validatePayment()</text>
+
+  <!-- Arrow: workflow to step 1 -->
+  <line x1="205" y1="400" x2="192" y2="400" stroke="#3b82f6" stroke-width="1.2" opacity="0.5"/>
+  <polygon points="193,396 185,400 193,404" fill="#3b82f6" opacity="0.5"/>
+
+  <!-- Step 2 label inside workflow box -->
+  <rect x="220" y="450" width="210" height="46" rx="6" fill="#1c2128" stroke="#f97316" stroke-opacity="0.5"/>
+  <rect x="220" y="450" width="210" height="16" rx="6" fill="#f97316" opacity="0.1"/>
+  <text x="325" y="462" text-anchor="middle" fill="#f97316" font-size="9" font-weight="700">STEP 2 (via Nexus)</text>
+  <text x="325" y="479" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">complianceService</text>
+  <text x="325" y="491" text-anchor="middle" fill="#e6edf3" font-size="9" font-weight="600">.checkCompliance()</text>
+
+  <!-- Step 3: executePayment -->
+  <rect x="45" y="545" width="145" height="60" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <rect x="45" y="545" width="145" height="16" rx="6" fill="#3b82f6" opacity="0.15"/>
+  <text x="117" y="557" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="700">STEP 3</text>
+  <text x="117" y="576" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">PaymentActivity</text>
+  <text x="117" y="592" text-anchor="middle" fill="#8b949e" font-size="9">.executePayment()</text>
+
+  <!-- Arrow: workflow to step 3 -->
+  <line x1="205" y1="570" x2="192" y2="570" stroke="#3b82f6" stroke-width="1.2" opacity="0.5"/>
+  <polygon points="193,566 185,570 193,574" fill="#3b82f6" opacity="0.5"/>
+
+  <!-- Return result -->
+  <rect x="220" y="618" width="210" height="30" rx="6" fill="#1c2128" stroke="#22c55e" stroke-opacity="0.4"/>
+  <text x="325" y="638" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="600">return PaymentResult</text>
+
+  <!-- Arrow: workflow back to starter -->
+  <path d="M 220,633 Q 115,633 115,295" fill="none" stroke="#22c55e" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.4"/>
+  <polygon points="111,298 115,288 119,298" fill="#22c55e" opacity="0.4"/>
+
+  <!-- ======= NEXUS BOUNDARY ======= -->
+  <rect x="467" y="185" width="6" height="485" rx="3" fill="url(#nexusGrad)" filter="url(#glow)" opacity="0.8"/>
+
+  <!-- Nexus label -->
+  <rect x="442" y="435" width="56" height="56" rx="7" fill="#1c2128" stroke="#f97316" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="470" y="456" text-anchor="middle" fill="#f97316" font-size="10" font-weight="700" letter-spacing="0.05em">NEXUS</text>
+  <text x="470" y="470" text-anchor="middle" fill="#8b949e" font-size="8">durable</text>
+  <text x="470" y="482" text-anchor="middle" fill="#8b949e" font-size="8">boundary</text>
+
+  <!-- Arrow: step 2 to nexus -->
+  <line x1="430" y1="473" x2="440" y2="463" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+  <polygon points="437,458 445,463 437,468" fill="#f97316" opacity="0.6"/>
+
+  <!-- Arrow: nexus to handler -->
+  <line x1="498" y1="463" x2="530" y2="463" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+  <polygon points="527,458 535,463 527,468" fill="#f97316" opacity="0.6"/>
+
+  <!-- ======= COMPLIANCE TEAM ZONE ======= -->
+  <rect x="510" y="185" width="450" height="485" rx="12" fill="url(#compGrad)" stroke="#22c55e" stroke-opacity="0.4" stroke-width="1.5"/>
+  <text x="530" y="208" fill="#22c55e" font-size="11" font-weight="700" letter-spacing="0.08em">COMPLIANCE TEAM</text>
+  <text x="530" y="222" fill="#8b949e" font-size="9">Task queue: compliance-risk</text>
+
+  <!-- ComplianceNexusServiceImpl -->
+  <rect x="535" y="250" width="220" height="75" rx="8" fill="#1c2128" stroke="#f97316" stroke-opacity="0.4"/>
+  <text x="645" y="270" text-anchor="middle" fill="#f97316" font-size="10" font-weight="600">ComplianceNexus</text>
+  <text x="645" y="284" text-anchor="middle" fill="#f97316" font-size="10" font-weight="600">ServiceImpl</text>
+  <text x="645" y="301" text-anchor="middle" fill="#e6edf3" font-size="10">.checkCompliance()</text>
+  <text x="645" y="316" text-anchor="middle" fill="#8b949e" font-size="9">fromWorkflowHandle()</text>
+
+  <!-- Arrow: nexus to handler (entry) -->
+  <path d="M 535,463 Q 520,463 520,330 Q 520,290 533,290" fill="none" stroke="#f97316" stroke-width="1.2" opacity="0.5"/>
+  <polygon points="530,286 538,290 530,294" fill="#f97316" opacity="0.5"/>
+
+  <!-- Arrow: handler starts workflow -->
+  <line x1="645" y1="325" x2="645" y2="348" stroke="#22c55e" stroke-width="1.2" opacity="0.5"/>
+  <polygon points="641,345 645,353 649,345" fill="#22c55e" opacity="0.5"/>
+  <text x="655" y="342" fill="#8b949e" font-size="8">starts</text>
+
+  <!-- ComplianceWorkflowImpl -->
+  <rect x="555" y="355" width="390" height="300" rx="8" fill="#1c2128" fill-opacity="0.5" stroke="#22c55e" stroke-opacity="0.3" stroke-dasharray="5 3"/>
+  <text x="750" y="377" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="700">ComplianceWorkflowImpl</text>
+  <text x="750" y="393" text-anchor="middle" fill="#8b949e" font-size="9">.run(request)</text>
+
+  <!-- ComplianceActivity -->
+  <rect x="575" y="410" width="180" height="55" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="665" y="432" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">ComplianceActivity</text>
+  <text x="665" y="450" text-anchor="middle" fill="#8b949e" font-size="9">.checkCompliance()</text>
+
+  <!-- ComplianceChecker -->
+  <rect x="780" y="410" width="145" height="55" rx="6" fill="#1c2128" stroke="#30363d"/>
+  <text x="852" y="432" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">ComplianceChecker</text>
+  <text x="852" y="450" text-anchor="middle" fill="#8b949e" font-size="9">OFAC / AML / risk rules</text>
+
+  <!-- Arrow: activity to checker -->
+  <line x1="755" y1="437" x2="778" y2="437" stroke="#22c55e" stroke-width="1" opacity="0.4"/>
+  <polygon points="775,433 783,437 775,441" fill="#22c55e" opacity="0.4"/>
+
+  <!-- Decision diamond -->
+  <polygon points="665,490 700,512 665,534 630,512" fill="#1c2128" stroke="#f97316" stroke-opacity="0.5" stroke-width="1"/>
+  <text x="665" y="515" text-anchor="middle" fill="#f97316" font-size="9" font-weight="600">RISK?</text>
+
+  <!-- LOW/HIGH path -->
+  <line x1="700" y1="512" x2="740" y2="512" stroke="#22c55e" stroke-width="1" opacity="0.5"/>
+  <rect x="745" y="498" width="120" height="28" rx="5" fill="#1c2128" stroke="#22c55e" stroke-opacity="0.2"/>
+  <text x="805" y="511" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="600">LOW / HIGH</text>
+  <text x="805" y="522" text-anchor="middle" fill="#8b949e" font-size="8">return immediately</text>
+
+  <!-- MEDIUM path -->
+  <line x1="665" y1="534" x2="665" y2="550" stroke="#f97316" stroke-width="1" opacity="0.5"/>
+  <rect x="575" y="553" width="260" height="52" rx="6" fill="#1c2128" stroke="#f97316" stroke-opacity="0.3"/>
+  <text x="705" y="572" text-anchor="middle" fill="#f97316" font-size="9" font-weight="600">MEDIUM: Workflow.await()</text>
+  <text x="705" y="590" text-anchor="middle" fill="#8b949e" font-size="9">Paused for human review</text>
+  <text x="705" y="601" text-anchor="middle" fill="#8b949e" font-size="8">via @UpdateMethod</text>
+
+  <!-- Human review command -->
+  <rect x="575" y="615" width="260" height="28" rx="5" fill="#1c2128" stroke="#a5d6ff" stroke-opacity="0.4"/>
+  <text x="705" y="631" text-anchor="middle" fill="#a5d6ff" font-size="8" font-family="monospace">temporal workflow update execute</text>
+  <text x="705" y="641" text-anchor="middle" fill="#a5d6ff" font-size="8" font-family="monospace">--name review</text>
+
+  <!-- Return path label -->
+  <text x="705" y="660" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="600">return ComplianceResult</text>
+
+  <!-- Return arrow: compliance result back through nexus -->
+  <path d="M 555,655 Q 470,655 470,495" fill="none" stroke="#22c55e" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.4"/>
+  <path d="M 470,495 Q 470,480 440,475" fill="none" stroke="#22c55e" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.4"/>
+
+  <!-- ======= ANIMATED DOT (25s = slow, deliberate pace) ======= -->
+  <circle r="7" fill="#3b82f6" opacity="0.85">
+    <animate attributeName="cx"
+      values="115;115;325;117;117;325;325;470;645;665;852;665;665;705;470;325;117;117;325;325;115"
+      keyTimes="0;0.06;0.14;0.20;0.24;0.30;0.36;0.42;0.48;0.54;0.58;0.62;0.68;0.74;0.80;0.84;0.88;0.92;0.94;0.97;1"
+      dur="25s" repeatCount="indefinite" calcMode="spline"
+      keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+    <animate attributeName="cy"
+      values="263;263;340;400;400;340;473;463;290;437;437;512;575;655;480;545;570;570;545;633;633"
+      keyTimes="0;0.06;0.14;0.20;0.24;0.30;0.36;0.42;0.48;0.54;0.58;0.62;0.68;0.74;0.80;0.84;0.88;0.92;0.94;0.97;1"
+      dur="25s" repeatCount="indefinite" calcMode="spline"
+      keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"/>
+    <animate attributeName="fill"
+      values="#3b82f6;#3b82f6;#3b82f6;#3b82f6;#3b82f6;#3b82f6;#f97316;#f97316;#22c55e;#22c55e;#22c55e;#f97316;#f97316;#22c55e;#f97316;#3b82f6;#3b82f6;#3b82f6;#3b82f6;#22c55e;#22c55e"
+      keyTimes="0;0.06;0.14;0.20;0.24;0.30;0.36;0.42;0.48;0.54;0.58;0.62;0.68;0.74;0.80;0.84;0.88;0.92;0.94;0.97;1"
+      dur="25s" repeatCount="indefinite"/>
+    <animate attributeName="r"
+      values="7;7;7;7;7;7;9;11;7;7;7;9;7;7;11;7;7;7;7;7;7"
+      keyTimes="0;0.06;0.14;0.20;0.24;0.30;0.36;0.42;0.48;0.54;0.58;0.62;0.68;0.74;0.80;0.84;0.88;0.92;0.94;0.97;1"
+      dur="25s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- ======= LEGEND ======= -->
+  <rect x="20" y="695" width="940" height="125" rx="10" fill="#1c2128" stroke="#30363d"/>
+  <text x="490" y="718" text-anchor="middle" fill="#e6edf3" font-size="13" font-weight="700">Call Sequence</text>
+
+  <text x="40" y="742" fill="#a5d6ff" font-size="10" font-weight="600">1.</text>
+  <text x="58" y="742" fill="#e6edf3" font-size="10">PaymentStarter.main() starts PaymentProcessingWorkflow on payments-processing queue</text>
+
+  <text x="40" y="760" fill="#3b82f6" font-size="10" font-weight="600">2.</text>
+  <text x="58" y="760" fill="#e6edf3" font-size="10">Workflow calls PaymentActivity.validatePayment() (Step 1)</text>
+
+  <text x="40" y="778" fill="#f97316" font-size="10" font-weight="600">3.</text>
+  <text x="58" y="778" fill="#e6edf3" font-size="10">Workflow calls complianceService.checkCompliance() &#x2192; Nexus routes to ComplianceNexusServiceImpl (Step 2)</text>
+
+  <text x="40" y="796" fill="#22c55e" font-size="10" font-weight="600">4.</text>
+  <text x="58" y="796" fill="#e6edf3" font-size="10">Handler starts ComplianceWorkflow &#x2192; ComplianceActivity &#x2192; ComplianceChecker evaluates risk rules</text>
+
+  <text x="40" y="814" fill="#3b82f6" font-size="10" font-weight="600">5.</text>
+  <text x="58" y="814" fill="#e6edf3" font-size="10">Result flows back through Nexus &#x2192; Workflow calls PaymentActivity.executePayment() (Step 3) &#x2192; returns PaymentResult</text>
+</svg>
