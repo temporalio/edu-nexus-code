@@ -55,6 +55,13 @@ Before changing anything, let's see the system working. You need **3 terminal wi
 temporal server start-dev
 ```
 
+> **Note:** If you're using a Temporal server version prior to v1.25.0, Workflow Update must be manually enabled. Start the server with:
+> ```bash
+> temporal server start-dev \
+>   --dynamic-config-value frontend.enableUpdateWorkflowExecution=true \
+>   --dynamic-config-value frontend.enableUpdateWorkflowExecutionAsyncAccepted=true
+> ```
+
 **Terminal 1 — Start the monolith worker:**
 ```bash
 cd exercise
@@ -144,7 +151,7 @@ mvn compile exec:java@starter
 <td><strong>4</strong></td>
 <td><code>compliance/temporal/ComplianceNexusServiceImpl.java</code></td>
 <td>&#x1F7E2; Create</td>
-<td>Sync handler: start workflow, wait for result</td>
+<td><code>fromWorkflowHandle</code>: link Nexus op to workflow</td>
 </tr>
 <tr>
 <td><strong>5</strong></td>
@@ -301,7 +308,7 @@ This handler receives Nexus requests from Payments. Instead of running business 
 **What to implement:**
 1. Add `@ServiceImpl` annotation pointing to the interface
 2. Create `checkCompliance()` method returning `OperationHandler<ComplianceRequest, ComplianceResult>`
-3. Inside: return `WorkflowClientOperationHandlers.sync(...)` that starts the workflow
+3. Inside: return `WorkflowClientOperationHandlers.fromWorkflowHandle(...)` that starts a workflow and returns a handle
 
 **Pattern to follow:**
 ```java
@@ -310,7 +317,7 @@ public class ComplianceNexusServiceImpl {
 
     @OperationImpl
     public OperationHandler<ComplianceRequest, ComplianceResult> checkCompliance() {
-        return WorkflowClientOperationHandlers.sync((ctx, details, client, input) -> {
+        return WorkflowClientOperationHandlers.fromWorkflowHandle((ctx, details, client, input) -> {
             ComplianceWorkflow wf = client.newWorkflowStub(
                     ComplianceWorkflow.class,
                     WorkflowOptions.newBuilder()
@@ -318,15 +325,13 @@ public class ComplianceNexusServiceImpl {
                             .setWorkflowId("compliance-" + input.getTransactionId())
                             .build());
 
-            WorkflowClient.start(wf::run, input);
-
-            return WorkflowStub.fromTyped(wf).getResult(ComplianceResult.class);
+            return WorkflowHandle.fromWorkflowMethod(wf::run, input);
         });
     }
 }
 ```
 
-> **Key insight:** Sync handlers should only contain **Temporal primitives** (workflow starts, queries) — not arbitrary business logic. The actual compliance check runs inside ComplianceWorkflow's activity.
+> **Key insight:** Nexus handlers should only contain **Temporal primitives** (workflow starts, queries) — not arbitrary business logic. The actual compliance check runs inside ComplianceWorkflow's activity.
 
 > **Common trap:** Don't write `class ComplianceNexusServiceImpl implements ComplianceNexusService`. The handler does **not** implement the interface — the signatures are completely different. The interface method returns `ComplianceResult`, but the handler method returns `OperationHandler<ComplianceRequest, ComplianceResult>`. The link between them is the `@ServiceImpl` annotation, not Java's `implements`.
 
@@ -407,7 +412,7 @@ Compliance Worker started on: compliance-risk
 ```
 
 If it fails to compile, check:
-- TODO 1: Does `ComplianceWorkflow` have `@WorkflowInterface`, `@WorkflowMethod`, and `@SignalMethod`?
+- TODO 1: Does `ComplianceWorkflow` have `@WorkflowInterface`, `@WorkflowMethod`, and `@UpdateMethod`?
 - TODO 2: Does `ComplianceWorkflowImpl` use `Workflow.await()` and call the activity?
 - TODO 3: Does `ComplianceNexusService` have `@Service` and `@Operation`?
 - TODO 4: Does `ComplianceNexusServiceImpl` have `@ServiceImpl` and `@OperationImpl`?
@@ -558,11 +563,14 @@ You should see TXN-A (`COMPLETED`) and TXN-C (`DECLINED_COMPLIANCE`) return imme
 
 **Terminal 4 — Approve TXN-B:**
 ```bash
-temporal workflow update \
+temporal workflow update execute \
   --workflow-id compliance-TXN-B \
   --name review \
-  --input '[ true, "Approved after manual review" ]'
+  --input 'true' \
+  --input '"Approved after manual review"'
 ```
+
+> **CLI tip:** When a Temporal method takes multiple arguments, pass each one as a separate `--input` flag. Each value is JSON-encoded individually — so booleans are bare (`true`), but strings need double quotes (`'"like this"'`). A single `--input '[true, "text"]'` array won't work because the CLI treats the whole thing as one argument.
 
 You should see the Update result returned, and back in Terminal 3, TXN-B completes with `COMPLETED`.
 
@@ -601,10 +609,11 @@ Same data flow, completely different architecture. Two workers, two blast radii,
 
 > **Try denying instead:** Run the same command with `false` to see TXN-B get `DECLINED_COMPLIANCE`:
 > ```bash
-> temporal workflow update \
+> temporal workflow update execute \
 >   --workflow-id compliance-TXN-B \
 >   --name review \
->   --input '[ false, "Denied: suspicious pattern" ]'
+>   --input 'false' \
+>   --input '"Denied: suspicious pattern"'
 > ```
 
 ---
@@ -690,7 +699,35 @@ Think of it as: the interface is the **menu** (shared), the handler is the **kit
 
 </details>
 
-**Q4:** Why does the sync handler start a workflow instead of calling `ComplianceChecker.checkCompliance()` directly?
+**Q4:** What's wrong with using `WorkflowClientOperationHandlers.sync()` to back a Nexus operation with a workflow?
+
+<details>
+<summary>Answer</summary>
+
+`sync()` starts a workflow **and** blocks for its result in a single handler call. If the Nexus operation retries (which happens during timeouts or transient failures), the handler runs again from scratch — starting a **duplicate** workflow each time. The previous workflow already completed, so the workflow ID is available again, and you end up with many identical workflows.
+
+The fix is `fromWorkflowHandle()`, which returns a **handle** (like a receipt number) linking the Nexus operation to the backing workflow. On retries, the infrastructure sees the handle and reuses the existing workflow instead of creating a new one.
+
+**Bad (creates duplicates on retry):**
+```java
+WorkflowClientOperationHandlers.sync((ctx, details, client, input) -> {
+    ComplianceWorkflow wf = client.newWorkflowStub(...);
+    WorkflowClient.start(wf::run, input);
+    return WorkflowStub.fromTyped(wf).getResult(ComplianceResult.class);
+});
+```
+
+**Good (retries reuse the same workflow):**
+```java
+WorkflowClientOperationHandlers.fromWorkflowHandle((ctx, details, client, input) -> {
+    ComplianceWorkflow wf = client.newWorkflowStub(...);
+    return WorkflowHandle.fromWorkflowMethod(wf::run, input);
+});
+```
+
+</details>
+
+**Q5:** Why does the handler start a workflow instead of calling `ComplianceChecker.checkCompliance()` directly?
 
 <details>
 <summary>Answer</summary>
@@ -707,7 +744,7 @@ The handler starts a ComplianceWorkflow and waits for its result. The actual bus
 
 You've just learned the fundamental Nexus pattern: **same method call, different architecture**.
 
-From here you can explore **async Nexus handlers** using `fromWorkflowMethod()` — where the Compliance side starts a full Temporal workflow instead of running inline. That's where Nexus truly shines: long-running, durable operations across team boundaries. See the [Nexus documentation](https://docs.temporal.io/nexus) to go deeper.
+From here you can explore more advanced patterns — multi-step compliance pipelines, async human escalation chains, or cross-namespace Nexus operations. See the [Nexus documentation](https://docs.temporal.io/nexus) to go deeper.
 
 ---
 

@@ -39,7 +39,7 @@ public class ComplianceWorkerApp {
         System.out.println("=========================================================");
         System.out.println("  Compliance Worker started on: compliance-risk");
         System.out.println("  Registered: ComplianceWorkflow, ComplianceActivity,");
-        System.out.println("              ComplianceNexusServiceImpl (sync handler)");
+        System.out.println("              ComplianceNexusServiceImpl (async handler)");
         System.out.println("  Waiting for Nexus requests from Payments team...");
         System.out.println("=========================================================");
     }
