@@ -20,9 +20,11 @@ package compliance.temporal.workflow;
 //   run(ComplianceRequest request):
 //     1. Store this.request = request
 //     2. Call complianceActivity.checkCompliance(request) → autoResult
-//     3. If autoResult risk is NOT "MEDIUM" → return autoResult
-//     4. Otherwise: Workflow.await(() -> reviewResult != null)
-//     5. Return reviewResult
+//     3. Add Workflow.sleep(Duration.ofSeconds(10)) to simulate slow processing
+//        (durable: kill the compliance worker mid-sleep, restart it — the workflow resumes)
+//     4. If autoResult risk is NOT "MEDIUM" → return autoResult
+//     5. Otherwise: Workflow.await(() -> reviewResult != null)
+//     6. Return reviewResult
 //
 //   review(boolean approved, String explanation):
 //     - Create a new ComplianceResult with the review decision
@@ -55,9 +57,9 @@ public class ComplianceWorkflowImpl implements ComplianceWorkflow {
 
     @Override
     public ComplianceResult run(ComplianceRequest request) {
-        // TODO: Store the request, run the activity, check risk level
-        //       If MEDIUM → Workflow.await(() -> reviewResult != null)
-        //       Otherwise → return autoResult directly
+        // TODO: Store the request, run the activity, add Workflow.sleep(10s),
+        //       check risk level: if MEDIUM → Workflow.await(() -> reviewResult != null)
+        //       otherwise → return autoResult directly
         return null;
     }
 

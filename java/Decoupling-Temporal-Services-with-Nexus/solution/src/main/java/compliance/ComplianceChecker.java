@@ -36,15 +36,6 @@ public class ComplianceChecker {
                 + " | $" + String.format("%.2f", request.getAmount())
                 + " | " + request.getSenderCountry() + " -> " + request.getReceiverCountry());
 
-        // Simulate processing time — slow enough to test the Victory Lap
-        // (kill the compliance worker while this is running to see Nexus durability)
-        System.out.println("[ComplianceChecker] Processing " + request.getTransactionId() + " (2s delay)...");
-        try {
-            Thread.sleep(10_000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
         // Rule 1: Sanctioned country → HIGH risk, blocked
         if (SANCTIONED_COUNTRIES.contains(request.getReceiverCountry())
                 || SANCTIONED_COUNTRIES.contains(request.getSenderCountry())) {
