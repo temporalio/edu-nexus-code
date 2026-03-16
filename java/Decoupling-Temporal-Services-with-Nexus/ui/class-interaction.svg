@@ -29,48 +29,48 @@
 
   <!-- Title -->
   <text x="490" y="32" text-anchor="middle" fill="#e6edf3" font-size="17" font-weight="700">Class Interaction Flow</text>
-  <text x="490" y="52" text-anchor="middle" fill="#8b949e" font-size="12">What happens when you run each CLI command, and how classes talk to each other</text>
+  <text x="490" y="52" text-anchor="middle" fill="#b1bac4" font-size="12">What happens when you run each CLI command, and how classes talk to each other</text>
 
   <!-- ======= TERMINAL COMMANDS (top) ======= -->
   <rect x="20" y="70" width="310" height="28" rx="6" fill="#1c2128" stroke="#8b949e" stroke-opacity="0.3"/>
   <text x="30" y="89" fill="#a5d6ff" font-size="10" font-family="monospace">$ mvn exec:java@compliance-worker</text>
-  <text x="340" y="89" fill="#8b949e" font-size="10">Terminal 1</text>
+  <text x="340" y="89" fill="#b1bac4" font-size="10">Terminal 1</text>
 
   <rect x="20" y="102" width="310" height="28" rx="6" fill="#1c2128" stroke="#8b949e" stroke-opacity="0.3"/>
   <text x="30" y="121" fill="#a5d6ff" font-size="10" font-family="monospace">$ mvn exec:java@payments-worker</text>
-  <text x="340" y="121" fill="#8b949e" font-size="10">Terminal 2</text>
+  <text x="340" y="121" fill="#b1bac4" font-size="10">Terminal 2</text>
 
   <rect x="20" y="134" width="310" height="28" rx="6" fill="#1c2128" stroke="#8b949e" stroke-opacity="0.3"/>
   <text x="30" y="153" fill="#a5d6ff" font-size="10" font-family="monospace">$ mvn exec:java@starter</text>
-  <text x="340" y="153" fill="#8b949e" font-size="10">Terminal 3</text>
+  <text x="340" y="153" fill="#b1bac4" font-size="10">Terminal 3</text>
 
   <!-- ======= PAYMENTS TEAM ZONE ======= -->
   <rect x="20" y="185" width="440" height="485" rx="12" fill="url(#payGrad)" stroke="#3b82f6" stroke-opacity="0.4" stroke-width="1.5"/>
   <text x="40" y="208" fill="#3b82f6" font-size="11" font-weight="700" letter-spacing="0.08em">PAYMENTS TEAM</text>
-  <text x="40" y="222" fill="#8b949e" font-size="9">Task queue: payments-processing</text>
+  <text x="40" y="222" fill="#b1bac4" font-size="9">Task queue: payments-processing</text>
 
   <!-- PaymentStarter -->
   <rect x="40" y="238" width="150" height="50" rx="8" fill="#1c2128" stroke="#a5d6ff" stroke-opacity="0.5"/>
   <text x="115" y="260" text-anchor="middle" fill="#a5d6ff" font-size="11" font-weight="600">PaymentStarter</text>
-  <text x="115" y="276" text-anchor="middle" fill="#8b949e" font-size="9">.main()</text>
+  <text x="115" y="276" text-anchor="middle" fill="#b1bac4" font-size="9">.main()</text>
 
   <!-- Arrow: starter to workflow -->
   <line x1="115" y1="288" x2="115" y2="305" stroke="#3b82f6" stroke-width="1.5" opacity="0.6"/>
   <polygon points="111,302 115,310 119,302" fill="#3b82f6" opacity="0.6"/>
-  <text x="125" y="304" fill="#8b949e" font-size="8">starts</text>
+  <text x="125" y="304" fill="#b1bac4" font-size="8">starts</text>
 
   <!-- PaymentProcessingWorkflowImpl -->
   <rect x="205" y="310" width="240" height="345" rx="8" fill="#1c2128" fill-opacity="0.5" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="5 3"/>
   <text x="325" y="330" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="700">PaymentProcessing</text>
   <text x="325" y="344" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="700">WorkflowImpl</text>
-  <text x="325" y="358" text-anchor="middle" fill="#8b949e" font-size="9">processPayment(request)</text>
+  <text x="325" y="358" text-anchor="middle" fill="#b1bac4" font-size="9">processPayment(request)</text>
 
   <!-- Step 1: validatePayment -->
   <rect x="45" y="375" width="145" height="60" rx="6" fill="#1c2128" stroke="#30363d"/>
   <rect x="45" y="375" width="145" height="16" rx="6" fill="#3b82f6" opacity="0.15"/>
   <text x="117" y="387" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="700">STEP 1</text>
   <text x="117" y="406" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">PaymentActivity</text>
-  <text x="117" y="422" text-anchor="middle" fill="#8b949e" font-size="9">.validatePayment()</text>
+  <text x="117" y="422" text-anchor="middle" fill="#b1bac4" font-size="9">.validatePayment()</text>
 
   <!-- Arrow: workflow to step 1 -->
   <line x1="205" y1="400" x2="192" y2="400" stroke="#3b82f6" stroke-width="1.2" opacity="0.5"/>
@@ -88,7 +88,7 @@
   <rect x="45" y="545" width="145" height="16" rx="6" fill="#3b82f6" opacity="0.15"/>
   <text x="117" y="557" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="700">STEP 3</text>
   <text x="117" y="576" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">PaymentActivity</text>
-  <text x="117" y="592" text-anchor="middle" fill="#8b949e" font-size="9">.executePayment()</text>
+  <text x="117" y="592" text-anchor="middle" fill="#b1bac4" font-size="9">.executePayment()</text>
 
   <!-- Arrow: workflow to step 3 -->
   <line x1="205" y1="570" x2="192" y2="570" stroke="#3b82f6" stroke-width="1.2" opacity="0.5"/>
@@ -108,8 +108,8 @@
   <!-- Nexus label -->
   <rect x="442" y="435" width="56" height="56" rx="7" fill="#1c2128" stroke="#f97316" stroke-width="1.5" filter="url(#glow)"/>
   <text x="470" y="456" text-anchor="middle" fill="#f97316" font-size="10" font-weight="700" letter-spacing="0.05em">NEXUS</text>
-  <text x="470" y="470" text-anchor="middle" fill="#8b949e" font-size="8">durable</text>
-  <text x="470" y="482" text-anchor="middle" fill="#8b949e" font-size="8">boundary</text>
+  <text x="470" y="470" text-anchor="middle" fill="#b1bac4" font-size="8">durable</text>
+  <text x="470" y="482" text-anchor="middle" fill="#b1bac4" font-size="8">boundary</text>
 
   <!-- Arrow: step 2 to nexus -->
   <line x1="430" y1="473" x2="440" y2="463" stroke="#f97316" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
@@ -122,14 +122,14 @@
   <!-- ======= COMPLIANCE TEAM ZONE ======= -->
   <rect x="510" y="185" width="450" height="485" rx="12" fill="url(#compGrad)" stroke="#22c55e" stroke-opacity="0.4" stroke-width="1.5"/>
   <text x="530" y="208" fill="#22c55e" font-size="11" font-weight="700" letter-spacing="0.08em">COMPLIANCE TEAM</text>
-  <text x="530" y="222" fill="#8b949e" font-size="9">Task queue: compliance-risk</text>
+  <text x="530" y="222" fill="#b1bac4" font-size="9">Task queue: compliance-risk</text>
 
   <!-- ComplianceNexusServiceImpl -->
   <rect x="535" y="250" width="220" height="75" rx="8" fill="#1c2128" stroke="#f97316" stroke-opacity="0.4"/>
   <text x="645" y="270" text-anchor="middle" fill="#f97316" font-size="10" font-weight="600">ComplianceNexus</text>
   <text x="645" y="284" text-anchor="middle" fill="#f97316" font-size="10" font-weight="600">ServiceImpl</text>
   <text x="645" y="301" text-anchor="middle" fill="#e6edf3" font-size="10">.checkCompliance()</text>
-  <text x="645" y="316" text-anchor="middle" fill="#8b949e" font-size="9">fromWorkflowHandle()</text>
+  <text x="645" y="316" text-anchor="middle" fill="#b1bac4" font-size="9">fromWorkflowHandle()</text>
 
   <!-- Arrow: nexus to handler (entry) -->
   <path d="M 535,463 Q 520,463 520,330 Q 520,290 533,290" fill="none" stroke="#f97316" stroke-width="1.2" opacity="0.5"/>
@@ -138,22 +138,22 @@
   <!-- Arrow: handler starts workflow -->
   <line x1="645" y1="325" x2="645" y2="348" stroke="#22c55e" stroke-width="1.2" opacity="0.5"/>
   <polygon points="641,345 645,353 649,345" fill="#22c55e" opacity="0.5"/>
-  <text x="655" y="342" fill="#8b949e" font-size="8">starts</text>
+  <text x="655" y="342" fill="#b1bac4" font-size="8">starts</text>
 
   <!-- ComplianceWorkflowImpl -->
   <rect x="555" y="355" width="390" height="300" rx="8" fill="#1c2128" fill-opacity="0.5" stroke="#22c55e" stroke-opacity="0.3" stroke-dasharray="5 3"/>
   <text x="750" y="377" text-anchor="middle" fill="#22c55e" font-size="12" font-weight="700">ComplianceWorkflowImpl</text>
-  <text x="750" y="393" text-anchor="middle" fill="#8b949e" font-size="9">.run(request)</text>
+  <text x="750" y="393" text-anchor="middle" fill="#b1bac4" font-size="9">.run(request)</text>
 
   <!-- ComplianceActivity -->
   <rect x="575" y="410" width="180" height="55" rx="6" fill="#1c2128" stroke="#30363d"/>
   <text x="665" y="432" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">ComplianceActivity</text>
-  <text x="665" y="450" text-anchor="middle" fill="#8b949e" font-size="9">.checkCompliance()</text>
+  <text x="665" y="450" text-anchor="middle" fill="#b1bac4" font-size="9">.checkCompliance()</text>
 
   <!-- ComplianceChecker -->
   <rect x="780" y="410" width="145" height="55" rx="6" fill="#1c2128" stroke="#30363d"/>
   <text x="852" y="432" text-anchor="middle" fill="#e6edf3" font-size="10" font-weight="600">ComplianceChecker</text>
-  <text x="852" y="450" text-anchor="middle" fill="#8b949e" font-size="9">OFAC / AML / risk rules</text>
+  <text x="852" y="450" text-anchor="middle" fill="#b1bac4" font-size="9">OFAC / AML / risk rules</text>
 
   <!-- Arrow: activity to checker -->
   <line x1="755" y1="437" x2="778" y2="437" stroke="#22c55e" stroke-width="1" opacity="0.4"/>
@@ -167,14 +167,14 @@
   <line x1="700" y1="512" x2="740" y2="512" stroke="#22c55e" stroke-width="1" opacity="0.5"/>
   <rect x="745" y="498" width="120" height="28" rx="5" fill="#1c2128" stroke="#22c55e" stroke-opacity="0.2"/>
   <text x="805" y="511" text-anchor="middle" fill="#22c55e" font-size="9" font-weight="600">LOW / HIGH</text>
-  <text x="805" y="522" text-anchor="middle" fill="#8b949e" font-size="8">return immediately</text>
+  <text x="805" y="522" text-anchor="middle" fill="#b1bac4" font-size="8">return immediately</text>
 
   <!-- MEDIUM path -->
   <line x1="665" y1="534" x2="665" y2="550" stroke="#f97316" stroke-width="1" opacity="0.5"/>
   <rect x="575" y="553" width="260" height="52" rx="6" fill="#1c2128" stroke="#f97316" stroke-opacity="0.3"/>
   <text x="705" y="572" text-anchor="middle" fill="#f97316" font-size="9" font-weight="600">MEDIUM: Workflow.await()</text>
-  <text x="705" y="590" text-anchor="middle" fill="#8b949e" font-size="9">Paused for human review</text>
-  <text x="705" y="601" text-anchor="middle" fill="#8b949e" font-size="8">via @UpdateMethod</text>
+  <text x="705" y="590" text-anchor="middle" fill="#b1bac4" font-size="9">Paused for human review</text>
+  <text x="705" y="601" text-anchor="middle" fill="#b1bac4" font-size="8">via @UpdateMethod</text>
 
   <!-- Human review command -->
   <rect x="575" y="615" width="260" height="28" rx="5" fill="#1c2128" stroke="#a5d6ff" stroke-opacity="0.4"/>
