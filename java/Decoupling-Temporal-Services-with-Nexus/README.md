@@ -159,6 +159,10 @@ cd exercise
 mvn compile exec:java@starter
 ```
 
+** Change the namespace in Temporal UI **
+
+![new-namespace.png](ui/new-namespace.png)
+
 **Expected results:**
 
 <table>
