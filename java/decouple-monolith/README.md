@@ -355,17 +355,17 @@ public class ComplianceNexusServiceImpl {
 
 </details>
 
-**Q2:** Why does the sync handler start a workflow instead of calling `ComplianceChecker.checkCompliance()` directly?
+**Q2:** Why does the Nexus handler start a workflow instead of calling `ComplianceChecker.checkCompliance()` directly?
 
 - A) Starting a workflow is faster than a direct method call
-- B) Sync handlers should only contain Temporal primitives — business logic belongs in activities within workflows
+- B) Nexus handlers should only contain Temporal primitives — business logic belongs in activities within workflows
 - C) `ComplianceChecker` can't be serialized
-- D) Direct calls aren't supported in sync handlers
+- D) Direct calls aren't supported in Nexus handlers
 
 <details>
 <summary>Answer</summary>
 
-**B.** Sync handlers run inside the Nexus request processing path. They should only use Temporal primitives (workflow starts, queries). Business logic belongs in activities, which are invoked by workflows. This keeps the handler thin and the architecture consistent.
+**B.** Nexus handlers run inside the Nexus request processing path. They should only use Temporal primitives (workflow starts, queries). Business logic belongs in activities, which are invoked by workflows. This keeps the handler thin and the architecture consistent.
 
 </details>
 

@@ -42,7 +42,7 @@ import java.time.Duration;
  *   - NexusServiceOptions with a scheduleToCloseTimeout (e.g., 10 minutes)
  *
  * The endpoint mapping ("where is this service?") is NOT set here.
- * It's set in PaymentsWorkerApp (TODO 7). This keeps the workflow portable.
+ * It's set in PaymentsWorkerApp (TODO 5). This keeps the workflow portable.
  */
 public class PaymentProcessingWorkflowImpl implements PaymentProcessingWorkflow {
 
