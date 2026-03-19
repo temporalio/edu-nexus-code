@@ -39,13 +39,7 @@ public class ComplianceWorkerApp {
 
         // L — Launch
         factory.start();
-
-        System.out.println("=========================================================");
-        System.out.println("  Compliance Worker started on: compliance-risk");
-        System.out.println("  Namespace: compliance-namespace");
-        System.out.println("  Registered: ComplianceWorkflow, ComplianceActivity,");
-        System.out.println("              ComplianceNexusServiceImpl (async + sync handlers)");
-        System.out.println("  Waiting for Nexus requests from Payments team...");
-        System.out.println("=========================================================");
+        
+        System.out.println("Compliance Worker started on: compliance-risk");   
     }
 }

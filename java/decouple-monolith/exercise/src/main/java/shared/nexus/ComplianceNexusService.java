@@ -12,17 +12,11 @@ package shared.nexus;
 // ── What to add for TODO 1: ─────────────────────────────────────
 //
 //   1. Add @Service annotation to the interface (from io.nexusrpc)
-//   2. Add @Operation annotation to checkCompliance (from io.nexusrpc)
+//   2. Add @Operation annotation to BOTH methods (checkCompliance and submitReview)
 //
-// ── What to add for TODO 6a: ────────────────────────────────────
-//
-//   Add a second operation for submitting human review decisions:
-//
-//   @Operation
-//   ComplianceResult submitReview(ReviewRequest request);
-//
-//   This operation sends a Workflow Update to an already-running
-//   ComplianceWorkflow via a sync Nexus handler on the Compliance side.
+//   The Nexus runtime validates all methods in a @Service interface at worker
+//   startup. Every method must have @Operation — even ones you won't call right
+//   away — or the worker will fail with "Missing @Operation annotation".
 //
 // ── Template: ───────────────────────────────────────────────────
 //
@@ -41,12 +35,12 @@ import io.nexusrpc.Operation;
 import io.nexusrpc.Service;
 import shared.domain.ReviewRequest;
 
-// TODO: Add @Service annotation
+// TODO 1: Add @Service annotation
 public interface ComplianceNexusService {
 
-    // TODO: Add @Operation annotation
+    // TODO 1: Add @Operation annotation
     ComplianceResult checkCompliance(ComplianceRequest request);
 
-    // TODO 6a: Add @Operation annotation
+    // TODO 1: Add @Operation annotation
     ComplianceResult submitReview(ReviewRequest request);
 }
