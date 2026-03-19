@@ -4,7 +4,7 @@ This repository contains the code that goes along with our [`Decoupling Temporal
 
 See the [Nexus documentation](https://docs.temporal.io/nexus) to explore more.
 
-## What you'll learn
+## What You'll Learn
 
 - Register a Nexus Endpoint using the Temporal CLI
 - Define a shared Nexus Service contract between teams with `@Service` and `@Operation`
