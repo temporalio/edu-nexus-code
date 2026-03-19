@@ -73,16 +73,7 @@ public class PaymentsWorkerApp {
         // │ Include BOTH PaymentProcessingWorkflowImpl.class AND       │
         // │ ReviewCallerWorkflowImpl.class in the same call.           │
         // └─────────────────────────────────────────────────────────────┘
-        worker.registerWorkflowImplementationTypes(
-            WorkflowImplementationOptions.newBuilder()
-                    .setNexusServiceOptions(Collections.singletonMap(
-                            "ComplianceNexusService",
-                            NexusServiceOptions.newBuilder()
-                                    .setEndpoint("compliance-endpoint")
-                                    .build()))
-                    .build(),
-            PaymentProcessingWorkflowImpl.class,
-            ReviewCallerWorkflowImpl.class);
+        worker.registerWorkflowImplementationTypes(PaymentProcessingWorkflowImpl.class);
 
         // A — Activities
         PaymentGateway gateway = new PaymentGateway();
@@ -92,8 +83,8 @@ public class PaymentsWorkerApp {
         // │ TODO 5 (CHANGE 2): Delete these two lines after adding     │
         // │ Nexus. Compliance now runs on its own worker.              │
         // └─────────────────────────────────────────────────────────────┘
-        // ComplianceChecker checker = new ComplianceChecker();
-        // worker.registerActivitiesImplementations(new ComplianceActivityImpl(checker));
+        ComplianceChecker checker = new ComplianceChecker();
+        worker.registerActivitiesImplementations(new ComplianceActivityImpl(checker));
 
         // L — Launch
         factory.start();
