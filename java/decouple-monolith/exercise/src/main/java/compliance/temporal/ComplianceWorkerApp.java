@@ -48,5 +48,6 @@ public class ComplianceWorkerApp {
 
         // TODO: L — Start the factory and print a startup banner
         factory.start();
+        System.out.println("Compliance Worker started on: compliance-risk");   
     }
 }

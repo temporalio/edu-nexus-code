@@ -25,7 +25,7 @@ import java.time.Duration;
  *   Step 2: checkCompliance   (ComplianceActivity) <-- will become Nexus
  *   Step 3: executePayment    (PaymentActivity)
  *
- * ── TODO 6: Replace the compliance ACTIVITY stub with a Nexus SERVICE stub ──
+ * ── TODO 4: Replace the compliance ACTIVITY stub with a Nexus SERVICE stub ──
  *
  * After completing TODOs 1-5 and creating the Nexus endpoint:
  *
@@ -58,7 +58,7 @@ public class PaymentProcessingWorkflowImpl implements PaymentProcessingWorkflow 
             Workflow.newActivityStub(PaymentActivity.class, ACTIVITY_OPTIONS);
 
     // ┌─────────────────────────────────────────────────────────────┐
-    // │ TODO 6: Replace this activity stub with a Nexus service    │
+    // │ TODO 4: Replace this activity stub with a Nexus service    │
     // │ stub. Delete the two lines below and create:               │
     // │                                                            │
     // │   private final ComplianceNexusService complianceService = │
@@ -102,7 +102,7 @@ public class PaymentProcessingWorkflowImpl implements PaymentProcessingWorkflow 
                     .info("Step 2: calling compliance check for " + request.getTransactionId());
 
             // ┌─────────────────────────────────────────────────────┐
-            // │ TODO 6: Change this line from:                      │
+            // │ TODO 4: Change this line from:                      │
             // │   complianceActivity.checkCompliance(compReq)       │
             // │ to:                                                 │
             // │   complianceService.checkCompliance(compReq)        │
