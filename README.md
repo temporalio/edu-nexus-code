@@ -2,7 +2,9 @@
 
 This repository contains the code that goes along with our [`Decoupling Temporal Services with Nexus`](https://learn.temporal.io/tutorials/nexus/nexus-sync-tutorial/) tutorial. Please reference that tutorial to see how to use this repository.
 
-# What you'll learn
+See the [Nexus documentation](https://docs.temporal.io/nexus) to explore more.
+
+## What you'll learn
 
 - Register a Nexus Endpoint using the Temporal CLI
 - Define a shared Nexus Service contract between teams with `@Service` and `@Operation`
