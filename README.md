@@ -4,10 +4,10 @@ This repository contains the code that goes along with our [`Decoupling Temporal
 
 ## Hands-On Exercises
 
-| Directory                          | Directory Path                                          |
-| :--------------------------------- | :------------------------------------------------------ |
-| [Exercise](java/decouple-monolith/exercise)  |  `java/decouple-monolith/exercise`            |
-| [Solution to Exercise](java/decouple-monolith/solution)  |  `java/decouple-monlith/solution  |
+| Directory                                                | Directory Path                     |
+| :--------------------------------------------------------| :----------------------------------|
+| [Exercise](java/decouple-monolith/exercise)              |  `java/decouple-monolith/exercise` |
+| [Solution to Exercise](java/decouple-monolith/solution)  |  `java/decouple-monlith/solution   |
 
 ## Codespaces
 
