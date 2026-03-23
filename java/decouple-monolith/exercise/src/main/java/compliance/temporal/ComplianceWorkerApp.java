@@ -39,15 +39,17 @@ public class ComplianceWorkerApp {
 
         // TODO: R — Create factory and worker on "compliance-risk"
         WorkerFactory factory = WorkerFactory.newInstance(client);
-        Worker worker = factory.newWorker("compliance-risk");
+        String taskQueue = "compliance-risk";
+        Worker worker = factory.newWorker(taskQueue);
 
         // TODO: W — Register workflow, activity, and Nexus handler
-        //   worker.registerWorkflowImplementationTypes(ComplianceWorkflowImpl.class);
-        //   worker.registerActivitiesImplementations(new ComplianceActivityImpl(new ComplianceChecker()));
-        //   worker.registerNexusServiceImplementation(new ComplianceNexusServiceImpl());
+        // worker.registerWorkflowImplementationTypes(ComplianceWorkflowImpl.class);
+        // worker.registerActivitiesImplementations(new ComplianceActivityImpl(new ComplianceChecker()));
+        // worker.registerNexusServiceImplementation(new ComplianceNexusServiceImpl());
 
-        // TODO: L — Start the factory and print a startup banner
+        // TODO: L — Launch the factory and print a startup banner
         factory.start();
-        System.out.println("Compliance Worker started on: compliance-risk");   
+
+        Workflow.getLogger(ComplianceWorkerApp.class).info("Compliance Worker started on: " + taskQueue);
     }
 }
