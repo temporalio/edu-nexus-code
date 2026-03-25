@@ -26,6 +26,7 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Workflow;
 
 public class ComplianceWorkerApp {
 
