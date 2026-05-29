@@ -87,8 +87,9 @@ Per workshop feedback ("Iterative, progressive exercise structure (demo 1 → de
 | Tutorial Module | Instruqt step                              | Initial state         | Auto-checks                                                                          |
 |-----------------|--------------------------------------------|-----------------------|--------------------------------------------------------------------------------------|
 | 0               | "Welcome & setup"                          | `main`                | `temporal --version` passes, dev server reachable on `:7233`                          |
-| 1–2             | "The problem & Nexus building blocks"      | `main`                | None (read-only)                                                                      |
-| 3               | "Run the monolith"                         | `main`                | Three workflow executions appear in `default` namespace with expected statuses        |
+| 1               | "Run the monolith"                         | `main`                | Three workflow executions appear in `default` namespace with expected statuses        |
+| 2               | "What's wrong with this picture?"          | `main`                | Self-check via the reveal `<details>` — no Instruqt auto-check (reflection step)      |
+| 3               | "Nexus building blocks"                    | `main`                | None (read-only)                                                                      |
 | 4               | "TODO 1: Service contract"                 | `main`                | `mypy shared/nexus_service.py` passes                                                 |
 | 5               | "TODO 2: Handler"                          | `solution/todo-1`     | `mypy compliance/nexus_handler.py` passes                                             |
 | 6               | "TODO 3: Worker + Endpoint"                | `solution/todo-2`     | grep stdout for `"Compliance Worker started on: compliance-risk"`; `endpoint list` includes `compliance-endpoint` |

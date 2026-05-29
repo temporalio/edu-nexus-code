@@ -21,7 +21,7 @@ By the end of this tutorial, you'll be able to:
 
 ## What you'll build
 
-A banking payment system shared by two teams — **Payments** and **Compliance** — that today runs on a single Worker. One Compliance bug crashes payments. You'll split it into two Workers in two Namespaces, calling each other through a single Nexus Endpoint, and prove the boundary is durable by killing a Worker mid-call.
+A banking payment system shared by two teams — **Payments** and **Compliance** — that today runs on a single Worker. You'll run it, find what's wrong with it, then split it into two Workers in two Namespaces calling each other through a single Nexus Endpoint — and prove the boundary is durable by killing a Worker mid-call.
 
 You'll process three transactions:
 
@@ -52,48 +52,11 @@ Click the **Instruqt lab launcher** in the course page. Your environment include
 
 ---
 
-## Module 1 — The problem: a shared blast radius
-
-> **~2 min · Read**
-
-Your bank's payment system runs three steps in sequence: **validate**, **check compliance**, **execute**. All three live in a single Worker on a single Task Queue. The Payments and Compliance teams share the deployment, which means **one team's bug is everyone's outage** — a runtime crash in compliance code kills the Worker mid-payment, and now nobody can process money.
-
-You have three alternatives. Two are bad:
-
-| Approach                                | What you give up                                                                |
-|-----------------------------------------|---------------------------------------------------------------------------------|
-| Wrap Compliance in an HTTP API + Activity | Lose durability across the network. Temporal can't see inside the call.        |
-| Share Activities across teams (current) | Lose isolation. One bad deploy crashes both teams' Workers.                     |
-| **Nexus**                               | Nothing meaningful. Two independent Workers, durable cross-Namespace call.      |
-
-Nexus is the Temporal-native answer: **cross-Namespace calls with the same durability guarantees as Activities**, while letting each team own its own Worker, deployment cadence, and Namespace.
-
----
-
-## Module 2 — Nexus building blocks
-
-> **~3 min · Read**
-
-Four concepts:
-
-| Term                | What it is                                                                              | Lives where                          |
-|---------------------|-----------------------------------------------------------------------------------------|--------------------------------------|
-| **Nexus Service**   | A typed contract — a Python class decorated with `@nexusrpc.service`.                   | Shared code, imported by both teams. |
-| **Nexus Operation** | A callable method on a Service, with input and output types.                            | Inside the Service class.            |
-| **Nexus Endpoint**  | A routing rule mapping endpoint *name* → target Namespace + Task Queue.                  | Registered on the Temporal Server.   |
-| **Nexus Registry**  | The Server-side directory of all Endpoints.                                              | Managed by the Server.               |
-
-**Mental model:** the **Service** is the interface, the **Operation** is a method on it, the **Endpoint** is the address-book entry pointing the caller at the right Worker, and the **Registry** is the address book.
-
-<!-- DIAGRAM: a UML-style class for ComplianceNexusService with one operation (check_compliance). Below: arrow labeled "compliance-endpoint" pointing into a box labeled "compliance-namespace / compliance-risk task queue" containing ComplianceNexusServiceHandler, ComplianceWorkflow, assess_risk activity. -->
-
----
-
-## Module 3 — Run the monolith
+## Module 1 — Run the monolith
 
 > **~3 min · Do + check**
 
-Before decoupling anything, see the baseline.
+Before we change anything, see the baseline working.
 
 In **T2**, start the monolith Worker:
 
@@ -115,9 +78,67 @@ uv run python -m monolith.starter --txn TXN-C
 > - `TXN-B` → `Completed` with `approved=true`
 > - `TXN-C` → `Completed` with `approved=false, reason="DECLINED_COMPLIANCE"`
 
-Notice that all three Workflow Executions live in the same Namespace, on the same Task Queue. That's the single blast radius.
+Leave the monolith Worker running for the next module — you'll come back and stop it after you've thought about what's going on.
 
-Stop the monolith Worker (`Ctrl+C` in T2). You won't need it again.
+---
+
+## Module 2 — What's wrong with this picture?
+
+> **~2 min · Reflect + reveal**
+
+Look at what you just ran in the Web UI. Three observations:
+
+- All three Workflow Executions live in **one Namespace** (`default`).
+- They all poll **one Task Queue** (`payments-processing`).
+- They all run in **one Worker process** (the one you started in **T2**).
+
+Now imagine the Payments team and the Compliance team **both deploy to that Worker.**
+
+> **Pause and think for 30 seconds.** What goes wrong? What problems can you spot — operationally, organizationally, or in terms of reliability? Try to come up with at least two before reading on.
+
+<details>
+<summary>When you're ready — three answers, all flavors of the same problem</summary>
+
+1. **Shared blast radius.** A runtime crash in compliance code kills the Worker. Now nobody can process payments — Payments code didn't change, but Payments is down.
+2. **Shared deploy cadence.** Payments wants to ship a hotfix at 2am. Compliance is mid-release. Whose deploy wins? Whose change gets rolled back when something breaks?
+3. **Shared scaling.** Payments traffic spikes 10x on Black Friday. The Worker scales up *everything* — including the parts Compliance owns — because it's one process.
+
+Three teams, one fate. That's the problem we're going to solve.
+
+### Your alternatives
+
+You have three options. Two are bad:
+
+| Approach                                | What you give up                                                                |
+|-----------------------------------------|---------------------------------------------------------------------------------|
+| Wrap Compliance in an HTTP API + Activity | Lose durability across the network. Temporal can't see inside the call.        |
+| Share Activities across teams (today)   | Lose isolation. One bad deploy crashes both teams' Workers.                     |
+| **Nexus**                               | Nothing meaningful. Two independent Workers, durable cross-Namespace call.      |
+
+Nexus is the Temporal-native answer: **cross-Namespace calls with the same durability guarantees as Activities**, while letting each team own its own Worker, deployment cadence, and Namespace.
+
+</details>
+
+Now stop the monolith Worker (`Ctrl+C` in **T2**). You won't need it again — we're about to split it in two.
+
+---
+
+## Module 3 — Nexus building blocks
+
+> **~3 min · Read**
+
+Before we start changing code, four terms you'll meet in the next modules:
+
+| Term                | What it is                                                                              | Lives where                          |
+|---------------------|-----------------------------------------------------------------------------------------|--------------------------------------|
+| **Nexus Service**   | A typed contract — a Python class decorated with `@nexusrpc.service`.                   | Shared code, imported by both teams. |
+| **Nexus Operation** | A callable method on a Service, with input and output types.                            | Inside the Service class.            |
+| **Nexus Endpoint**  | A routing rule mapping endpoint *name* → target Namespace + Task Queue.                  | Registered on the Temporal Server.   |
+| **Nexus Registry**  | The Server-side directory of all Endpoints.                                              | Managed by the Server.               |
+
+**Mental model:** the **Service** is the interface, the **Operation** is a method on it, the **Endpoint** is the address-book entry pointing the caller at the right Worker, and the **Registry** is the address book itself.
+
+<!-- DIAGRAM: a UML-style class for ComplianceNexusService with one operation (check_compliance). Below: arrow labeled "compliance-endpoint" pointing into a box labeled "compliance-namespace / compliance-risk task queue" containing ComplianceNexusServiceHandler, ComplianceWorkflow, assess_risk activity. -->
 
 ---
 
@@ -406,7 +427,7 @@ The Nexus Operation retries until its `schedule_to_close_timeout` (10 minutes in
 
 > **~1 min**
 
-You transformed a single-Worker, single-Namespace monolith into two independent Workers in two Namespaces, deployable separately, owned by different teams — with one shared typed contract and one durable cross-Namespace call.
+Remember the three problems from Module 2 — shared blast radius, shared deploy cadence, shared scaling? All three are gone. You now have two independent Workers in two Namespaces, deployable separately, owned by different teams, with one shared typed contract and one durable cross-Namespace call.
 
 ```diff
 - compliance_result = await workflow.execute_activity(check_compliance_activity, ...)

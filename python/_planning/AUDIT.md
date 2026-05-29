@@ -7,9 +7,9 @@ Modality time per module (rough estimates — refine after a dry run with one le
 | # | Module                                   | Passive | Active | Modalities                | Failure exercise |
 |---|------------------------------------------|---------|--------|---------------------------|------------------|
 | 0 | Get the lab running (Instruqt)            | 1 min   | 1 min  | Read, Check               | —                |
-| 1 | The problem: shared blast radius          | 2 min   | 0      | Read                      | —                |
-| 2 | Nexus building blocks                     | 3 min   | 0      | Read                      | —                |
-| 3 | Run the monolith                          | 0       | 3 min  | Do, Check                 | —                |
+| 1 | Run the monolith                          | 0       | 3 min  | Do, Check                 | —                |
+| 2 | What's wrong with this picture?           | 1 min   | 1 min  | Reflect, Read             | —                |
+| 3 | Nexus building blocks                     | 3 min   | 0      | Read                      | —                |
 | 4 | TODO 1: Service contract                  | 1 min   | 2 min  | Read, Do, Check           | —                |
 | 5 | TODO 2: Async handler                     | 2 min   | 3 min  | Read, Do, Check           | —                |
 | 6 | TODO 3: Compliance Worker + Endpoint      | 1 min   | 3 min  | Read, Do, Check           | —                |
@@ -17,13 +17,15 @@ Modality time per module (rough estimates — refine after a dry run with one le
 | 8 | TODO 5: Payments Worker + Checkpoint 2    | 0       | 3 min  | Do, Check                 | —                |
 | 9 | Checkpoint 3: durability (kill-worker)    | 1 min   | 3 min  | Fail, Do, Check, Explore  | **Yes**          |
 | 10| Wrap-up + decision guide                  | 1 min   | 0      | Read                      | —                |
-| **Total** |                                  | **13 min** | **20 min** | —                  | 1 of 11          |
+| **Total** |                                  | **11 min** | **21 min** | —                  | 1 of 11          |
 
-**Total: ~33 min** — within the 30 min target with normal user variance. **Active ratio: 61%** — meets the 60% feedback target.
+**Total: ~32 min** — within the 30 min target with normal user variance. **Active ratio: 66%** — clears the 60% feedback target.
 
-**Three-minute-rule violations:** Modules 1+2 combined are ~5 min of passive content before the first "Do" in Module 3. Acceptable because Module 0 ends with a "Do" (open Web UI), and Module 1+2 are short conceptual scaffolding before the hands-on transformation begins. If too dense for a particular learner cohort, fold Module 1's third paragraph into Module 2 as a sidebar.
+**"Do, then understand" flow.** The first hands-on contact with the codebase is Module 1 (run the monolith). The conceptual framing for *why* it's a problem follows in Module 2 as a Socratic "what's wrong here?" reflection — learner observes the running system, predicts the problems, then gets the reveal. Nexus terminology in Module 3 is then just-in-time, immediately before TODO 1.
 
-**Single-modality concepts:** Modules 1, 2, and 10 are read-only. Acceptable — they bracket the hands-on core. The hands-on transformation arc (Modules 3–9) carries all the "Do" weight.
+**Three-minute-rule violations:** None. The longest passive stretch is Module 3 at 3 min, sandwiched between Module 2's reflect-then-reveal and Module 4's hands-on TODO.
+
+**Single-modality concepts:** Module 3 is read-only. Acceptable — it's the just-in-time terminology reference before the transformation arc.
 
 **Failure-exercise count:** 1 of 11 modules. The signature kill-the-worker demo is the right place for the one big failure — earlier modules are guided transformation where failure exercises would be confusing.
 
