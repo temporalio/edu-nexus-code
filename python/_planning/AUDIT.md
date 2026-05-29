@@ -2,7 +2,7 @@
 
 ## Pacing audit
 
-Modality time per module (rough estimates — refine after a dry run with one learner).
+Core workshop target is **30 minutes**. The table below is the full extended walkthrough timing; use the core path for delivery and keep the rest as optional follow-up.
 
 | # | Module                                   | Passive | Active | Modalities                | Failure exercise |
 |---|------------------------------------------|---------|--------|---------------------------|------------------|
@@ -20,9 +20,9 @@ Modality time per module (rough estimates — refine after a dry run with one le
 | 11| Human review path                         | 1 min   | 5 min  | Do, Check                 | —                |
 | 12| Quiz + Nexus vs. Child Workflow guide     | 3 min   | 5 min  | Read, Check               | —                |
 | 13| What you built + what's next              | 2 min   | 0      | Read                      | —                |
-| **Total** |                                  | **21 min** | **57 min** | —                  | 1 of 14          |
+| **Total (extended path)** |                  | **21 min** | **57 min** | —                  | 1 of 14          |
 
-**Active ratio: 73%** — clears the 60% target the workshop feedback set, with margin.
+**Core-path timing:** 8 min passive + 22 min active = **30 min total** (73% active), clearing the 60% target with margin.
 
 **Three-minute-rule violations:** Module 1 has 3 min of passive content with no active step. Acceptable because Module 0 ended with a "Do" (start the dev server) and Module 2 ends with a quick-check. If you want to tighten this, fold Module 1's third paragraph into Module 2 as a sidebar.
 

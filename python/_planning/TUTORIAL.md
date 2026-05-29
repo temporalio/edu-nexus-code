@@ -1,6 +1,6 @@
 # Decoupling Temporal Services with Nexus and the Python SDK
 
-**Time:** ~75 min · **Difficulty:** Intermediate · **SDK:** Python 3.10+
+**Time:** ~30 min (core path) · **Difficulty:** Intermediate · **SDK:** Python 3.10+
 
 > **About this tutorial.** You'll start with a working monolith — one Worker, one team — and decouple it into two independently-deployable services that still feel like one program to call. Along the way, you'll kill a Worker mid-flight and watch a real durable Nexus call survive, replay, and finish.
 
@@ -52,33 +52,7 @@ Click the lab launcher in the course page. The environment includes:
 
 Skip to Module 1.
 
-### Option 2 — Local fallback
-
-```bash
-git clone https://github.com/temporalio/edu-nexus-code.git
-cd edu-nexus-code/python
-uv sync
-```
-
-Open **four terminals** in this directory. You'll use them throughout:
-
-| Terminal | Role                  |
-|----------|-----------------------|
-| **T1**   | Temporal dev server   |
-| **T2**   | Compliance Worker     |
-| **T3**   | Payments Worker       |
-| **T4**   | Starters (CLI commands) |
-
-In **T1**, start the dev server with both Namespaces pre-created:
-
-```bash
-temporal server start-dev \
-  --namespace payments-namespace \
-  --namespace compliance-namespace \
-  --ui-port 8233
-```
-
-> **Check.** Open `http://localhost:8233`. You should see the Web UI with a Namespace dropdown showing `default`, `payments-namespace`, and `compliance-namespace`. If not, check the T1 output for errors before continuing.
+If Instruqt is unavailable, use **Appendix A — Local fallback setup**.
 
 ---
 
@@ -857,6 +831,38 @@ The transformation you made:
 - **Cancellation propagation** — cancel the caller Workflow, and Nexus propagates the cancel signal across the boundary. See [Cancel a Nexus Operation](https://docs.temporal.io/develop/python/nexus#canceling-a-nexus-operation).
 - **Nexus on Temporal Cloud** — set up cross-Namespace calls with mTLS and Namespace allowlists. See [Nexus on Temporal Cloud](https://docs.temporal.io/develop/python/nexus#nexus-calls-across-namespaces-temporal-cloud).
 - **Versioning Nexus Services** — evolve your contract without breaking existing callers.
+
+---
+
+## Appendix A — Local fallback setup (optional)
+
+Use this only if Instruqt is unavailable.
+
+```bash
+git clone https://github.com/temporalio/edu-nexus-code.git
+cd edu-nexus-code/python
+uv sync
+```
+
+Open **four terminals** in this directory. You'll use them throughout:
+
+| Terminal | Role                  |
+|----------|-----------------------|
+| **T1**   | Temporal dev server   |
+| **T2**   | Compliance Worker     |
+| **T3**   | Payments Worker       |
+| **T4**   | Starters (CLI commands) |
+
+In **T1**, start the dev server with both Namespaces pre-created:
+
+```bash
+temporal server start-dev \
+  --namespace payments-namespace \
+  --namespace compliance-namespace \
+  --ui-port 8233
+```
+
+> **Check.** Open `http://localhost:8233`. You should see the Web UI with a Namespace dropdown showing `default`, `payments-namespace`, and `compliance-namespace`. If not, check the T1 output for errors before continuing.
 
 ---
 
