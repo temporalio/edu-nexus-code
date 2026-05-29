@@ -118,20 +118,6 @@ These exist as-is at all stages. They're either Module-3 baseline scaffolding or
 
 **Keep environments live for 1–2 weeks post-event** (per workshop feedback) — configure Instruqt track lifespan accordingly.
 
-## Test strategy
-
-Per `AGENTS.md` non-negotiable #6 (majority integration tests on real DB/API, minority unit, plus E2E):
-
-| Layer            | Test                                  | What it exercises                                                       |
-|------------------|---------------------------------------|-------------------------------------------------------------------------|
-| Unit             | `test_contracts.py`                   | Service decorator present, dataclasses serialize/deserialize round-trip |
-| Integration      | `test_compliance_workflow.py`         | Real `WorkflowEnvironment`, `assess_risk` activity, `review` Update     |
-| Integration      | `test_payments_workflow.py`           | Real `WorkflowEnvironment` + recorded Nexus client shim                  |
-| E2E              | `test_e2e_nexus.py`                   | Full dev server, both namespaces, real endpoint, three transactions    |
-| E2E (manual)     | "kill-the-worker" script in `tests/manual/` | Helper that scripts the Module 10 outage demo for CI verification        |
-
-All tests must **fail loudly** if a required env var is unset — never skip. (AGENTS.md non-negotiable #10.)
-
 ## Pre-flight checklist for shipping
 
 - [ ] Pre-event email sent **48+ hours before** workshop with Instruqt link + local-clone command (per feedback "Send setup + GitHub link 48hrs early")
