@@ -136,14 +136,7 @@ Before we start changing code, four terms you'll meet in the next modules:
 | **Nexus Endpoint**  | A routing rule mapping endpoint *name* → target Namespace + Task Queue.                  | Registered on the Temporal Server.   |
 | **Nexus Registry**  | The Server-side directory of all Endpoints.                                              | Managed by the Server.               |
 
-**Mental model:** think HTTP, with a routing layer in front.
-
-- **Nexus Service** ≈ a class of related API operations — both teams agree on the shape (input/output types, operation names).
-- **Nexus Operation** ≈ one route on that API — e.g., `check_compliance`.
-- **Nexus Endpoint** ≈ the URL the caller dials. It's a *name* (`compliance-endpoint`) that resolves to "this Namespace + Task Queue, on this Server."
-- **Nexus Registry** ≈ DNS for those names. The Temporal Server maintains it; you populate it with `temporal operator nexus endpoint create`.
-
-The Compliance team owns the *implementation* — their Worker registers the Service handler. The Payments team owns the *call site* — their Workflow imports the Service contract and calls operations through the Endpoint name. Neither team imports the other's code.
+**Mental model:** the **Service** is the interface, the **Operation** is a method on it, the **Endpoint** is the address-book entry pointing the caller at the right Worker, and the **Registry** is the address book itself.
 
 <!-- DIAGRAM: a UML-style class for ComplianceNexusService with one operation (check_compliance). Below: arrow labeled "compliance-endpoint" pointing into a box labeled "compliance-namespace / compliance-risk task queue" containing ComplianceNexusServiceHandler, ComplianceWorkflow, assess_risk activity. -->
 
@@ -383,7 +376,7 @@ uv run python -m payments.starter --txn TXN-C
 
 > **~4 min · Fail + do + check**
 
-Now we prove the durability claim. You'll deliberately kill the Compliance Worker mid-call and watch the payment Workflow survive without any code on your part.
+This is the demo that sells Nexus. You'll deliberately kill the Compliance Worker mid-call and watch the payment Workflow survive without any code on your part.
 
 `ComplianceWorkflow` has a `workflow.sleep(timedelta(seconds=10))` inside it — a deliberate 10-second window where the Compliance side is "thinking." That gives you time to break it.
 
@@ -449,16 +442,14 @@ Remember the three problems from Module 2 — shared blast radius, shared deploy
 
 A quick decision rule:
 
-- **Activity** — a side-effect or external call that needs retries and timeouts, started by a Workflow.
-- **Standalone Activity** — same Activity primitive, but started directly from a Client instead of from inside a Workflow. Use for one-shot tasks (admin tools, batch jobs, scripts) that need Temporal's retries and timeouts but don't need a wrapping Workflow. *Pre-release in Python — see [the feature guide](https://docs.temporal.io/develop/python/standalone-activities).*
+- **Activity** — a side-effect or external call that needs retries and timeouts but doesn't span teams.
 - **Child Workflow** — a sub-routine *owned by the same team, in the same Namespace*. Lower overhead than Nexus.
 - **Nexus** — calls into another team's Namespace, across deployment boundaries, or across SDK languages.
 
-**Heuristic:** "From a Workflow / same team / same Namespace" → Activity or Child Workflow. "From a Workflow / different team / different Namespace" → Nexus. "Not from a Workflow at all" → Standalone Activity.
+**Heuristic:** "Same team / same Namespace" → Child Workflow. "Different team / different Namespace" → Nexus.
 
 ### Going further
 
-- **Standalone Activities** — start Activities directly from a Client without a wrapping Workflow. Useful for admin tools and one-shot tasks that need Temporal's retries/timeouts but no orchestration. See the [Standalone Activities feature guide](https://docs.temporal.io/develop/python/standalone-activities) (pre-release).
 - **Human-in-the-loop reviews** (synchronous Nexus Operations + Workflow Updates) — see the [Nexus async + sync patterns guide](https://docs.temporal.io/develop/python/nexus#develop-nexus-service-operation-handlers).
 - **Cancellation propagation** — cancel the caller Workflow, Nexus propagates across the boundary. See [Cancel a Nexus Operation](https://docs.temporal.io/develop/python/nexus#canceling-a-nexus-operation).
 - **Nexus on Temporal Cloud** — cross-Namespace calls with mTLS and allowlists. See [Nexus on Temporal Cloud](https://docs.temporal.io/develop/python/nexus#nexus-calls-across-namespaces-temporal-cloud).
