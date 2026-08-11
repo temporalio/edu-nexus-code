@@ -1,0 +1,55 @@
+slug: nexus-kotlin-decouple-monolith
+id: yopxoc2jf3jb
+title: Decouple a Monolith with Temporal Nexus (Kotlin)
+teaser: Split a payments monolith into two independently deployable services connected
+  by Nexus.
+description: |-
+  Payments and Compliance share one Worker, one Namespace, one blast radius. A bug
+  in compliance code at 3 AM takes payments down with it.
+
+  You will put a Nexus boundary between them without changing a line of business
+  logic. Define the shared Service contract, implement the handler on the Compliance
+  side, register the Endpoint, then swap the caller from an Activity stub to a Nexus
+  stub. One line changes at the call site. The architecture underneath does not.
+
+  Then break it on purpose. Stop the Compliance Worker mid-operation and watch the
+  payment Workflow wait instead of fail.
+
+  Kotlin on the Temporal Java SDK. Five challenges, three of them hands-on.
+icon: ""
+tags:
+- nexus
+- temporal
+- kotlin
+- java
+owner: temporal
+developers:
+- nikolay.advolodkin@temporal.io
+maintenance: true
+skipping_enabled: true
+idle_timeout: 3600
+timelimit: 7200
+lab_config:
+  extend_ttl: 900
+  sidebar_enabled: true
+  feedback_recap_enabled: false
+  feedback_tab_enabled: false
+  loadingMessages:
+  - Waking Ziggy the tardigrade...
+  - Starting the Temporal dev server...
+  - Creating two Namespaces, one per team...
+  - Warming the Gradle cache so your first build is not your slowest...
+  - Compiling Kotlin against the Temporal Java SDK...
+  - Tardigrades survive vacuum. Your Workflows survive Worker crashes...
+  - Checking that nobody is polling the Compliance Task Queue yet...
+  - Opening the code editor...
+  - Loading the Temporal Web UI...
+  - Ziggy found some lichen. Almost ready...
+  theme:
+    name: modern-dark
+  override_challenge_layout: true
+  hideStopButton: false
+  default_layout: AssignmentLeft
+  default_layout_sidebar_size: 33
+checksum: "5145769546058173504"
+enhanced_loading: false

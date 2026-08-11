@@ -1,0 +1,113 @@
+#!/bin/bash
+# ABOUTME: Track-level setup. Runs once when the attendee enters the track.
+# Starts the editors, stages the workshop source, starts the dev server, and
+# creates both Namespaces.
+#
+# Ordering matters. The editors start BEFORE any Temporal work and are never
+# gated on it. An earlier version started them after the dev server health
+# check, which had an `exit 1` on timeout: a slow Temporal start took the
+# Exercise and Solution tabs down with it and the attendee saw "Please wait".
+# The editors have nothing to do with Temporal, so they no longer wait for it.
+#
+# The Nexus Endpoint is deliberately NOT created here. Attendees create it
+# themselves in challenge 03, which is where the Registry stops being abstract.
+set -uo pipefail
+
+# 1. Wait for Instruqt host bootstrap.
+until [ -f /opt/instruqt/bootstrap/host-bootstrap-completed ]; do
+    sleep 1
+done
+
+# 2. Stage the writable working tree. /opt/workshop stays read-only by convention.
+if [ ! -d /root/workshop ]; then
+    cp -r /opt/workshop /root/workshop
+fi
+
+# 3. Start one code-server per folder, each opened at a fixed directory.
+#
+# Two instances rather than one with a ?folder= query, because Instruqt's
+# service-tab `path:` handling of query strings is undocumented. Fixed ports and
+# fixed folders need no query string at all.
+#
+# --user-data-dir MUST differ per instance. code-server persists the last opened
+# workspace there, so sharing it makes the second instance reopen the first
+# one's folder. Verified: with a shared dir, the Solution tab served the
+# exercise tree.
+start_code_server() {
+    local port="$1" folder="$2" datadir="$3"
+    if curl -sf -o /dev/null "http://127.0.0.1:${port}/" 2>/dev/null; then
+        return 0
+    fi
+    nohup code-server \
+        --bind-addr "0.0.0.0:${port}" \
+        --auth none \
+        --disable-telemetry \
+        --disable-update-check \
+        --user-data-dir "$datadir" \
+        --extensions-dir /root/.cs-extensions \
+        "$folder" > "/tmp/code-server-${port}.log" 2>&1 &
+    disown || true
+}
+
+start_code_server 8443 /root/workshop/exercise/src/main/kotlin /root/.cs-exercise
+start_code_server 8444 /root/workshop/solution/src/main/kotlin /root/.cs-solution
+
+# 4. Start the Temporal dev server in the background.
+#    --ip 0.0.0.0 so the Instruqt service tab can reach the Web UI on 8233.
+if ! curl -sf http://127.0.0.1:8233 >/dev/null 2>&1; then
+    nohup temporal server start-dev \
+        --ip 0.0.0.0 \
+        --port 7233 \
+        --ui-port 8233 \
+        --db-filename /root/temporal.db \
+        --log-level warn \
+        > /tmp/temporal-server.log 2>&1 &
+    disown || true
+fi
+
+# 5. Wait for Temporal health. Log loudly on failure, but do NOT exit: killing
+#    the script here would leave later setup undone for no benefit, and the
+#    editors are already up.
+TEMPORAL_UP=0
+for i in $(seq 1 120); do
+    if temporal operator cluster health --address 127.0.0.1:7233 >/dev/null 2>&1; then
+        TEMPORAL_UP=1
+        break
+    fi
+    sleep 1
+done
+if [ "$TEMPORAL_UP" -ne 1 ]; then
+    echo "==> WARNING: Temporal dev server did not become healthy in 120s."
+    tail -30 /tmp/temporal-server.log 2>/dev/null
+fi
+
+# 6. Pre-create both Namespaces. One per team, which is the whole point.
+temporal operator namespace create --namespace payments-namespace \
+    --address 127.0.0.1:7233 >/dev/null 2>&1 || true
+temporal operator namespace create --namespace compliance-namespace \
+    --address 127.0.0.1:7233 >/dev/null 2>&1 || true
+
+for i in $(seq 1 30); do
+    if temporal operator namespace describe --namespace payments-namespace \
+         --address 127.0.0.1:7233 >/dev/null 2>&1 \
+       && temporal operator namespace describe --namespace compliance-namespace \
+         --address 127.0.0.1:7233 >/dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
+
+# 7. Report editor readiness last. Never fatal.
+for i in $(seq 1 60); do
+    if curl -sf -o /dev/null http://127.0.0.1:8443/ 2>/dev/null \
+       && curl -sf -o /dev/null http://127.0.0.1:8444/ 2>/dev/null; then
+        break
+    fi
+    sleep 1
+done
+curl -sf -o /dev/null http://127.0.0.1:8443/ 2>/dev/null \
+    || { echo "==> WARNING: code-server 8443 not responding."; tail -20 /tmp/code-server-8443.log 2>/dev/null; }
+curl -sf -o /dev/null http://127.0.0.1:8444/ 2>/dev/null \
+    || { echo "==> WARNING: code-server 8444 not responding."; tail -20 /tmp/code-server-8444.log 2>/dev/null; }
+
+echo "==> Track setup complete."

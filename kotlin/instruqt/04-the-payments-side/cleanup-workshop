@@ -1,0 +1,7 @@
+#!/bin/bash
+# ABOUTME: Challenge 04 cleanup. Challenge 05 starts its own Workers.
+set -euo pipefail
+
+pkill -f "PaymentsWorkerAppKt"   || true
+pkill -f "ComplianceWorkerAppKt" || true
+sleep 1

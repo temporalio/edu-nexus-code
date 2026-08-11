@@ -1,0 +1,9 @@
+#!/bin/bash
+# ABOUTME: Challenge 01 setup. Clears stragglers so the monolith run is clean.
+# The working tree is staged once at the track level and accumulates edits
+# across challenges, so nothing is wiped here.
+set -euxo pipefail
+
+pkill -f "PaymentsWorkerAppKt"   || true
+pkill -f "ComplianceWorkerAppKt" || true
+true

@@ -1,0 +1,33 @@
+#!/bin/bash
+# ABOUTME: Challenge 03 solve. Copies the Compliance side from the solution and
+# creates the Endpoint, because the learner creates it by hand in this challenge.
+# Skipping without it would leave challenge 04 unroutable.
+set -euxo pipefail
+
+SRC=/root/workshop/solution/src/main/kotlin
+DST=/root/workshop/exercise/src/main/kotlin
+
+# The contract too, in case challenge 02 was skipped without solving.
+cp "$SRC/shared/nexus/ComplianceNexusService.kt"          "$DST/shared/nexus/"
+cp "$SRC/compliance/temporal/ComplianceNexusServiceImpl.kt" "$DST/compliance/temporal/"
+cp "$SRC/compliance/temporal/ComplianceWorkerApp.kt"        "$DST/compliance/temporal/"
+
+temporal operator nexus endpoint create \
+    --name compliance-endpoint \
+    --target-namespace compliance-namespace \
+    --target-task-queue compliance-risk \
+    --address 127.0.0.1:7233 || true
+
+cd /root/workshop/exercise
+./gradlew --offline -q compileKotlin
+
+# Prove the wiring boots, then stop it. Challenge 04 starts its own Workers.
+pkill -f "ComplianceWorkerAppKt" || true
+sleep 1
+nohup ./gradlew complianceWorker --console=plain -q > /tmp/compliance-worker.log 2>&1 &
+for i in $(seq 1 120); do
+    grep -q "Nexus Poller" /tmp/compliance-worker.log && break
+    sleep 1
+done
+grep -q "Nexus Poller" /tmp/compliance-worker.log
+pkill -f "ComplianceWorkerAppKt" || true

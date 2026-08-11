@@ -1,0 +1,50 @@
+#!/bin/bash
+# ABOUTME: Challenge 04 diagnostic. The only check in the track that can fail.
+#
+# It is a safety net, not a gate. It exists for exactly one failure mode: a
+# mistyped or missing Nexus Endpoint name. Verified behavior: that does NOT fail
+# the Workflow. The server rejects the ScheduleNexusOperation command at
+# command-report time with
+#
+#   INVALID_ARGUMENT: BadScheduleNexusOperationAttributes: endpoint "..." not found
+#
+# which happens outside Workflow code, so no try/catch can see it. The Workflow
+# sits Running forever with repeated WORKFLOW_TASK_FAILED events and the starter
+# prints nothing useful. Silence, not an error. Without this check that becomes
+# an instructor support queue during the tightest part of the lab.
+#
+# Anything else passes. If nothing is stuck, there is nothing to report.
+set -uo pipefail
+
+ADDR="127.0.0.1:7233"
+
+RUNNING=$(temporal workflow list \
+    --address "$ADDR" --namespace payments-namespace \
+    --query 'WorkflowType="PaymentProcessingWorkflow" AND ExecutionStatus="Running"' \
+    --output json 2>/dev/null | jq -r '.[].execution.workflowId' 2>/dev/null)
+
+for WID in $RUNNING; do
+  ATTEMPT=$(temporal workflow describe --address "$ADDR" --namespace payments-namespace \
+      --workflow-id "$WID" --output json 2>/dev/null \
+      | jq -r '.pendingWorkflowTask.attempt // 0' 2>/dev/null)
+
+  # A healthy Workflow waiting on a Nexus Operation sits at attempt 1. Repeated
+  # Workflow task failures mean the command itself is being rejected.
+  if [ "${ATTEMPT:-0}" -gt 2 ]; then
+    fail-message "$WID is stuck retrying its Workflow task (attempt $ATTEMPT).
+
+That is the signature of an Endpoint name that does not match. The Workflow is not
+failing, it is retrying a command the server keeps rejecting.
+
+Check the Payments Worker tab for:
+
+  INVALID_ARGUMENT: BadScheduleNexusOperationAttributes: endpoint \"...\" not found
+
+Then confirm the name in PaymentsWorkerApp.kt matches the Endpoint you created:
+
+  temporal operator nexus endpoint list"
+    exit 1
+  fi
+done
+
+exit 0

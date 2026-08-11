@@ -1,0 +1,31 @@
+#!/bin/bash
+# ABOUTME: Challenge 04 solve. Applies the whole solution, starts both Workers,
+# and runs the starter so challenge 05 inherits a parked TXN-B.
+set -euxo pipefail
+
+rm -rf /root/workshop/exercise/src
+cp -R /root/workshop/solution/src /root/workshop/exercise/src
+
+temporal operator nexus endpoint create \
+    --name compliance-endpoint \
+    --target-namespace compliance-namespace \
+    --target-task-queue compliance-risk \
+    --address 127.0.0.1:7233 || true
+
+cd /root/workshop/exercise
+./gradlew --offline -q compileKotlin
+
+pkill -f "ComplianceWorkerAppKt" || true
+pkill -f "PaymentsWorkerAppKt"   || true
+sleep 1
+
+nohup ./gradlew complianceWorker --console=plain -q > /tmp/compliance-worker.log 2>&1 &
+nohup ./gradlew paymentsWorker   --console=plain -q > /tmp/payments-worker.log   2>&1 &
+for i in $(seq 1 120); do
+    grep -q "Nexus Poller" /tmp/compliance-worker.log 2>/dev/null \
+      && grep -q "Payments Worker started" /tmp/payments-worker.log 2>/dev/null && break
+    sleep 1
+done
+
+./gradlew starter --console=plain -q > /tmp/starter.log 2>&1 || true
+cat /tmp/starter.log
