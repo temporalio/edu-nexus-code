@@ -1,0 +1,60 @@
+# Builds the Kotlin sandbox image and pushes the Instruqt track definition.
+#
+# Scoped to kotlin/**, so nothing here touches the Java tutorial tree.
+#
+# The image rebuilds only when baked assets change (sandbox/ or the course code).
+# A prose- or timelimit-only edit under kotlin/instruqt/ pushes the track without
+# a wasteful rebuild.
+#
+# Required once: a repo secret named INSTRUQT_TOKEN (Instruqt org API key).
+# Required once: make the GHCR package public, or Instruqt cannot pull it.
+name: Build and publish (Kotlin Nexus track)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kotlin/sandbox/**"
+      - "kotlin/decouple-monolith/**"
+      - "kotlin/instruqt/**"
+      - ".github/workflows/_track-ci.yml"
+      - ".github/workflows/build-and-push-kotlin.yml"
+  workflow_dispatch:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      docker: ${{ steps.filter.outputs.docker }}
+      track: ${{ steps.filter.outputs.track }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            docker:
+              - 'kotlin/sandbox/**'
+              - 'kotlin/decouple-monolith/**'
+            track:
+              - 'kotlin/instruqt/**'
+
+  ci:
+    needs: changes
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/_track-ci.yml
+    with:
+      track_dir: "kotlin"
+      # Personal namespace while the workshop is being tested. NOTE: the default
+      # GITHUB_TOKEN in this org repo cannot write to a personal GHCR namespace.
+      # Before CI can publish, either move this to ghcr.io/temporalio/... (and
+      # update kotlin/instruqt/config.yml to match) or give the workflow a PAT
+      # with write:packages for nadvolod.
+      image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox
+      build_image: ${{ needs.changes.outputs.docker == 'true' || github.event_name == 'workflow_dispatch' }}
+      push_track: ${{ needs.changes.outputs.track == 'true' || needs.changes.outputs.docker == 'true' || github.event_name == 'workflow_dispatch' }}
+    secrets: inherit
