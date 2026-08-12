@@ -23,38 +23,33 @@ if [ ! -d /root/workshop ]; then
     cp -r /opt/workshop /root/workshop
 fi
 
-# 3. Start one code-server per folder, each opened at a fixed directory.
+# 3. Start ONE code-server, rooted at the whole workshop tree.
 #
-# Ports 8080 and 8081 on purpose. 8443 is the conventional alternate-HTTPS port
-# and Instruqt's proxy could not reach code-server there. The one Temporal track
-# known to run code-server successfully (temporal-ai-agents-python-v4) uses 8080.
-# Every port here must also be listed under `ports:` in config.yml.
+# One instance, not two. Both editor tabs point at this single server and select
+# their directory with ?folder=, which is exactly the shape the one Temporal track
+# known to run code-server successfully (temporal-ai-agents-python-v4) uses.
 #
-# The tabs point at /?folder=<abs path>, which returns 200. Bare / returns a 302
-# redirect, and Instruqt's readiness probe wants a 2xx.
+# Why it matters beyond tidiness: Instruqt loads every service tab's iframe at
+# challenge start, including tabs that are not visible. code-server cannot compute
+# its layout in a 0x0 iframe and the workbench never finishes booting, which is
+# the "blank until you refresh" symptom (console shows "Unable to figure out
+# browser width and height"). Two instances meant two hidden iframes racing that
+# boot at once. One halves it, and frees about 200 MB.
 #
-# --user-data-dir MUST differ per instance. code-server persists the last opened
-# workspace there, so sharing it makes the second instance reopen the first
-# one's folder. Verified: with a shared dir, the Solution tab served the
-# exercise tree.
-start_code_server() {
-    local port="$1" folder="$2" datadir="$3"
-    if curl -sf -o /dev/null "http://127.0.0.1:${port}/" 2>/dev/null; then
-        return 0
-    fi
+# Port 8080 on purpose. 8443 is the conventional alternate-HTTPS port and
+# Instruqt's proxy could not reach code-server there. Every port a tab points at
+# must also be listed under `ports:` in config.yml.
+if ! curl -sf -o /dev/null "http://127.0.0.1:8080/" 2>/dev/null; then
     nohup code-server \
-        --bind-addr "0.0.0.0:${port}" \
+        --bind-addr "0.0.0.0:8080" \
         --auth none \
         --disable-telemetry \
         --disable-update-check \
-        --user-data-dir "$datadir" \
+        --user-data-dir /root/.cs-exercise \
         --extensions-dir /root/.cs-extensions \
-        "$folder" > "/tmp/code-server-${port}.log" 2>&1 &
+        /root/workshop > /tmp/code-server-8080.log 2>&1 &
     disown || true
-}
-
-start_code_server 8080 /root/workshop/exercise/src/main/kotlin /root/.cs-exercise
-start_code_server 8081 /root/workshop/solution/src/main/kotlin /root/.cs-solution
+fi
 
 # 4. Start the Temporal dev server in the background.
 #    --ip 0.0.0.0 so the Instruqt service tab can reach the Web UI on 8233.
@@ -101,44 +96,36 @@ for i in $(seq 1 30); do
     sleep 1
 done
 
-# 7. Wait for the editors to be genuinely ready. Never fatal.
+# 7. Wait for the editor to be genuinely ready. Never fatal.
 #
 # Diagnosed by Instruqt support. The old check was
 #   curl -sf http://127.0.0.1:8080/
 # which passes the moment the HTTP listener binds, because bare "/" 302-redirects
 # and `curl -sf` treats a 3xx as success. Setup then reported "ready" while the
-# workbench (extension host, workspace init) was still booting, so the attendee's
-# tab raced a half-started backend and landed on a blank page until they refreshed.
+# workbench was still booting.
 #
 # Their suggested fix polls /healthz for '"status":"ready"'. That string does not
-# exist in code-server 4.96.4: /healthz reports "expired" or "alive", and "alive"
-# only means some HTTP request arrived recently, which our own polling would cause.
+# exist in code-server 4.96.4: /healthz returns "expired" or "alive", and "alive"
+# only means an HTTP request arrived recently, which our own polling would cause.
 # Waiting on it would never pass. Verified by measuring the live endpoint.
 #
-# So we check the two things that ARE true only once the workbench is up:
-#   1. The exact URL the tab opens returns 200. Bare "/" still 302s at that point,
-#      which is precisely the difference the old check missed.
-#   2. code-server logs that the extension host is running.
+# So we check the two things that ARE true only once the workbench is up: the
+# exact URL a tab opens returns 200 (bare "/" still 302s at that point), and
+# code-server logs that the extension host is running.
 EX_FOLDER=/root/workshop/exercise/src/main/kotlin
-SOL_FOLDER=/root/workshop/solution/src/main/kotlin
 
 code_server_ready() {
-    local port="$1" folder="$2" log="/tmp/code-server-$1.log"
     [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 \
-        "http://127.0.0.1:${port}/?folder=${folder}" 2>/dev/null)" = "200" ] \
-        && grep -q "Extension host agent started" "$log" 2>/dev/null
+        "http://127.0.0.1:8080/?folder=${EX_FOLDER}" 2>/dev/null)" = "200" ] \
+        && grep -q "Extension host agent started" /tmp/code-server-8080.log 2>/dev/null
 }
 
 for i in $(seq 1 90); do
-    if code_server_ready 8080 "$EX_FOLDER" && code_server_ready 8081 "$SOL_FOLDER"; then
-        break
-    fi
+    code_server_ready && break
     sleep 1
 done
 
-code_server_ready 8080 "$EX_FOLDER" \
-    || { echo "==> WARNING: code-server 8080 (Exercise) not ready."; tail -20 /tmp/code-server-8080.log 2>/dev/null; }
-code_server_ready 8081 "$SOL_FOLDER" \
-    || { echo "==> WARNING: code-server 8081 (Solution) not ready."; tail -20 /tmp/code-server-8081.log 2>/dev/null; }
+code_server_ready \
+    || { echo "==> WARNING: code-server 8080 not ready."; tail -20 /tmp/code-server-8080.log 2>/dev/null; }
 
 echo "==> Track setup complete."

@@ -55,7 +55,7 @@ tabs:
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/solution/src/main/kotlin
-  port: 8081
+  port: 8080
 difficulty: basic
 timelimit: 900
 enhanced_loading: null

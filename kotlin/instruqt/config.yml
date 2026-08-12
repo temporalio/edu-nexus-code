@@ -7,12 +7,11 @@ containers:
   #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --format "{{.Manifest.Digest}}"
   image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox@sha256:722687b7a46504764e49933d4400b95039b44389ace254961dabba9df92cdfbf
   shell: /bin/bash
-  # Two JVM Workers, a Gradle daemon, a dev server, and two code-server instances.
+  # Two JVM Workers, a Gradle daemon, a dev server, and one code-server.
   memory: 8192
   # Every port a challenge tab points at MUST be listed here. Instruqt's proxy
   # cannot reach an undeclared port, and the tab shows "Please wait" forever.
   #
   ports:
   - 8233   # Temporal UI
-  - 8080   # code-server, Exercise tab
-  - 8081   # code-server, Solution tab
+  - 8080   # code-server, both editor tabs
