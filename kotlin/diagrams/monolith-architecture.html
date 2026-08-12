@@ -58,15 +58,29 @@
   .stepbtn { min-width:40px; text-align:center; font-size:15px; padding:5px 10px; }
   .zoomlabel { font-family:var(--mono); font-size:12px; color:var(--muted); min-width:44px; text-align:center; }
   .spacer { flex:1 1 auto; }
-  .stepno { font-family:var(--mono); font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .narr { flex:1 1 320px; min-width:220px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .stepno { font-family:var(--mono); font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums;
+    white-space:nowrap; min-width:96px; text-align:center; }
+
+  /* The flow bar must NOT change height or reflow as you step through, or the
+     arrows move out from under the cursor. Three things keep it still:
+       - the bar has a fixed height
+       - the narration reserves exactly two lines, whatever the caption length
+       - the play button has a fixed width, so "Restart" and "Walk the flow"
+         do not shift the arrows sideways
+     Captions are written to fit two lines; the longest is 156 characters. */
+  .flowbar { height:78px; align-items:center; flex-wrap:nowrap; }
+  #play { min-width:152px; }
+  .narr { flex:1 1 320px; min-width:220px; height:40px; overflow:hidden; line-height:20px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
   .phase { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
-    padding:2px 9px; border-radius:999px; white-space:nowrap; }
+    padding:2px 9px; border-radius:999px; white-space:nowrap; display:inline-block;
+    margin-right:8px; vertical-align:1px; }
   .phase.pay  { color:var(--on-accent); background:var(--pay); }
   .phase.comp { color:var(--on-accent); background:var(--comp); }
   .phase.wire { color:var(--on-accent); background:var(--wire); }
-  .cap { font-size:13px; color:var(--ink); }
-  .bar.idle .phase { display:none; }
+  .cap { font-size:13px; color:var(--ink); line-height:20px; }
+  /* keep the reserved height even when the pill is hidden */
+  .bar.idle .phase { visibility:hidden; display:inline-block; }
   .bar.idle .cap { color:var(--muted); }
   .btn:focus-visible, .node:focus-visible, .zone:focus-visible, .proc:focus-visible { outline:2px solid var(--pay); outline-offset:2px; }
 
@@ -157,7 +171,7 @@
       signature and role.</p>
   </header>
 
-  <div class="bar idle" id="flowbar">
+  <div class="bar flowbar idle" id="flowbar">
     <button class="btn primary" id="play" type="button">▶ Walk the flow</button>
     <button class="btn stepbtn" id="prev" type="button" aria-label="Previous step" disabled>◀</button>
     <span class="stepno" id="stepno">step — / —</span>
@@ -270,13 +284,13 @@ const FLOW = [
     nodes:["wf","payact"], edges:["e-s1"] },
   { phase:"step 1", cls:"pay", cap:"The Activity calls the payment gateway. It fails 10 percent of the time, and Temporal retries it for you.",
     nodes:["payact","gateway"], edges:["e-gw"] },
-  { phase:"step 2", cls:"comp", cap:"Now the boundary. The Workflow calls the COMPLIANCE team's Activity. Different team, different owner, same process and same Task Queue.",
+  { phase:"step 2", cls:"comp", cap:"The boundary. The Workflow calls the COMPLIANCE team's Activity. Different owner, same process, same Task Queue.",
     nodes:["wf","compact"], edges:["e-s2"] },
   { phase:"step 2", cls:"comp", cap:"The Compliance Activity runs the risk rules. TXN-B is MEDIUM risk, which becomes important in challenge 5.",
     nodes:["compact","checker"], edges:["e-chk"] },
   { phase:"step 3", cls:"pay", cap:"Only if compliance approved: execute the payment. Back on the Payments side.",
     nodes:["wf","payact","gateway"], edges:["e-s1","e-gw"] },
-  { phase:"the problem", cls:"comp", cap:"Compliance has its own Namespace and it is empty. Their code lives inside the Payments process, so one bug takes both teams down. That is what you fix next.",
+  { phase:"the problem", cls:"comp", cap:"Compliance has its own Namespace, and it is empty. Their code runs inside the Payments process, so one bug takes both teams down.",
     nodes:["compact","checker","empty"], edges:[] },
 ];
 
