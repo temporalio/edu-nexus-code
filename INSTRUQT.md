@@ -256,6 +256,29 @@ which is why the digest pin and its comment survive.
 Commit the ids the first push assigns (track id, challenge ids, every tab id).
 Pushing from a checkout without them creates a second track.
 
+### A push workflow that fails at startup, with zero jobs and no log
+
+Symptom: the run is `startup_failure`, `gh run view` reports `"jobs": []`, and there
+is no log to open anywhere.
+
+Cause: a caller's `permissions:` block is the **ceiling** for every job in the called
+reusable workflow, and GitHub validates that ceiling when it loads the workflow,
+before any `if:` is evaluated. A disabled job still counts. Granting the caller
+`packages: read` while the (disabled) image-build job asks for `packages: write`
+kills the whole run before anything can log why.
+
+Grant the ceiling the union of what every job in the called workflow asks for, even
+the jobs you have switched off, and say so in a comment. The next person will read
+`packages: write` next to `build_image: false` and try to "fix" it.
+
+### Do not let a missing token fail the run
+
+`instruqt track push` needs an `INSTRUQT_TOKEN` repo secret. If the repo does not
+have one, every merge goes red and people stop reading CI. Check the token in a step
+(the `secrets` context is not available in a job-level `if`), emit a
+`::warning title=...::` naming the fix, and skip the push. It starts working by
+itself when someone adds the secret.
+
 ---
 
 ## Architecture diagrams
