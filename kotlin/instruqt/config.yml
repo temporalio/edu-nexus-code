@@ -12,13 +12,7 @@ containers:
   # Every port a challenge tab points at MUST be listed here. Instruqt's proxy
   # cannot reach an undeclared port, and the tab shows "Please wait" forever.
   #
-  # 8080/8081 are code-server, kept declared and kept running even though the
-  # editor tabs now use the native `type: code` editor. code-server served a
-  # workbench correctly inside the container but rendered blank through
-  # Instruqt's iframe, and that was not solved by declaring the ports or by
-  # disabling Workspace Trust. Left in place so re-enabling is a tab-only change
-  # if Instruqt clarifies what their service tabs require.
   ports:
   - 8233   # Temporal UI
-  - 8080   # code-server, exercise tree (not currently surfaced as a tab)
-  - 8081   # code-server, solution tree (not currently surfaced as a tab)
+  - 8080   # code-server, Exercise tab
+  - 8081   # code-server, Solution tab

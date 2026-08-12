@@ -31,9 +31,10 @@ tabs:
   port: 8233
 - id: z4z6ycnuq0gr
   title: Exercise
-  type: code
+  type: service
   hostname: workshop
-  path: /root/workshop/exercise/src/main/kotlin
+  path: /?folder=/root/workshop/exercise/src/main/kotlin
+  port: 8080
 - id: y3hvqceqamea
   title: Terminal
   type: terminal
@@ -51,9 +52,10 @@ tabs:
   workdir: /root/workshop/exercise
 - id: prerkoiew6ai
   title: Solution
-  type: code
+  type: service
   hostname: workshop
-  path: /root/workshop/solution/src/main/kotlin
+  path: /?folder=/root/workshop/solution/src/main/kotlin
+  port: 8081
 difficulty: intermediate
 timelimit: 1800
 enhanced_loading: null
