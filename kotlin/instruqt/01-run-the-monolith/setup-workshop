@@ -6,4 +6,21 @@ set -euxo pipefail
 
 pkill -f "PaymentsWorkerAppKt"   || true
 pkill -f "ComplianceWorkerAppKt" || true
+
+# Restore the exercise tree if a solve script has already replaced it with the
+# solution. The solve scripts for later challenges do `cp -R solution/src
+# exercise/src`, and nothing else ever puts the TODOs back. Without this, using
+# Skip once leaves the sandbox permanently solved: challenge 01 would print the
+# decoupled Worker banner instead of the monolith one, and every TODO would be
+# gone before the attendee reached it.
+#
+# Only restores a tree that has NO TODO markers left, which means it was
+# overwritten wholesale. A pristine or partly-completed tree is left alone, so an
+# attendee who wanders back to challenge 01 does not lose their work.
+CONTRACT=/root/workshop/exercise/src/main/kotlin/shared/nexus/ComplianceNexusService.kt
+if [ -f "$CONTRACT" ] && ! grep -q "TODO" "$CONTRACT"; then
+    echo "==> Exercise tree was already solved. Restoring the TODOs."
+    rm -rf /root/workshop/exercise/src
+    cp -R /opt/workshop/exercise/src /root/workshop/exercise/src
+fi
 true

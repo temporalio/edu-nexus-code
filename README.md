@@ -127,6 +127,15 @@ docker buildx build --platform linux/amd64 \
   -f sandbox/Dockerfile -t ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --push .
 ```
 
+**The image is pinned by digest, so any change under `kotlin/decouple-monolith/`
+requires a rebuild AND a re-pin.** Pushing the track alone will not ship it: the sandbox
+keeps booting the old digest and attendees get stale exercise code. Only changes under
+`kotlin/instruqt/` are push-only. Re-pin with:
+
+```bash
+docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --format "{{.Manifest.Digest}}"
+```
+
 CI does both jobs on merge to `main` via `.github/workflows/build-and-push-kotlin.yml`.
 
 ### Known issues and gotchas
