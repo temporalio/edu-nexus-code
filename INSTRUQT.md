@@ -250,3 +250,104 @@ which is why the digest pin and its comment survive.
 
 Commit the ids the first push assigns (track id, challenge ids, every tab id).
 Pushing from a checkout without them creates a second track.
+
+---
+
+## Architecture diagrams
+
+A diagram tab is worth building when the point is *where code runs*, not what it
+does. Ours makes one argument: two teams, one process. Everything below exists
+because the first version got it wrong.
+
+### Hard requirements
+
+These are not style preferences. Each one was a defect we shipped and had to fix.
+
+1. **No overlapping boxes, ever.** Never hardcode a `top` or guess a
+   `min-height`. Render the blocks, measure them, then stack each one from the
+   measured height of the one above plus a fixed gap. Containers size themselves
+   to their measured contents. Edit a code snippet and the layout re-flows
+   instead of one box growing through another.
+
+2. **The control bar must not move as you step.** If it shifts, the user has to
+   chase the button with the mouse between clicks. Three separate causes, pin all
+   three: fixed bar height; narration that reserves exactly two lines whatever
+   the caption length; and a fixed width on any button whose label changes
+   ("Walk the flow" becomes "Restart" and drags the arrows sideways).
+
+3. **Step-by-step navigation, not just a static picture.** Left and right arrows,
+   a step counter, a phase pill and one sentence of narration. Bind the arrow
+   keys too. Each step lights its blocks and edges and fades everything else, so
+   the flow reads one hop at a time.
+
+4. **No legend.** A colour-filter legend is noise. The only controls worth having
+   are **Zoom −/+, Fit, and Reset view**. Colour is explained by the labelled
+   regions themselves, not by a key.
+
+5. **Distinct actors must be visually obvious.** Give each team, service or
+   process its own filled, bordered, labelled region, and say what it owns. Two
+   regions inside one outline is a whole argument with no prose.
+
+6. **Every block carries the file name and the method signature.** Not a generic
+   node label. The filename in the accent colour, the signature under it, and a
+   short syntax-highlighted snippet below that.
+
+7. **Syntax highlighting for the actual language.** Kotlin annotations, keywords,
+   types, strings and comments each get their own colour, deliberately different
+   from the diagram's edge palette so code text does not add to the visual noise.
+
+8. **Self-contained.** One HTML file, no external requests, light and dark
+   themes. It is served inside a sandbox with no internet guarantees.
+
+### Plumbing
+
+- Put it in `<lang>/diagrams/`, never inside a challenge folder. Instruqt parses
+  every file in a challenge directory as a lifecycle script.
+- Serve it with `jwebserver -b 0.0.0.0 -p 8090 -d /opt/diagrams` (ships with the
+  JDK; our image has no Python).
+- Declare the port in `config.yml` or the tab shows "Please wait" forever.
+- **Append the tab at the end.** Inserting it anywhere else renumbers `tab-N` and
+  silently breaks every button past the insertion point.
+- The file is baked into the image, so editing it needs a rebuild and a re-pin.
+
+### The prompt
+
+Copy this, fill in the four bracketed parts, and hand it over with the source
+files attached.
+
+```text
+Build a single self-contained HTML architecture diagram for [CHAPTER / TOPIC],
+to be served as an Instruqt tab.
+
+What it must show: [THE ONE ARGUMENT, e.g. "two teams sharing one process, and
+the Namespace one of them is not using"].
+
+Actors to distinguish: [LIST, e.g. "Payments team, Compliance team, and an empty
+compliance-namespace"]. Give each its own filled, bordered, labelled region with
+a one-line note on what it owns.
+
+Blocks: one per file that matters. Each shows the file name, the method
+signature, and a short snippet with syntax highlighting for [LANGUAGE].
+
+Requirements, all of them non-negotiable:
+- Compute the layout: render, measure, then stack with a fixed gap. Nothing may
+  overlap, whatever the snippet lengths.
+- Step player with left/right arrows, a step counter, a phase pill and one
+  sentence of narration per step. Arrow keys bound. Each step highlights its
+  blocks and edges and fades the rest.
+- The control bar must never change size or position between steps. Fixed bar
+  height, narration reserving exactly two lines, fixed width on any button whose
+  label changes.
+- Controls are Zoom -/+, Fit, Reset view. No legend.
+- Clicking a block opens a detail panel: type, file path, what it does, the
+  snippet, and a few bullet points.
+- Light and dark themes. No external requests of any kind.
+- Keep every step caption under about 130 characters so it fits two lines on a
+  narrow lab pane.
+
+Then: put it in <lang>/diagrams/, serve it with jwebserver on a new port,
+declare that port in config.yml, append the tab at the END of every challenge's
+tabs list, rebuild the image and re-pin the digest.
+```
+
+Working example: `kotlin/diagrams/monolith-architecture.html`.
