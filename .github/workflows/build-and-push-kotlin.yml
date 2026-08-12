@@ -1,60 +1,50 @@
-# Builds the Kotlin sandbox image and pushes the Instruqt track definition.
+# Pushes the Kotlin Instruqt track definition on merge to main.
 #
-# Scoped to kotlin/**, so nothing here touches the Java tutorial tree.
+# CI deliberately does NOT build the sandbox image.
 #
-# The image rebuilds only when baked assets change (sandbox/ or the course code).
-# A prose- or timelimit-only edit under kotlin/instruqt/ pushes the track without
-# a wasteful rebuild.
+# The image lives at ghcr.io/nadvolod/edu-nexus-kotlin-sandbox, a personal
+# namespace. This repo's default GITHUB_TOKEN cannot write there, so a build job
+# would fail on every merge. Rather than leave CI permanently red, the image is
+# built by hand and pinned by digest in kotlin/instruqt/config.yml:
+#
+#   cd kotlin
+#   docker buildx build --platform linux/amd64 -f sandbox/Dockerfile \
+#     -t ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --push .
+#   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest \
+#     --format "{{.Manifest.Digest}}"
+#   # paste that digest into kotlin/instruqt/config.yml, then commit
+#
+# Because the digest is pinned, a source change only reaches attendees once that
+# re-pin is committed, and the re-pin lives under kotlin/instruqt/. That is why
+# this workflow watches instruqt/ alone: it is the only path that can change what
+# the track actually serves.
+#
+# To let CI own the image later, move it to ghcr.io/temporalio/... (or add a PAT
+# with write:packages) and restore build_image below.
 #
 # Required once: a repo secret named INSTRUQT_TOKEN (Instruqt org API key).
-# Required once: make the GHCR package public, or Instruqt cannot pull it.
-name: Build and publish (Kotlin Nexus track)
+name: Publish Kotlin Nexus track
 
 on:
   push:
     branches: [main]
     paths:
-      - "kotlin/sandbox/**"
-      - "kotlin/decouple-monolith/**"
       - "kotlin/instruqt/**"
       - ".github/workflows/_track-ci.yml"
       - ".github/workflows/build-and-push-kotlin.yml"
   workflow_dispatch:
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      docker: ${{ steps.filter.outputs.docker }}
-      track: ${{ steps.filter.outputs.track }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            docker:
-              - 'kotlin/sandbox/**'
-              - 'kotlin/decouple-monolith/**'
-            track:
-              - 'kotlin/instruqt/**'
-
   ci:
-    needs: changes
     permissions:
       contents: read
-      packages: write
+      packages: read
     uses: ./.github/workflows/_track-ci.yml
     with:
       track_dir: "kotlin"
-      # Personal namespace while the workshop is being tested. NOTE: the default
-      # GITHUB_TOKEN in this org repo cannot write to a personal GHCR namespace.
-      # Before CI can publish, either move this to ghcr.io/temporalio/... (and
-      # update kotlin/instruqt/config.yml to match) or give the workflow a PAT
-      # with write:packages for nadvolod.
+      # Referenced for completeness. Unused while build_image is false.
       image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox
-      build_image: ${{ needs.changes.outputs.docker == 'true' || github.event_name == 'workflow_dispatch' }}
-      push_track: ${{ needs.changes.outputs.track == 'true' || needs.changes.outputs.docker == 'true' || github.event_name == 'workflow_dispatch' }}
+      # Never build here: see the note at the top of this file.
+      build_image: false
+      push_track: true
     secrets: inherit

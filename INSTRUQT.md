@@ -101,6 +101,11 @@ docker buildx imagetools inspect ghcr.io/<org>/<image>:latest --format "{{.Manif
 Always diff the new digest against the old one. If it did not change, nothing was
 pushed and you are about to ship the old image again.
 
+If the image lives in a **personal** GHCR namespace, an org repo's `GITHUB_TOKEN`
+cannot write to it. Do not leave a build job in CI that will fail on every merge:
+either move the image to the org, add a PAT, or turn the build off and keep the
+manual rebuild in the README. Ours pushes the track only.
+
 ### Never pipe `docker build` into anything
 
 ```bash

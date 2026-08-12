@@ -148,7 +148,10 @@ keeps booting the old digest and attendees get stale exercise code. Only changes
 docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --format "{{.Manifest.Digest}}"
 ```
 
-CI does both jobs on merge to `main` via `.github/workflows/build-and-push-kotlin.yml`.
+CI pushes only the **track** on merge to `main`
+(`.github/workflows/build-and-push-kotlin.yml`). It deliberately does not build the
+image: the image lives in a personal GHCR namespace that this repo's `GITHUB_TOKEN`
+cannot write to, so the build stays a manual step and the digest above is what ships.
 
 ### Known issues and gotchas
 
