@@ -31,12 +31,12 @@ an Instruqt track and is built for a live 90 minute workshop with a 40 minute la
 ```
 kotlin/
 ├── decouple-monolith/
-│   ├── exercise/          Gradle KTS, five TODOs open
+│   ├── exercise/          Gradle KTS, TODOs 1 to 11 open
 │   └── solution/          Gradle KTS, complete
 ├── sandbox/Dockerfile     Temurin 21 + Temporal CLI + pre-warmed Gradle cache
 └── instruqt/
     ├── track.yml          no challenges: block, challenges auto-discovered
-    ├── config.yml         container `workshop`, 4096 MB
+    ├── config.yml         container `workshop`, 8192 MB, ports 8233/8080
     ├── track_scripts/     setup-workshop, cleanup-workshop
     ├── 01-run-the-monolith/
     ├── 02-the-shared-contract/
@@ -96,11 +96,18 @@ are zero-indexed positions, not ids, so reordering tabs means remapping every bu
 | Index | Tab | Type |
 |-------|-----|------|
 | tab-0 | Temporal UI | service, port 8233 |
-| tab-1 | Exercise | code |
+| tab-1 | Exercise | service, port 8080 (code-server) |
 | tab-2 | Terminal | terminal |
 | tab-3 | Payments Worker | terminal |
 | tab-4 | Compliance Worker | terminal |
-| tab-5 | Solution | code |
+| tab-5 | Solution | service, port 8080 (code-server) |
+
+Both editor tabs share ONE code-server instance and select their directory with
+`?folder=`. Instruqt loads every service tab's iframe at challenge start, including
+hidden ones, and code-server cannot lay itself out in a 0x0 iframe. Running one
+instance instead of two halves that exposure and matches the shape of
+`temporal-ai-agents-python-v4`, the one Temporal track known to run code-server through
+this proxy successfully.
 
 ### CLI workflow
 
