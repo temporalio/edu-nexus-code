@@ -1,0 +1,12 @@
+#!/bin/bash
+# ABOUTME: Challenge 02 solve. Copies only this challenge's file from the
+# solution so a skipped challenge does not hand the learner the rest of the lab.
+set -euxo pipefail
+
+SRC=/root/workshop/solution/src/main/kotlin/shared/nexus/ComplianceNexusService.kt
+DST=/root/workshop/exercise/src/main/kotlin/shared/nexus/ComplianceNexusService.kt
+
+cp "$SRC" "$DST"
+
+cd /root/workshop/exercise
+./gradlew --offline -q compileKotlin

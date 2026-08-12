@@ -1,0 +1,18 @@
+version: "3"
+containers:
+- name: workshop
+  # Pinned by digest, not :latest. A moving tag let a sandbox boot a cached
+  # older image that had no code-server in it, so the editor tabs showed
+  # "Please wait" forever. Re-pin this after every image rebuild with:
+  #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --format "{{.Manifest.Digest}}"
+  image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox@sha256:4892205d99f357503e7d71b199b0433b9227951ef2e647c2c1aaa8a6915d60f7
+  shell: /bin/bash
+  # Two JVM Workers, a Gradle daemon, a dev server, and one code-server.
+  memory: 8192
+  # Every port a challenge tab points at MUST be listed here. Instruqt's proxy
+  # cannot reach an undeclared port, and the tab shows "Please wait" forever.
+  #
+  ports:
+  - 8233   # Temporal UI
+  - 8080   # code-server, both editor tabs
+  - 8090   # architecture diagram (jwebserver)

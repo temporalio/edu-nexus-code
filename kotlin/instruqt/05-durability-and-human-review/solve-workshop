@@ -1,0 +1,61 @@
+#!/bin/bash
+# ABOUTME: Challenge 05 solve. Runs the outage demo end to end: start payments,
+# leave compliance down, send payments, bring compliance up, then review.
+set -euxo pipefail
+
+rm -rf /root/workshop/exercise/src
+cp -R /root/workshop/solution/src /root/workshop/exercise/src
+
+temporal operator nexus endpoint create \
+    --name compliance-endpoint \
+    --target-namespace compliance-namespace \
+    --target-task-queue compliance-risk \
+    --address 127.0.0.1:7233 || true
+
+cd /root/workshop/exercise
+./gradlew --offline -q compileKotlin
+
+pkill -f "ComplianceWorkerAppKt" || true
+pkill -f "PaymentsWorkerAppKt"   || true
+sleep 1
+
+# Payments up, Compliance deliberately down.
+nohup ./gradlew paymentsWorker --console=plain -q > /tmp/payments-worker.log 2>&1 &
+for i in $(seq 1 120); do
+    grep -q "Payments Worker started" /tmp/payments-worker.log 2>/dev/null && break
+    sleep 1
+done
+
+# Operations get scheduled with no handler polling. The caller waits.
+./gradlew starter --console=plain -q > /tmp/starter.log 2>&1 || true
+
+# Bring Compliance back. The pending Operations get picked up.
+nohup ./gradlew complianceWorker --console=plain -q > /tmp/compliance-worker.log 2>&1 &
+for i in $(seq 1 120); do
+    grep -q "Nexus Poller" /tmp/compliance-worker.log 2>/dev/null && break
+    sleep 1
+done
+
+# Wait for the handler Workflow to actually exist before reviewing it.
+#
+# A fixed sleep is not enough. After an outage the Nexus Operation retries with
+# backoff, so compliance-TXN-B can appear well after the Worker is back. Reviewing
+# too early hits the sync Operation's 10s scheduleToCloseTimeout and fails.
+ADDR=127.0.0.1:7233
+for i in $(seq 1 120); do
+    STATE=$(temporal workflow describe --address "$ADDR" --namespace compliance-namespace \
+        --workflow-id compliance-TXN-B --output json 2>/dev/null \
+        | jq -r '.workflowExecutionInfo.status // empty' 2>/dev/null)
+    [ "$STATE" = "WORKFLOW_EXECUTION_STATUS_RUNNING" ] && break
+    sleep 1
+done
+
+# The review Update is rejected until the automated check has produced a MEDIUM
+# verdict, so retry rather than assuming the first attempt lands.
+for attempt in 1 2 3 4 5; do
+    if ./gradlew reviewStarter --console=plain -q > /tmp/review.log 2>&1; then
+        break
+    fi
+    sleep 5
+done
+cat /tmp/review.log

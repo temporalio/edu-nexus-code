@@ -1,0 +1,8 @@
+#!/bin/bash
+# ABOUTME: Challenge 02 setup. Clears the monolith Worker from challenge 01.
+# The working tree accumulates edits across challenges, so nothing is wiped.
+set -euxo pipefail
+
+pkill -f "PaymentsWorkerAppKt"   || true
+pkill -f "ComplianceWorkerAppKt" || true
+true

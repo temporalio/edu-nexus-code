@@ -1,0 +1,12 @@
+#!/bin/bash
+# ABOUTME: Track-level cleanup. Runs once when the track is torn down.
+# One pkill per pattern. Alternation does not work on macOS and the scripts
+# are authored there.
+set -euo pipefail
+
+pkill -f "PaymentsWorkerAppKt"    || true
+pkill -f "ComplianceWorkerAppKt"  || true
+pkill -f "PaymentStarterKt"       || true
+pkill -f "ReviewStarterKt"        || true
+pkill -f "GradleWrapperMain"      || true
+pkill -f "temporal server"        || true

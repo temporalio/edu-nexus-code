@@ -1,0 +1,50 @@
+# Pushes the Kotlin Instruqt track definition on merge to main.
+#
+# CI deliberately does NOT build the sandbox image.
+#
+# The image lives at ghcr.io/nadvolod/edu-nexus-kotlin-sandbox, a personal
+# namespace. This repo's default GITHUB_TOKEN cannot write there, so a build job
+# would fail on every merge. Rather than leave CI permanently red, the image is
+# built by hand and pinned by digest in kotlin/instruqt/config.yml:
+#
+#   cd kotlin
+#   docker buildx build --platform linux/amd64 -f sandbox/Dockerfile \
+#     -t ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --push .
+#   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest \
+#     --format "{{.Manifest.Digest}}"
+#   # paste that digest into kotlin/instruqt/config.yml, then commit
+#
+# Because the digest is pinned, a source change only reaches attendees once that
+# re-pin is committed, and the re-pin lives under kotlin/instruqt/. That is why
+# this workflow watches instruqt/ alone: it is the only path that can change what
+# the track actually serves.
+#
+# To let CI own the image later, move it to ghcr.io/temporalio/... (or add a PAT
+# with write:packages) and restore build_image below.
+#
+# Required once: a repo secret named INSTRUQT_TOKEN (Instruqt org API key).
+name: Publish Kotlin Nexus track
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kotlin/instruqt/**"
+      - ".github/workflows/_track-ci.yml"
+      - ".github/workflows/build-and-push-kotlin.yml"
+  workflow_dispatch:
+
+jobs:
+  ci:
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/_track-ci.yml
+    with:
+      track_dir: "kotlin"
+      # Referenced for completeness. Unused while build_image is false.
+      image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox
+      # Never build here: see the note at the top of this file.
+      build_image: false
+      push_track: true
+    secrets: inherit

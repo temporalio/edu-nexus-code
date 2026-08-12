@@ -1,2 +1,12 @@
+# Maven (java/)
 target/
 *.class
+
+# Gradle (kotlin/)
+# Note: gradle/wrapper/gradle-wrapper.jar is intentionally NOT ignored, the wrapper
+# must be committed so the sandbox image and learners can build without a local Gradle.
+build/
+.gradle/
+
+# VS Code Kotlin language server output
+bin/
