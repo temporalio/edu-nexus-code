@@ -3,7 +3,7 @@ slug: the-compliance-side
 id: io30tn0s5cxy
 type: challenge
 title: 3. The Compliance Side
-teaser: Implement the handler, register it, and put the Endpoint on the map.
+teaser: Implement the handler, register it on a Worker, and create the Endpoint.
 notes:
 - type: text
   contents: |-
@@ -31,10 +31,9 @@ tabs:
   port: 8233
 - id: vyijrbhaj7it
   title: Exercise
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src/main/kotlin
-  port: 8443
+  path: /root/workshop/exercise/src/main/kotlin
 - id: bnzko3euv8md
   title: Terminal
   type: terminal
@@ -52,10 +51,9 @@ tabs:
   workdir: /root/workshop/exercise
 - id: 22ayvjxk0rju
   title: Solution
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/solution/src/main/kotlin
-  port: 8444
+  path: /root/workshop/solution/src/main/kotlin
 difficulty: intermediate
 timelimit: 1800
 enhanced_loading: null
@@ -71,39 +69,34 @@ Three pieces, all on this team's side of the boundary.
 
 # Write the Handler
 
-Click the [button label="Exercise" background="#444CE7"](tab-1) tab and open
-`compliance/temporal/ComplianceNexusServiceImpl.kt`.
+Click the [button label="Exercise" background="#444CE7"](tab-1) tab, open
+`compliance/temporal/ComplianceNexusServiceImpl.kt`, and follow the TODO comments.
 
-Two handlers, two shapes, and picking the wrong shape is the interesting mistake.
+You write two methods in this file. They look similar. They are not.
 
-**`checkCompliance` is async.** Use `WorkflowRunOperation`. It returns a handle bound
-to a Workflow ID, so a retried Operation re-attaches to the Workflow already running.
+**`checkCompliance` is the slow one.** A $12,000 transfer has to be approved by a
+person, and that person might be at lunch. So this call cannot sit there waiting for
+an answer. It starts a Workflow and returns immediately, handing back something like
+a claim ticket. Temporal uses that ticket to find the Workflow later and collect the
+result whenever it finishes, minutes or hours from now.
 
-**`submitReview` is sync.** Use `OperationHandler.sync`. It talks to a Workflow that
-is already running rather than starting one, and an Update returns immediately.
+**`submitReview` is the fast one.** By the time it runs, the compliance check is
+already going and is parked waiting for a decision. All this method does is find that
+Workflow and hand it the yes or no. That takes milliseconds, so it can do the work and
+return the answer in the same call.
 
-The trap: back a long-running check with `OperationHandler.sync` and every retry
-starts a **duplicate Workflow**. Sync handlers also get ten seconds total, and a
-compliance check can wait on a human.
+Nexus gives you a different tool for each, and the file tells you which is which.
 
-One Kotlin wrinkle: `OperationHandler.sync` declares its input `@Nullable`, so Kotlin
-sees `ReviewRequest?` and you need `!!` on it. The async handler does not.
+If you use the fast tool for the slow job, two things break. The call is cut off after
+10 seconds, so it fails while the human is still deciding. And because Temporal retries
+a failed call, each retry starts **another** compliance check for the same payment.
 
 # Register the Handler
 
-Open `compliance/temporal/ComplianceWorkerApp.kt`.
+Open `compliance/temporal/ComplianceWorkerApp.kt` and follow the TODO comment.
 
-**TODO 3** is one blank block. A Worker only handles work it has been told about, and
-this one owns three things: the Workflow, the Activity, and the Nexus handler. Each is
-its own call on `worker`, and each call name starts with `register`.
-
-One of the three takes a constructed instance rather than a class, and that instance
-needs a collaborator passed to its constructor. The imports already at the top of the
-file tell you which classes you need.
-
-The editor gives you Kotlin highlighting but no autocomplete, so look the names up
-rather than waiting for a dropdown. "Ask AI" on https://docs.temporal.io:
-"what do I register on a Java Worker that handles Nexus Operations?"
+A Worker only handles work it has been told about. This one owns three things, and
+leaving any of them out fails in a different way.
 
 # Create the Endpoint
 
@@ -117,7 +110,7 @@ temporal operator nexus endpoint create --name compliance-endpoint --target-name
 ```
 
 `--target-task-queue` must match the Task Queue in `ComplianceWorkerApp.kt` exactly.
-Point it at a queue nobody polls and calls vanish into it.
+If it points at a queue no Worker is polling, the calls are never answered.
 
 # Start the Worker
 
@@ -127,29 +120,51 @@ Click the [button label="Compliance Worker" background="#444CE7"](tab-4) tab:
 ./gradlew complianceWorker
 ```
 
-This is the checkpoint. Look for `Nexus Poller` in the startup lines:
+Scroll up past the log lines and you should see the banner:
+
+```bash,nocopy
+=========================================================
+  Compliance Worker started on: compliance-risk
+  Namespace: compliance-namespace
+=========================================================
+```
+
+That banner only means the process is alive. It prints whether or not you registered
+anything, so it is not proof. Two things are.
+
+**One: the Nexus Poller line.** Look above the banner for:
 
 ```bash,nocopy
 start: MultiThreadedPoller{name=Nexus Poller taskQueue="compliance-risk", ...}
 ```
 
-That line only appears when a Nexus Service is registered. No `Nexus Poller` means
-the handler is not wired, even though the Worker started.
+There are three pollers, one per kind of work: Workflow, Activity, and Nexus. The
+Nexus one appears only when a Nexus Service is registered. If it is missing, your
+handler is not wired even though the Worker started.
 
-Two failures worth recognizing:
+**Two: the Temporal UI.** Click the
+[button label="Temporal UI" background="#444CE7"](tab-0) tab, switch the Namespace
+selector to `compliance-namespace`, and open **Workers** in the left menu. Your Worker
+is listed as **Running**.
+
+That is Compliance appearing in its own Namespace for the first time. In challenge 1
+this Namespace was empty.
+
+If the Worker did not start at all:
 
 | What you see | What it means |
 |---|---|
-| `Missing @ServiceImpl annotation` | The class is not annotated. TODO 2a. |
+| `Missing @ServiceImpl annotation` | The handler class is not annotated. |
 | `Missing handlers for service operations` | A method is missing `@OperationImpl`. |
-| Worker starts, no `Nexus Poller` | You skipped `registerNexusServiceImplementation`. |
+| Banner prints, no `Nexus Poller` | You skipped `registerNexusServiceImplementation`. |
 
 Click **Check** once it is up. Challenge 4 starts both Workers fresh, so you can
 stop this one with **Ctrl+C** afterwards.
 
 # What You Know Now
 
-- Async handlers start Workflows. Sync handlers talk to running ones.
-- `WorkflowRunOperation` makes retries re-attach instead of duplicating work.
-- A Worker starts fine with nothing registered. Silence is a failure mode.
+- Slow work starts a Workflow and returns. Fast work answers in the call.
+- `WorkflowRunOperation` makes a retry re-attach instead of starting a duplicate.
+- A Worker starts fine with nothing registered. A clean banner proves nothing.
 - The Endpoint maps a name to a Namespace and a Task Queue.
+- Compliance now runs in its own Namespace, with its own Worker.

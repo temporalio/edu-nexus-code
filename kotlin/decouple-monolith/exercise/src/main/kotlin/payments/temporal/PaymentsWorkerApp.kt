@@ -40,16 +40,30 @@ fun main() {
     val worker = factory.newWorker(Shared.TASK_QUEUE)
 
     // ── TODO 5a + 5b ─────────────────────────────────────────────────────────────
-    // 5a. This registration carries no Endpoint mapping. Tell the Worker WHERE the
-    //     ComplianceNexusService contract lives. There is an overload of
-    //     registerWorkflowImplementationTypes that takes WorkflowImplementationOptions
-    //     first: use it to attach Nexus Service options keyed by the service name
-    //     "ComplianceNexusService", pointing at the Endpoint "compliance-endpoint".
-    //     The key is a plain string, not a class.
+    // Replace the single `worker.registerWorkflowImplementationTypes(...)` line below.
+    // As written it has two problems.
     //
-    // 5b. It also knows about only one Workflow. Register ReviewCallerWorkflowImpl
-    //     alongside PaymentProcessingWorkflowImpl in that same call. Both call the same
-    //     contract, so both need the same Endpoint mapping.
+    // 5a. It says nothing about WHERE the ComplianceNexusService contract lives. The
+    //     Workflow you just edited names the contract but not its address, so this is
+    //     where the address goes. There is another version of
+    //     registerWorkflowImplementationTypes that takes WorkflowImplementationOptions
+    //     as its FIRST argument. Use it to attach Nexus Service options that map the
+    //     service name "ComplianceNexusService" to the Endpoint "compliance-endpoint".
+    //     That service name is a plain String, not a class.
+    //
+    // 5b. It registers only PaymentProcessingWorkflowImpl. Add
+    //     ReviewCallerWorkflowImpl to the same call. It calls the same contract, so it
+    //     needs the same mapping. Challenge 5 uses it to approve a payment.
+    //
+    // Shape of what you write:
+    //
+    //     worker.registerWorkflowImplementationTypes(
+    //         WorkflowImplementationOptions.newBuilder()
+    //             // map "ComplianceNexusService" -> Endpoint "compliance-endpoint"
+    //             .build(),
+    //         PaymentProcessingWorkflowImpl::class.java,
+    //         ReviewCallerWorkflowImpl::class.java,
+    //     )
     //
     // Stuck? "Ask AI" on https://docs.temporal.io:
     //   "how do I map a Nexus Service to an Endpoint on a Java Worker?"
@@ -58,9 +72,13 @@ fun main() {
     worker.registerActivitiesImplementations(PaymentActivityImpl(PaymentGateway()))
 
     // ── TODO 5c ──────────────────────────────────────────────────────────────────
-    // Delete this registration, and the two compliance imports at the top of the file.
+    // Delete the `worker.registerActivitiesImplementations(ComplianceActivityImpl(...))`
+    // line below, plus the two compliance imports at the top of this file
+    // (ComplianceChecker and ComplianceActivityImpl).
+    //
     // Compliance code no longer runs in this process once it is reachable over Nexus.
-    // This deletion IS the decoupling: watch the blast radius shrink.
+    // This deletion is the decoupling. After it, a bug in Compliance code can no
+    // longer crash this process.
     worker.registerActivitiesImplementations(ComplianceActivityImpl(ComplianceChecker()))
 
     // Start (start): begin polling.

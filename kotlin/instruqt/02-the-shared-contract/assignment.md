@@ -31,10 +31,9 @@ tabs:
   port: 8233
 - id: foqsemrm4t7k
   title: Exercise
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src/main/kotlin
-  port: 8443
+  path: /root/workshop/exercise/src/main/kotlin
 - id: nvgfbgah0mkc
   title: Terminal
   type: terminal
@@ -52,16 +51,15 @@ tabs:
   workdir: /root/workshop/exercise
 - id: l9axgqwrj1g7
   title: Solution
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/solution/src/main/kotlin
-  port: 8444
+  path: /root/workshop/solution/src/main/kotlin
 difficulty: basic
 timelimit: 900
 enhanced_loading: null
 ---
 
-# The Menu, Not the Kitchen
+# One Interface, Two Teams
 
 A Nexus Service is an interface both teams compile against. Payments builds a stub
 from it. Compliance implements a handler for it. Neither team sees the other's code.
@@ -70,15 +68,8 @@ It lives in `shared/` on purpose. Neither team owns it alone.
 
 # Write It
 
-Click the [button label="Exercise" background="#444CE7"](tab-1) tab and open
-`shared/nexus/ComplianceNexusService.kt`.
-
-Three TODOs, each marked directly above the line it applies to.
-
-- **TODO 1a** marks the interface as a Nexus Service.
-- **TODO 1b** and **TODO 1c** mark each method as a callable Operation.
-
-Both annotations come from `io.nexusrpc`. You add the imports yourself.
+Click the [button label="Exercise" background="#444CE7"](tab-1) tab, open
+`shared/nexus/ComplianceNexusService.kt`, and follow the TODO comments.
 
 The editor saves as you type. There is no save button.
 
@@ -93,15 +84,6 @@ Missing @Operation annotation
 
 You are not calling `submitReview` until challenge 5. It still needs the annotation
 today.
-
-# Looking Things Up
-
-Kotlin uses the Temporal **Java** SDK. Searching the docs for "Kotlin Nexus" finds
-nothing useful. Search the Java docs instead.
-
-Faster: click **Ask AI** in the top right of [docs.temporal.io](https://docs.temporal.io)
-and ask "how do I define a Nexus Service contract in Java?" Get comfortable with it
-now. Challenge 3 is harder.
 
 # Compile It
 

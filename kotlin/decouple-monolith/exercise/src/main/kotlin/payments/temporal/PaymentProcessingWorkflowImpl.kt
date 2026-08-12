@@ -39,12 +39,29 @@ class PaymentProcessingWorkflowImpl : PaymentProcessingWorkflow {
     )
 
     // ── TODO 4a ──────────────────────────────────────────────────────────────────
-    // Replace this Activity stub with a Nexus Service stub for ComplianceNexusService.
+    // Delete the whole `complianceActivity` declaration below (all 6 lines, from
+    // `private val` down to the closing `)`) and write a Nexus Service stub instead.
     //
-    // Use Workflow.newNexusServiceStub, and give its NexusOperationOptions a
-    // scheduleToCloseTimeout of 10 minutes. That timeout is what lets the Operation
-    // survive a handler Worker outage instead of failing the moment the handler
-    // goes away. You prove that in challenge 05.
+    // What that declaration is: a stub is a fake object you call like a normal Kotlin
+    // object. Under the hood it does not run the code, it tells Temporal to schedule
+    // the work. `Workflow.newActivityStub` makes one that schedules an Activity, and
+    // Activities run on THIS Worker. That is the coupling you are removing.
+    //
+    // `Workflow.newNexusServiceStub` makes the same kind of fake object, but calls on
+    // it go out to whichever Worker owns the Nexus Service. Shape of what you write:
+    //
+    //     private val complianceService: ComplianceNexusService =
+    //         Workflow.newNexusServiceStub(
+    //             ComplianceNexusService::class.java,
+    //             NexusServiceOptions.newBuilder()
+    //                 // set a scheduleToCloseTimeout of 10 minutes here,
+    //                 // using NexusOperationOptions
+    //                 .build(),
+    //         )
+    //
+    // The 10 minutes is the budget for the whole call, retries included. It is what
+    // lets the Operation survive the Compliance Worker going away, instead of failing
+    // the moment it does. You prove that in challenge 05.
     //
     // Notice what you will NOT write here: the Endpoint name. This Workflow knows the
     // contract; the Worker knows where the contract lives. That split is what keeps
@@ -85,8 +102,12 @@ class PaymentProcessingWorkflowImpl : PaymentProcessingWorkflow {
         logger.info("Step 2: calling compliance check for ${request.transactionId}")
 
         // ── TODO 4b ──────────────────────────────────────────────────────────────
-        // Call the Nexus stub you created above instead of the Activity stub.
-        // Same method name, same input, same output. Only the architecture changes.
+        // On the line below, change `complianceActivity` to the stub you just created
+        // in TODO 4a. One word. Everything else on the line stays: same method name,
+        // same input, same result type.
+        //
+        // That one word is the entire difference between running Compliance code in
+        // this process and calling another team's service across a durable boundary.
         val compliance = complianceActivity.checkCompliance(compReq)
 
         logger.info("Compliance result: ${compliance.riskLevel} | approved=${compliance.approved}")

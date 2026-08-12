@@ -31,10 +31,9 @@ tabs:
   port: 8233
 - id: z4z6ycnuq0gr
   title: Exercise
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src/main/kotlin
-  port: 8443
+  path: /root/workshop/exercise/src/main/kotlin
 - id: y3hvqceqamea
   title: Terminal
   type: terminal
@@ -52,10 +51,9 @@ tabs:
   workdir: /root/workshop/exercise
 - id: prerkoiew6ai
   title: Solution
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/solution/src/main/kotlin
-  port: 8444
+  path: /root/workshop/solution/src/main/kotlin
 difficulty: intermediate
 timelimit: 1800
 enhanced_loading: null
@@ -63,32 +61,18 @@ enhanced_loading: null
 
 # Swap the Stub
 
-Click the [button label="Exercise" background="#444CE7"](tab-1) tab and open
-`payments/temporal/PaymentProcessingWorkflowImpl.kt`.
+Click the [button label="Exercise" background="#444CE7"](tab-1) tab, open
+`payments/temporal/PaymentProcessingWorkflowImpl.kt`, and follow the TODO comments.
 
-**TODO 4a** replaces the Activity stub with `Workflow.newNexusServiceStub`. Give its
-`NexusOperationOptions` a `scheduleToCloseTimeout` of 10 minutes. That timeout is what
-keeps the Operation alive when the handler Worker goes away. You prove it in
-challenge 5.
-
-**TODO 4b** changes the call site. Same method name, same input, same output.
-
-Notice what you do not write here: the Endpoint name. This Workflow knows the
-contract. It does not know where the contract lives.
+The call site barely changes. Same method name, same input, same output. What changes
+is everything underneath it.
 
 # Point the Contract at the Endpoint
 
-Open `payments/temporal/PaymentsWorkerApp.kt`.
+Open `payments/temporal/PaymentsWorkerApp.kt` and follow the TODO comments.
 
-**TODO 5a** attaches the Endpoint mapping. There is an overload of
-`registerWorkflowImplementationTypes` that takes `WorkflowImplementationOptions`
-first. The service name is a plain string key, not a class.
-
-**TODO 5b** registers `ReviewCallerWorkflowImpl` in that same call. It calls the same
-contract, so it needs the same mapping. Challenge 5 uses it.
-
-**TODO 5c** deletes the `ComplianceActivityImpl` registration and the two compliance
-imports. This is the decoupling. Everything before it was setup.
+The last one deletes a single registration. That deletion is the decoupling.
+Everything before it was wiring.
 
 # Run It Decoupled
 

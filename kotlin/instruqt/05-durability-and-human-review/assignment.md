@@ -31,10 +31,9 @@ tabs:
   port: 8233
 - id: 5sn9cnguszxu
   title: Exercise
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src/main/kotlin
-  port: 8443
+  path: /root/workshop/exercise/src/main/kotlin
 - id: k9vuphhzqdqo
   title: Terminal
   type: terminal
@@ -52,10 +51,9 @@ tabs:
   workdir: /root/workshop/exercise
 - id: gp2jkv9u7ssn
   title: Solution
-  type: service
+  type: code
   hostname: workshop
-  path: /?folder=/root/workshop/solution/src/main/kotlin
-  port: 8444
+  path: /root/workshop/solution/src/main/kotlin
 difficulty: basic
 timelimit: 900
 enhanced_loading: null
@@ -142,8 +140,8 @@ Click the [button label="Terminal" background="#444CE7"](tab-2) tab:
 
 That call went out over Nexus too, through `submitReview`, the sync handler you wrote
 in challenge 3. Sync because it talks to a Workflow already running and returns
-immediately. The async handler starts work. The sync one steers work already in
-flight.
+immediately. The async handler starts new work. The sync one sends a message to work
+that is already running.
 
 Click **Check**.
 
