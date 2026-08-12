@@ -25,9 +25,13 @@ fi
 
 # 3. Start one code-server per folder, each opened at a fixed directory.
 #
-# Two instances rather than one with a ?folder= query, because Instruqt's
-# service-tab `path:` handling of query strings is undocumented. Fixed ports and
-# fixed folders need no query string at all.
+# Ports 8080 and 8081 on purpose. 8443 is the conventional alternate-HTTPS port
+# and Instruqt's proxy could not reach code-server there. The one Temporal track
+# known to run code-server successfully (temporal-ai-agents-python-v4) uses 8080.
+# Every port here must also be listed under `ports:` in config.yml.
+#
+# The tabs point at /?folder=<abs path>, which returns 200. Bare / returns a 302
+# redirect, and Instruqt's readiness probe wants a 2xx.
 #
 # --user-data-dir MUST differ per instance. code-server persists the last opened
 # workspace there, so sharing it makes the second instance reopen the first
@@ -49,8 +53,8 @@ start_code_server() {
     disown || true
 }
 
-start_code_server 8443 /root/workshop/exercise/src/main/kotlin /root/.cs-exercise
-start_code_server 8444 /root/workshop/solution/src/main/kotlin /root/.cs-solution
+start_code_server 8080 /root/workshop/exercise/src/main/kotlin /root/.cs-exercise
+start_code_server 8081 /root/workshop/solution/src/main/kotlin /root/.cs-solution
 
 # 4. Start the Temporal dev server in the background.
 #    --ip 0.0.0.0 so the Instruqt service tab can reach the Web UI on 8233.
@@ -99,15 +103,15 @@ done
 
 # 7. Report editor readiness last. Never fatal.
 for i in $(seq 1 60); do
-    if curl -sf -o /dev/null http://127.0.0.1:8443/ 2>/dev/null \
-       && curl -sf -o /dev/null http://127.0.0.1:8444/ 2>/dev/null; then
+    if curl -sf -o /dev/null http://127.0.0.1:8080/ 2>/dev/null \
+       && curl -sf -o /dev/null http://127.0.0.1:8081/ 2>/dev/null; then
         break
     fi
     sleep 1
 done
-curl -sf -o /dev/null http://127.0.0.1:8443/ 2>/dev/null \
-    || { echo "==> WARNING: code-server 8443 not responding."; tail -20 /tmp/code-server-8443.log 2>/dev/null; }
-curl -sf -o /dev/null http://127.0.0.1:8444/ 2>/dev/null \
-    || { echo "==> WARNING: code-server 8444 not responding."; tail -20 /tmp/code-server-8444.log 2>/dev/null; }
+curl -sf -o /dev/null http://127.0.0.1:8080/ 2>/dev/null \
+    || { echo "==> WARNING: code-server 8080 not responding."; tail -20 /tmp/code-server-8080.log 2>/dev/null; }
+curl -sf -o /dev/null http://127.0.0.1:8081/ 2>/dev/null \
+    || { echo "==> WARNING: code-server 8081 not responding."; tail -20 /tmp/code-server-8081.log 2>/dev/null; }
 
 echo "==> Track setup complete."

@@ -5,15 +5,20 @@ containers:
   # older image that had no code-server in it, so the editor tabs showed
   # "Please wait" forever. Re-pin this after every image rebuild with:
   #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --format "{{.Manifest.Digest}}"
-  image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox@sha256:ca06525af12e6485ff292ed2c57ad46a0333b2ee976fc4e55988f28280f5a873
+  image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox@sha256:722687b7a46504764e49933d4400b95039b44389ace254961dabba9df92cdfbf
   shell: /bin/bash
   # Two JVM Workers, a Gradle daemon, a dev server, and two code-server instances.
-  memory: 6144
+  memory: 8192
   # Every port a challenge tab points at MUST be listed here. Instruqt's proxy
-  # cannot reach an undeclared port, and the tab just shows "Please wait"
-  # forever. This was the actual cause of the editor tabs failing; it is not a
-  # code-server problem.
+  # cannot reach an undeclared port, and the tab shows "Please wait" forever.
+  #
+  # 8080/8081 are code-server, kept declared and kept running even though the
+  # editor tabs now use the native `type: code` editor. code-server served a
+  # workbench correctly inside the container but rendered blank through
+  # Instruqt's iframe, and that was not solved by declaring the ports or by
+  # disabling Workspace Trust. Left in place so re-enabling is a tab-only change
+  # if Instruqt clarifies what their service tabs require.
   ports:
   - 8233   # Temporal UI
-  - 8443   # Editor, exercise tree (code-server)
-  - 8444   # Editor, solution tree (code-server)
+  - 8080   # code-server, exercise tree (not currently surfaced as a tab)
+  - 8081   # code-server, solution tree (not currently surfaced as a tab)

@@ -34,6 +34,28 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh -s -- --version ${CODE_SE
 RUN code-server --extensions-dir /root/.cs-extensions \
       --install-extension mathiasfrohlich.kotlin
 
+# Seed settings into BOTH user-data-dirs. This is load-bearing, not cosmetic.
+#
+# security.workspace.trust.enabled MUST be false. Workspace Trust is on by
+# default, and code-server renders a blank page instead of the workbench until
+# the folder is trusted. That was the cause of the editor tabs showing white.
+# Copied from temporal-ai-agents-python-v4, the one Temporal track known to run
+# code-server through Instruqt's proxy successfully.
+#
+# Each instance needs its own copy because each runs with its own
+# --user-data-dir, which is what stops them sharing a last-opened workspace.
+RUN for d in /root/.cs-exercise /root/.cs-solution; do \
+      mkdir -p "$d/User" && printf '%s\n' \
+        '{' \
+        '    "security.workspace.trust.enabled": false,' \
+        '    "workbench.colorTheme": "Default Dark+",' \
+        '    "workbench.startupEditor": "none",' \
+        '    "editor.fontSize": 14,' \
+        '    "editor.tabSize": 4,' \
+        '    "telemetry.telemetryLevel": "off"' \
+        '}' > "$d/User/settings.json"; \
+    done
+
 # --- Bake the workshop source -------------------------------------------------
 # exercise/ and solution/ each carry their own Gradle wrapper.
 COPY decouple-monolith/ /opt/workshop/
