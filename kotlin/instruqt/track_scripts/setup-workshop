@@ -51,6 +51,15 @@ if ! curl -sf -o /dev/null "http://127.0.0.1:8080/" 2>/dev/null; then
     disown || true
 fi
 
+# 3b. Serve the architecture diagram on 8090.
+#
+# jwebserver ships with the JDK, so this needs no extra package in the image.
+# Must also be listed under `ports:` in config.yml or the tab cannot reach it.
+if ! curl -sf -o /dev/null "http://127.0.0.1:8090/" 2>/dev/null; then
+    nohup jwebserver -b 0.0.0.0 -p 8090 -d /opt/diagrams > /tmp/jwebserver.log 2>&1 &
+    disown || true
+fi
+
 # 4. Start the Temporal dev server in the background.
 #    --ip 0.0.0.0 so the Instruqt service tab can reach the Web UI on 8233.
 if ! curl -sf http://127.0.0.1:8233 >/dev/null 2>&1; then

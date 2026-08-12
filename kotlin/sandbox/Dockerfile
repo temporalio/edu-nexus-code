@@ -56,6 +56,12 @@ RUN for d in /root/.cs-exercise /root/.cs-solution; do \
         '}' > "$d/User/settings.json"; \
     done
 
+# --- Architecture diagram -----------------------------------------------------
+# Served by jwebserver (ships with the JDK, so no extra package). Lives outside
+# the challenge folders on purpose: Instruqt parses every file inside a challenge
+# directory as a lifecycle script.
+COPY diagrams/ /opt/diagrams/
+
 # --- Bake the workshop source -------------------------------------------------
 # exercise/ and solution/ each carry their own Gradle wrapper.
 COPY decouple-monolith/ /opt/workshop/

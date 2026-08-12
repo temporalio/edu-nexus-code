@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Challenge 1 · The Payments Monolith</title>
+<style>
+  :root {
+    --bg:#eef1f5; --bg-grid:#e2e7ee; --panel:#ffffff; --panel-2:#f7f9fc;
+    --ink:#18202e; --muted:#5b6676; --faint:#8b95a4; --line:#d3dae3; --line-strong:#b9c2ce;
+    --payments:#2a78d6;    /* Payments team code */
+    --compliance:#c9791b;  /* Compliance team code, running in Payments' process */
+    --wire:#5b6676;        /* registration / wiring */
+    --ext:#8b95a4;         /* simulated external systems */
+    --empty:#0f9d94;       /* the empty Compliance namespace */
+    --syn-kw:#0b4fbd; --syn-ann:#795e26; --syn-str:#a31515; --syn-type:#267f99; --syn-com:#6a8759;
+    --on-accent:#ffffff;
+    --shadow:0 1px 2px rgba(20,30,50,.06), 0 8px 24px rgba(20,30,50,.08);
+    --radius:13px;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,"Menlo","Cascadia Code","Roboto Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0d1117; --bg-grid:#131a24; --panel:#161d28; --panel-2:#1b2432;
+      --ink:#e6ebf2; --muted:#93a0b1; --faint:#64707f; --line:#29323f; --line-strong:#38434f;
+      --payments:#3987e5; --compliance:#f0a848; --wire:#93a0b1; --ext:#64707f; --empty:#3ad6ce;
+      --syn-kw:#569cd6; --syn-ann:#dcdcaa; --syn-str:#ce9178; --syn-type:#4ec9b0; --syn-com:#6a9955;
+      --on-accent:#141922;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0d1117; --bg-grid:#131a24; --panel:#161d28; --panel-2:#1b2432;
+    --ink:#e6ebf2; --muted:#93a0b1; --faint:#64707f; --line:#29323f; --line-strong:#38434f;
+    --payments:#3987e5; --compliance:#f0a848; --wire:#93a0b1; --ext:#64707f; --empty:#3ad6ce;
+    --syn-kw:#569cd6; --syn-ann:#dcdcaa; --syn-str:#ce9178; --syn-type:#4ec9b0; --syn-com:#6a9955;
+    --on-accent:#141922;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+  }
+
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    background:radial-gradient(circle at 1px 1px, var(--bg-grid) 1px, transparent 0) 0 0 / 26px 26px, var(--bg);
+    color:var(--ink); font-family:var(--sans); line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1700px; margin:0 auto; padding:20px 18px 40px; }
+  header.masthead { margin-bottom:14px; }
+  .eyebrow { font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--compliance); font-weight:600; margin:0 0 6px; }
+  h1 { font-size:clamp(22px,3vw,34px); line-height:1.1; margin:0; letter-spacing:-.02em; font-weight:700; }
+  .sub { margin:8px 0 0; color:var(--muted); font-size:14.5px; max-width:78ch; }
+
+  .controls { display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin:16px 0 12px;
+    padding:11px 16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .clabel { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:600; }
+  .legend { display:flex; flex-wrap:wrap; gap:8px; }
+  .legItem { display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:12.5px; color:var(--ink);
+    padding:5px 11px 5px 9px; border-radius:999px; border:1px solid var(--line); background:var(--panel-2);
+    user-select:none; transition:opacity .15s, border-color .15s; }
+  .legItem:hover { border-color:var(--line-strong); }
+  .legItem.off { opacity:.38; }
+  .legItem .swatch { width:22px; height:0; border-top-width:3px; border-top-style:solid; border-radius:3px; }
+  .legItem.dashed .swatch { border-top-style:dashed; }
+  .legItem[data-cat="payments"]   .swatch { border-color:var(--payments); }
+  .legItem[data-cat="compliance"] .swatch { border-color:var(--compliance); border-top-width:4px; }
+  .legItem[data-cat="wire"]       .swatch { border-color:var(--wire); }
+  .legItem[data-cat="ext"]        .swatch { border-color:var(--ext); }
+  .spacer { flex:1 1 auto; }
+  .btn { font-family:var(--sans); font-size:12.5px; font-weight:500; cursor:pointer; color:var(--ink);
+    background:var(--panel-2); border:1px solid var(--line); padding:6px 13px; border-radius:8px; transition:border-color .15s; }
+  .btn:hover { border-color:var(--line-strong); }
+  .zoomlabel { font-family:var(--mono); font-size:12px; color:var(--muted); min-width:44px; text-align:center; }
+  .btn:focus-visible, .legItem:focus-visible, .node:focus-visible, .worker:focus-visible, .lane:focus-visible { outline:2px solid var(--payments); outline-offset:2px; }
+
+  .stage { display:flex; align-items:stretch; }
+  .canvasScroll { flex:1 1 auto; min-width:0; height:78vh; min-height:520px; overflow:auto; position:relative;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .canvasFit { position:relative; width:100%; }
+  .canvas { position:absolute; top:0; left:0; transform-origin:top left; }
+  svg.edges { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:2; overflow:visible; }
+  svg.edges path { fill:none; transition:opacity .18s, stroke-width .18s; }
+  svg.edges .elabel { font-family:var(--mono); font-size:10.5px; fill:var(--muted); paint-order:stroke;
+    stroke:var(--panel); stroke-width:4px; stroke-linejoin:round; transition:opacity .18s; }
+  .edge-payments   { stroke:var(--payments); }
+  .edge-compliance { stroke:var(--compliance); }
+  .edge-wire       { stroke:var(--wire); stroke-dasharray:4 4; }
+  .edge-ext        { stroke:var(--ext); stroke-dasharray:5 5; }
+  path.dim, text.dim { opacity:.09 !important; }
+  path.hot { stroke-width:3.4px !important; }
+
+  .detail { width:0; flex:0 0 auto; overflow:hidden; transition:width .2s ease; background:var(--panel);
+    border-radius:var(--radius); box-shadow:var(--shadow); }
+  .stage.detail-open .detail { width:360px; margin-left:16px; border:1px solid var(--line); }
+  .detail-inner { width:360px; height:78vh; min-height:520px; overflow:auto; padding:18px 18px 26px; }
+  .detail-close { float:right; cursor:pointer; border:1px solid var(--line); background:var(--panel-2);
+    color:var(--muted); width:26px; height:26px; border-radius:7px; font-size:15px; line-height:1; }
+  .detail-close:hover { border-color:var(--line-strong); color:var(--ink); }
+  .dbadge { display:inline-block; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.05em;
+    text-transform:uppercase; padding:3px 9px; border-radius:999px; margin-bottom:10px; }
+  .dbadge.payments   { color:var(--on-accent); background:var(--payments); }
+  .dbadge.compliance { color:var(--on-accent); background:var(--compliance); }
+  .dbadge.wire       { color:var(--on-accent); background:var(--wire); }
+  .dbadge.ext        { color:var(--on-accent); background:var(--ext); }
+  .dbadge.empty      { color:var(--on-accent); background:var(--empty); }
+  .detail h2 { font-size:17px; margin:2px 0 4px; font-family:var(--mono); letter-spacing:-.01em; word-break:break-word; }
+  .detail .dsig { font-family:var(--mono); font-size:12.5px; color:var(--muted); margin:0 0 12px; word-break:break-word; }
+  .detail .dmeta { font-family:var(--mono); font-size:11.5px; color:var(--faint); border-top:1px solid var(--line);
+    padding-top:10px; margin-top:12px; }
+  .detail .dmeta b { color:var(--muted); font-weight:600; }
+  .detail p.ddesc { font-size:13.5px; color:var(--ink); margin:0 0 12px; }
+  .detail ul { margin:6px 0 0; padding-left:18px; }
+  .detail li { font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-bottom:5px; word-break:break-word; }
+  .placeholder { color:var(--faint); font-size:13.5px; }
+
+  .worker { position:absolute; z-index:0; border:1.5px dashed var(--line-strong); border-radius:18px;
+    cursor:pointer; background:transparent; transition:border-color .15s; }
+  .worker:hover { border-color:var(--payments); }
+  .worker.lit { border-style:solid; border-color:var(--payments); }
+  .worker.w-empty { border-color:color-mix(in srgb, var(--empty) 45%, var(--line-strong)); }
+  .worker.w-empty.lit { border-color:var(--empty); }
+  .worker .wlabel { position:absolute; top:-13px; left:22px; padding:3px 13px; background:var(--panel);
+    border:1px solid var(--line-strong); border-radius:999px; font-family:var(--mono); font-size:12px;
+    font-weight:600; color:var(--ink); white-space:nowrap; }
+  .worker .wlabel .wp { color:var(--faint); font-weight:500; }
+
+  .lane { position:absolute; z-index:1; border:1px solid; border-radius:14px; cursor:pointer;
+    background:color-mix(in srgb, var(--panel-2) 70%, transparent); transition:box-shadow .15s; }
+  .lane .llabel { position:absolute; top:-11px; left:18px; padding:2px 11px; background:var(--panel);
+    border:1px solid var(--line); border-radius:999px; font-family:var(--mono); font-size:11px;
+    font-weight:600; white-space:nowrap; }
+  .lane .ltag { position:absolute; bottom:8px; right:14px; font-family:var(--mono); font-size:10.5px; color:var(--faint); }
+
+  .node { position:absolute; z-index:3; background:var(--panel); border:1px solid var(--line);
+    border-left-width:4px; border-radius:10px; padding:9px 12px 10px; cursor:pointer; box-shadow:var(--shadow);
+    transition:transform .12s, border-color .15s, box-shadow .15s; }
+  .node:hover { transform:translateY(-1px); border-color:var(--line-strong); }
+  .node.lit { box-shadow:0 0 0 2px color-mix(in srgb, var(--payments) 40%, transparent), var(--shadow); }
+  .node.h-payments   { border-left-color:var(--payments); }
+  .node.h-compliance { border-left-color:var(--compliance); }
+  .node.h-wire       { border-left-color:var(--wire); }
+  .node.h-ext        { border-left-color:var(--ext); }
+  .node.h-empty      { border-left-color:var(--empty); }
+  .node .nfile { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.01em; margin-bottom:2px; }
+  .node.h-payments   .nfile { color:var(--payments); }
+  .node.h-compliance .nfile { color:var(--compliance); }
+  .node.h-wire       .nfile { color:var(--wire); }
+  .node.h-ext        .nfile { color:var(--ext); }
+  .node.h-empty      .nfile { color:var(--empty); }
+  .node .nsig { font-family:var(--mono); font-size:12px; color:var(--ink); word-break:break-word; }
+  .node .nsnip { margin-top:7px; padding-top:7px; border-top:1px dashed var(--line); font-family:var(--mono);
+    font-size:10.5px; line-height:1.55; white-space:pre-wrap; color:var(--ink); }
+  .k { color:var(--syn-kw); font-weight:600; }
+  .a { color:var(--syn-ann); }
+  .s { color:var(--syn-str); }
+  .t { color:var(--syn-type); }
+  .c { color:var(--syn-com); font-style:italic; }
+  .snipbox { margin-top:10px; padding:10px 12px; background:var(--panel-2); border:1px solid var(--line);
+    border-radius:8px; font-family:var(--mono); font-size:11.5px; line-height:1.6; white-space:pre-wrap; overflow-x:auto; }
+  .note { margin-top:14px; font-size:12.5px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Challenge 1 · Before Nexus</p>
+    <h1>The Payments Monolith</h1>
+    <p class="sub">Two teams' code, one Worker, one process. Click any block for the file, the signature and what it does.
+      The colour tells you which team owns it.</p>
+  </header>
+
+  <div class="controls">
+    <span class="clabel">Calls</span>
+    <div class="legend" id="legend">
+      <span class="legItem" data-cat="payments"   tabindex="0" role="button" aria-pressed="true"><span class="swatch"></span>Payments team</span>
+      <span class="legItem" data-cat="compliance" tabindex="0" role="button" aria-pressed="true"><span class="swatch"></span>Compliance team</span>
+      <span class="legItem dashed" data-cat="wire" tabindex="0" role="button" aria-pressed="true"><span class="swatch"></span>Worker registration</span>
+      <span class="legItem dashed" data-cat="ext"  tabindex="0" role="button" aria-pressed="true"><span class="swatch"></span>Simulated external system</span>
+    </div>
+    <span class="spacer"></span>
+    <span class="clabel">Zoom</span>
+    <button class="btn" id="zoomOut" type="button" aria-label="Zoom out">&minus;</button>
+    <span class="zoomlabel" id="zoomLabel">100%</span>
+    <button class="btn" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+    <button class="btn" id="zoomFit" type="button">Fit</button>
+    <button class="btn" id="resetBtn" type="button">Reset view</button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="canvasScroll" id="canvasScroll">
+      <div class="canvasFit" id="canvasFit">
+        <div class="canvas" id="canvas">
+          <svg class="edges" id="edges" viewBox="0 0 1420 880" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </div>
+      </div>
+    </div>
+    <aside class="detail" id="detail" aria-live="polite">
+      <div class="detail-inner" id="detailInner"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const W = 1420, H = 880;
+
+/* ---------------- process boxes ---------------- */
+const WORKERS = [
+  { id:"w-pay", cls:"", x:26, y:112, w:920, h:716,
+    label:"PaymentsWorkerApp.kt", proc:"one JVM process",
+    detail:{ badge:"wire", type:"Worker process", name:"PaymentsWorkerApp.kt",
+      file:"payments/temporal/PaymentsWorkerApp.kt", tq:"polls payments-processing",
+      desc:"One Worker. One deployment. Everything inside this dashed box ships together and dies together. Both teams' code runs in this single process, which is exactly the coupling you remove in the rest of the lab.",
+      members:["WorkflowClient.newInstance(payments-namespace)","factory.newWorker(\"payments-processing\")","registerWorkflowImplementationTypes(PaymentProcessingWorkflowImpl)","registerActivitiesImplementations(PaymentActivityImpl)","registerActivitiesImplementations(ComplianceActivityImpl)  <- the coupling"] } },
+
+  { id:"w-empty", cls:"w-empty", x:992, y:112, w:400, h:716,
+    label:"compliance-namespace", proc:"exists, and is empty",
+    detail:{ badge:"empty", type:"Namespace", name:"compliance-namespace",
+      file:"created by track_scripts/setup-workshop", tq:"no Worker polls it yet",
+      desc:"The Compliance team already has its own Namespace. Nothing runs in it. Their code is executing inside the Payments process instead, which is why a bug in compliance logic can take payments down with it. By challenge 4 this box is full.",
+      members:["Created at lab start","No Worker polling","No Workflows","No Task Queues in use"] } },
+];
+
+/* ---------------- task-queue lane ---------------- */
+const LANES = [
+  { id:"tq", x:52, y:168, w:868, h:634, color:"var(--payments)",
+    name:"payments-processing", tag:"one Task Queue for both teams' work",
+    detail:{ badge:"payments", type:"Task queue", name:"payments-processing",
+      file:"payments/Shared.kt", tq:"polled by PaymentsWorkerApp",
+      desc:"Every unit of work in this system lands on one queue: the payment Workflow, the payment Activities, and the compliance Activity. There is no way to scale, deploy or rate-limit compliance separately from payments while that is true.",
+      members:["const val TASK_QUEUE = \"payments-processing\"","Runs: PaymentProcessingWorkflow","Runs: PaymentActivity (validate, execute)","Runs: ComplianceActivity (the other team's work)"] } },
+];
+
+/* ---------------- nodes ---------------- */
+const NODES = [
+  { id:"starter", x:470, y:24, w:440, h:66, hue:"ext",
+    file:"payments/temporal/PaymentStarter.kt", sig:"fun main()",
+    type:"Client · separate process", tq:"starts work on payments-processing",
+    desc:"Runs three transactions: TXN-A ($250 domestic), TXN-B ($12,000 to the UK) and TXN-C ($75,000). It starts all three without blocking, then collects results, so one slow payment cannot hold up the others.",
+    members:["WorkflowClient.start(workflow::processPayment, txn)","TXN-A 250.00 US -> US","TXN-B 12,000.00 US -> UK","TXN-C 75,000.00 US -> US"],
+    snip:[['c','// PaymentStarter.kt'],['nl'],['t','WorkflowClient'],['p','.'],['k','start'],['p','(workflow::processPayment, txn)']] },
+
+  { id:"workerapp", x:82, y:212, w:400, h:96, hue:"wire",
+    file:"payments/temporal/PaymentsWorkerApp.kt", sig:"fun main()",
+    type:"Worker bootstrap",
+    tq:"payments-processing",
+    desc:"Connects, creates the Worker, and registers what it can run. The last registration is the problem: it hands the Compliance team's Activity to the Payments Worker. Deleting that one line is the decoupling you perform in challenge 4.",
+    members:["registerWorkflowImplementationTypes(...)","registerActivitiesImplementations(PaymentActivityImpl(...))","registerActivitiesImplementations(ComplianceActivityImpl(...))","factory.start()"],
+    snip:[['p','worker.'],['k','registerActivitiesImplementations'],['p','('],['nl'],['p','    '],['t','ComplianceActivityImpl'],['p','('],['t','ComplianceChecker'],['p','()))  '],['c','// <- the coupling']] },
+
+  { id:"wf", x:82, y:352, w:400, h:104, hue:"payments",
+    file:"payments/temporal/PaymentProcessingWorkflowImpl.kt",
+    sig:"processPayment(request): PaymentResult",
+    type:"@WorkflowInterface · Kotlin",
+    tq:"payments-processing",
+    desc:"Three steps in order. Validate, check compliance, execute. Step 2 must pass before step 3 runs. Today all three are ordinary Activity calls inside one process. In challenge 4 step 2 becomes a Nexus call and nothing else about this method changes.",
+    members:["Step 1: paymentActivity.validatePayment(request)","Step 2: complianceActivity.checkCompliance(compReq)","Step 3: paymentActivity.executePayment(request)","Returns COMPLETED / REJECTED / DECLINED_COMPLIANCE"],
+    snip:[['a','@WorkflowInterface'],['nl'],['k','interface '],['t','PaymentProcessingWorkflow'],['p',' {'],['nl'],['p','    '],['a','@WorkflowMethod'],['nl'],['p','    '],['k','fun '],['p','processPayment(request: '],['t','PaymentRequest'],['p','): '],['t','PaymentResult'],['nl'],['p','}']] },
+
+  { id:"payact", x:82, y:512, w:360, h:96, hue:"payments",
+    file:"payments/temporal/activity/PaymentActivityImpl.kt",
+    sig:"validatePayment(...) / executePayment(...)",
+    type:"@ActivityInterface · Kotlin",
+    tq:"payments-processing",
+    desc:"The Payments team's own Activities. Steps 1 and 3. A thin wrapper over the payment gateway, so retries and timeouts are Temporal's problem rather than yours.",
+    members:["validatePayment(request): Boolean","executePayment(request): String","startToCloseTimeout = 30s","Retries with exponential backoff"],
+    snip:[['a','@ActivityInterface'],['nl'],['k','interface '],['t','PaymentActivity'],['p',' {'],['nl'],['p','    '],['k','fun '],['p','validatePayment(request: '],['t','PaymentRequest'],['p','): '],['t','Boolean'],['nl'],['p','}']] },
+
+  { id:"gateway", x:82, y:658, w:360, h:82, hue:"ext",
+    file:"payments/PaymentGateway.kt", sig:"executePayment(request): String",
+    type:"Simulated external system",
+    tq:"runs inside the Activity",
+    desc:"Stands in for Stripe, PayPal or SWIFT. It fails 10 percent of the time on purpose so you can watch Temporal retry an Activity for free. The confirmation number is derived from the transaction ID, not the clock, so a retry returns the same value.",
+    members:["validatePayment(request): Boolean","executePayment(request): String","Fails ~10% of attempts by design","CONF-{transactionId}  (idempotent)"],
+    snip:[['k','if '],['p','('],['t','Random'],['p','.nextDouble() < '],['s','0.10'],['p',') '],['k','throw '],['t','RuntimeException'],['p','(...)']] },
+
+  { id:"compact", x:520, y:512, w:380, h:96, hue:"compliance",
+    file:"compliance/temporal/activity/ComplianceActivityImpl.kt",
+    sig:"checkCompliance(request): ComplianceResult",
+    type:"@ActivityInterface · Kotlin",
+    tq:"payments-processing",
+    desc:"The Compliance team's code, registered on the Payments Worker and running on the Payments Task Queue. It works. That is what makes it easy to miss. It also means Compliance cannot deploy, scale or roll back without touching Payments.",
+    members:["checkCompliance(request): ComplianceResult","Registered in PaymentsWorkerApp","Runs on payments-processing","Owned by a team that cannot deploy it"],
+    snip:[['a','@ActivityInterface'],['nl'],['k','interface '],['t','ComplianceActivity'],['p',' {'],['nl'],['p','    '],['k','fun '],['p','checkCompliance(request: '],['t','ComplianceRequest'],['p','): '],['t','ComplianceResult'],['nl'],['p','}']] },
+
+  { id:"checker", x:520, y:658, w:380, h:82, hue:"compliance",
+    file:"compliance/ComplianceChecker.kt", sig:"checkCompliance(request): ComplianceResult",
+    type:"Business logic · Kotlin",
+    tq:"runs inside the Activity",
+    desc:"Rule based and deterministic, no API keys needed. OFAC country or over $50,000 is HIGH and blocked. Over $10,000 or an unusual destination is MEDIUM. Everything else is LOW. TXN-B is MEDIUM, which matters a lot once this moves behind Nexus.",
+    members:["Sanctioned country -> HIGH, blocked","Amount > $50,000 -> HIGH, blocked","Amount > $10,000 -> MEDIUM","Otherwise -> LOW, approved"],
+    snip:[['k','if '],['p','(request.amount > '],['s','50_000'],['p',') '],['k','return '],['t','ComplianceResult'],['p','('],['nl'],['p','    ... , '],['s','"HIGH"'],['p',', '],['s','"Exceeds threshold"'],['p',')']] },
+
+  { id:"empty", x:1022, y:400, w:340, h:118, hue:"empty",
+    file:"compliance-namespace", sig:"0 Workers · 0 Workflows",
+    type:"Namespace",
+    tq:"nothing polls it",
+    desc:"Open the Temporal UI and switch the Namespace selector to compliance-namespace. It is empty. The Compliance team has a home and is not living in it. Compare this with the same view at the end of challenge 4.",
+    members:["Created at lab start","Nothing registered","Nothing running","Filled in challenge 4"],
+    snip:[['c','// Temporal UI -> Namespace selector'],['nl'],['c','// compliance-namespace: (empty)']] },
+];
+
+/* ---------------- edges ---------------- */
+const EDGES = [
+  { from:"starter", to:"wf",       cat:"payments",   label:"start Workflow", fromSide:"b", toSide:"t" },
+  { from:"workerapp", to:"wf",     cat:"wire",       label:"registers",      fromSide:"b", toSide:"t" },
+  { from:"wf", to:"payact",        cat:"payments",   label:"steps 1 + 3",    fromSide:"b", toSide:"t" },
+  { from:"payact", to:"gateway",   cat:"ext",        label:"calls",          fromSide:"b", toSide:"t" },
+  { from:"wf", to:"compact",       cat:"compliance", label:"step 2 · in-process",  fromSide:"r", toSide:"t" },
+  { from:"compact", to:"checker",  cat:"compliance", label:"calls",          fromSide:"b", toSide:"t" },
+];
+
+/* ---------------- render ---------------- */
+const canvas = document.getElementById('canvas');
+const svg = document.getElementById('edges');
+const canvasFit = document.getElementById('canvasFit');
+const canvasScroll = document.getElementById('canvasScroll');
+const stage = document.getElementById('stage');
+const detailInner = document.getElementById('detailInner');
+const byId = {};
+
+const PLACEHOLDER = `<p class="placeholder">Click a block, a Task Queue or a process outline to see its file, signature and role.</p>`;
+
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function snipHTML(tokens){
+  if (!tokens) return '';
+  return tokens.map(t => t[0]==='nl' ? '\n' : `<span class="${t[0]}">${esc(t[1])}</span>`).join('');
+}
+
+WORKERS.forEach(w => {
+  const el = document.createElement('div');
+  el.className = `worker ${w.cls}`;
+  el.style.cssText = `left:${w.x}px;top:${w.y}px;width:${w.w}px;height:${w.h}px`;
+  el.tabIndex = 0; el.setAttribute('role','button');
+  el.innerHTML = `<span class="wlabel">${esc(w.label)} <span class="wp">· ${esc(w.proc)}</span></span>`;
+  el.addEventListener('click', e => { e.stopPropagation(); select(w.id); });
+  el.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); select(w.id);} });
+  canvas.appendChild(el);
+  byId[w.id] = { el, data:w.detail, kind:'worker' };
+});
+
+LANES.forEach(l => {
+  const el = document.createElement('div');
+  el.className = 'lane';
+  el.style.cssText = `left:${l.x}px;top:${l.y}px;width:${l.w}px;height:${l.h}px;border-color:${l.color}`;
+  el.tabIndex = 0; el.setAttribute('role','button');
+  el.innerHTML = `<span class="llabel" style="color:${l.color}">${esc(l.name)}</span>
+                  <span class="ltag">${esc(l.tag)}</span>`;
+  el.addEventListener('click', e => { e.stopPropagation(); select(l.id); });
+  el.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); select(l.id);} });
+  canvas.appendChild(el);
+  byId[l.id] = { el, data:l.detail, kind:'lane' };
+});
+
+NODES.forEach(n => {
+  const el = document.createElement('div');
+  el.className = `node h-${n.hue}`;
+  el.style.cssText = `left:${n.x}px;top:${n.y}px;width:${n.w}px;min-height:${n.h}px`;
+  el.tabIndex = 0; el.setAttribute('role','button');
+  el.innerHTML = `<div class="nfile">${esc(n.file.split('/').pop())}</div>
+                  <div class="nsig">${esc(n.sig)}</div>
+                  ${n.snip ? `<div class="nsnip">${snipHTML(n.snip)}</div>` : ''}`;
+  el.addEventListener('click', e => { e.stopPropagation(); select(n.id); });
+  el.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); select(n.id);} });
+  canvas.appendChild(el);
+  byId[n.id] = { el, data:{ badge:n.hue, type:n.type, name:n.file.split('/').pop(), file:n.file,
+                            tq:n.tq, desc:n.desc, members:n.members, snip:n.snip }, kind:'node', node:n };
+});
+
+/* edge geometry from the node rectangles */
+function anchor(id, side){
+  const n = NODES.find(x => x.id === id);
+  if (!n) return {x:0,y:0};
+  const el = byId[id].el;
+  const h = el.offsetHeight || n.h;
+  switch(side){
+    case 't': return { x:n.x + n.w/2, y:n.y };
+    case 'b': return { x:n.x + n.w/2, y:n.y + h };
+    case 'l': return { x:n.x,         y:n.y + h/2 };
+    default:  return { x:n.x + n.w,   y:n.y + h/2 };
+  }
+}
+
+function drawEdges(){
+  svg.innerHTML = '';
+  EDGES.forEach((e, i) => {
+    const a = anchor(e.from, e.fromSide), b = anchor(e.to, e.toSide);
+    let d;
+    if (e.fromSide === 'r') {
+      const mx = a.x + Math.max(40, (b.x - a.x) / 2);
+      d = `M${a.x},${a.y} C${mx},${a.y} ${b.x},${a.y} ${b.x},${b.y}`;
+    } else {
+      const my = a.y + Math.max(24, (b.y - a.y) / 2);
+      d = `M${a.x},${a.y} C${a.x},${my} ${b.x},${my} ${b.x},${b.y}`;
+    }
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', d);
+    p.setAttribute('class', `edge-${e.cat}`);
+    p.setAttribute('stroke-width', e.cat === 'compliance' ? '2.6' : '2');
+    p.dataset.cat = e.cat; p.dataset.from = e.from; p.dataset.to = e.to;
+    svg.appendChild(p);
+
+    if (e.label){
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      const mid = e.fromSide === 'r'
+        ? { x:(a.x + b.x)/2 + 10, y:(a.y + b.y)/2 - 6 }
+        : { x:(a.x + b.x)/2, y:(a.y + b.y)/2 };
+      t.setAttribute('x', mid.x); t.setAttribute('y', mid.y);
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('class','elabel');
+      t.dataset.cat = e.cat;
+      t.textContent = e.label;
+      svg.appendChild(t);
+    }
+  });
+  applyFilter();
+}
+
+/* legend filtering */
+const off = new Set();
+function applyFilter(){
+  svg.querySelectorAll('path, text').forEach(el => {
+    el.classList.toggle('dim', off.has(el.dataset.cat));
+  });
+}
+document.querySelectorAll('.legItem').forEach(li => {
+  const toggle = () => {
+    const c = li.dataset.cat;
+    if (off.has(c)) { off.delete(c); li.classList.remove('off'); li.setAttribute('aria-pressed','true'); }
+    else { off.add(c); li.classList.add('off'); li.setAttribute('aria-pressed','false'); }
+    applyFilter();
+  };
+  li.addEventListener('click', toggle);
+  li.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+});
+
+/* selection + detail panel */
+let selected = null;
+function clearLit(){
+  Object.values(byId).forEach(o => o.el.classList.remove('lit'));
+  svg.querySelectorAll('path').forEach(p => p.classList.remove('hot'));
+}
+function select(id){
+  if (selected === id) { deselect(); return; }
+  selected = id;
+  clearLit();
+  const o = byId[id];
+  o.el.classList.add('lit');
+  svg.querySelectorAll('path').forEach(p => {
+    if (p.dataset.from === id || p.dataset.to === id) p.classList.add('hot');
+  });
+  renderDetail(o.data);
+  stage.classList.add('detail-open');
+}
+function deselect(){
+  selected = null; clearLit();
+  stage.classList.remove('detail-open');
+  detailInner.innerHTML = PLACEHOLDER;
+}
+function renderDetail(d){
+  detailInner.innerHTML = `
+    <button class="detail-close" id="detailClose" aria-label="Close">&times;</button>
+    <span class="dbadge ${d.badge}">${esc(d.type)}</span>
+    <h2>${esc(d.name)}</h2>
+    <p class="dsig">${esc(d.file)}</p>
+    <p class="ddesc">${esc(d.desc)}</p>
+    ${d.snip ? `<div class="snipbox">${snipHTML(d.snip)}</div>` : ''}
+    <div class="dmeta"><b>Task queue</b> · ${esc(d.tq)}</div>
+    <ul>${(d.members||[]).map(m => `<li>${esc(m)}</li>`).join('')}</ul>`;
+  document.getElementById('detailClose').addEventListener('click', deselect);
+}
+canvasScroll.addEventListener('click', deselect);
+detailInner.innerHTML = PLACEHOLDER;
+
+/* zoom */
+let zoom = 1;
+function applyZoom(){
+  canvas.style.transform = `scale(${zoom})`;
+  canvasFit.style.height = (H * zoom) + 'px';
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  document.getElementById('zoomLabel').textContent = Math.round(zoom * 100) + '%';
+}
+function fit(){
+  const avail = canvasScroll.clientWidth - 24;
+  zoom = Math.min(1, Math.max(0.35, avail / W));
+  applyZoom();
+}
+document.getElementById('zoomIn').addEventListener('click', () => { zoom = Math.min(1.8, zoom + 0.1); applyZoom(); });
+document.getElementById('zoomOut').addEventListener('click', () => { zoom = Math.max(0.35, zoom - 0.1); applyZoom(); });
+document.getElementById('zoomFit').addEventListener('click', fit);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  off.clear();
+  document.querySelectorAll('.legItem').forEach(li => { li.classList.remove('off'); li.setAttribute('aria-pressed','true'); });
+  deselect(); fit(); canvasScroll.scrollTo({top:0,left:0,behavior:'smooth'});
+});
+window.addEventListener('resize', () => { drawEdges(); fit(); });
+
+drawEdges();
+fit();
+</script>
+</body>
+</html>

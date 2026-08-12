@@ -56,6 +56,12 @@ tabs:
   hostname: workshop
   path: /?folder=/root/workshop/solution/src/main/kotlin
   port: 8080
+- id: km0dhysbfwik
+  title: Monolith Architecture
+  type: service
+  hostname: workshop
+  path: /monolith-architecture.html
+  port: 8090
 difficulty: basic
 timelimit: 900
 enhanced_loading: null
