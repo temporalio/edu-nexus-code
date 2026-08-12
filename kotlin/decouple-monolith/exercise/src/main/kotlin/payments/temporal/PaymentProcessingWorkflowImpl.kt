@@ -21,7 +21,7 @@ import java.time.Duration
  *   Step 2: checkCompliance  (ComplianceActivity)  <- this one crosses a team boundary
  *   Step 3: executePayment   (PaymentActivity)
  *
- * TODO 4 has two parts, each marked at the line it applies to.
+ * You have two TODOs here: 8 and 9.
  */
 class PaymentProcessingWorkflowImpl : PaymentProcessingWorkflow {
 
@@ -38,7 +38,7 @@ class PaymentProcessingWorkflowImpl : PaymentProcessingWorkflow {
             .build(),
     )
 
-    // ── TODO 4a ──────────────────────────────────────────────────────────────────
+    // ── TODO 8 ──────────────────────────────────────────────────────────────────
     // Delete the whole `complianceActivity` declaration below (all 6 lines, from
     // `private val` down to the closing `)`) and write a Nexus Service stub instead.
     //
@@ -65,7 +65,7 @@ class PaymentProcessingWorkflowImpl : PaymentProcessingWorkflow {
     //
     // Notice what you will NOT write here: the Endpoint name. This Workflow knows the
     // contract; the Worker knows where the contract lives. That split is what keeps
-    // this Workflow portable, and you wire it up next in PaymentsWorkerApp.kt (TODO 5).
+    // this Workflow portable, and you wire it up next in PaymentsWorkerApp.kt (TODO 10).
     //
     // Stuck? "Ask AI" on https://docs.temporal.io:
     //   "how do I call a Nexus Operation from a Workflow in Java?"
@@ -101,9 +101,9 @@ class PaymentProcessingWorkflowImpl : PaymentProcessingWorkflow {
 
         logger.info("Step 2: calling compliance check for ${request.transactionId}")
 
-        // ── TODO 4b ──────────────────────────────────────────────────────────────
+        // ── TODO 9 ──────────────────────────────────────────────────────────────
         // On the line below, change `complianceActivity` to the stub you just created
-        // in TODO 4a. One word. Everything else on the line stays: same method name,
+        // in TODO 8. One word. Everything else on the line stays: same method name,
         // same input, same result type.
         //
         // That one word is the entire difference between running Compliance code in

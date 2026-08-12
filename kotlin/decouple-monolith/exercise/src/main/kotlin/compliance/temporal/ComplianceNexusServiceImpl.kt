@@ -29,16 +29,16 @@ import shared.nexus.ComplianceNexusService
  *   "how do I start a Workflow from a Nexus Operation handler in Java?"
  * Remember to search the Java docs, not Kotlin.
  */
-// ── TODO 2a ──────────────────────────────────────────────────────────────────────
+// ── TODO 4 ──────────────────────────────────────────────────────────────────────
 // Annotate this class so Temporal knows it answers calls for the contract. The
 // annotation has to name the interface this class implements.
 class ComplianceNexusServiceImpl {
 
-    // ── TODO 2b ──────────────────────────────────────────────────────────────────
-    // Mark this method as the code that runs when Payments calls checkCompliance.
-    // Miss it and the Worker refuses to start: "Missing handlers for service operations".
+    // ── TODO 5 ──────────────────────────────────────────────────────────────────
+    // Two things here: annotate this method as the code that runs when Payments calls
+    // checkCompliance, then write its body. Miss the annotation and the Worker refuses
+    // to start with "Missing handlers for service operations".
     //
-    // ── TODO 2c ──────────────────────────────────────────────────────────────────
     // This is the SLOW call. A risky payment has to be approved by a person, so an
     // answer can be minutes or hours away. This method must not sit and wait for it.
     //
@@ -56,10 +56,10 @@ class ComplianceNexusServiceImpl {
     //   2. a WorkflowHandle built from that stub's Workflow method
     // The imports at the top are exactly the ones you need, and nothing more.
     fun checkCompliance(): OperationHandler<ComplianceRequest, ComplianceResult> {
-        TODO("TODO 2c: start a ComplianceWorkflow and return a reference to it")
+        TODO("TODO 5: start a ComplianceWorkflow and return a reference to it")
     }
 
-    // ── TODO 2d ──────────────────────────────────────────────────────────────────
+    // ── TODO 6 ──────────────────────────────────────────────────────────────────
     // Mark this method as the code that runs when Payments calls submitReview, then
     // fill it in.
     //
@@ -73,6 +73,6 @@ class ComplianceNexusServiceImpl {
     // One Kotlin wrinkle: OperationHandler.sync says its input can be null, so Kotlin
     // sees ReviewRequest? and you need a non-null assertion (!!) before using it.
     fun submitReview(): OperationHandler<ReviewRequest, ComplianceResult> {
-        TODO("TODO 2d: find the running Workflow and give it the review decision")
+        TODO("TODO 6: find the running Workflow and give it the review decision")
     }
 }

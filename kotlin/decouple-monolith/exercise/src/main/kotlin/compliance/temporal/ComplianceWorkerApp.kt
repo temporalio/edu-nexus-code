@@ -12,7 +12,7 @@ import io.temporal.worker.WorkerFactory
  * The Compliance team's Worker. This process is the only place their code runs.
  *
  * The connection and the Worker itself are set up for you. What is missing is the part
- * that decides what this Worker can actually do: see TODO 3 below.
+ * that decides what this Worker can actually do: see TODO 7 below.
  */
 fun main() {
     // Client (newInstance): connect, scoped to the Compliance team's own Namespace.
@@ -31,7 +31,7 @@ fun main() {
     val taskQueue = "compliance-risk"
     val worker = factory.newWorker(taskQueue)
 
-    // ── TODO 3 ───────────────────────────────────────────────────────────────────
+    // ── TODO 7 ───────────────────────────────────────────────────────────────────
     // Register (register*): a Worker only handles work it has been told about. This one
     // is responsible for three things, each a separate call on `worker`:
     //
