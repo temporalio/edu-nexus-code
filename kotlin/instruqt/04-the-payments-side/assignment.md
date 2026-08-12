@@ -23,18 +23,18 @@ notes:
 
     Deleting that line is the decoupling. Everything else is wiring.
 tabs:
-- id: nhtcw92vsc1e
-  title: Temporal UI
-  type: service
-  hostname: workshop
-  path: /
-  port: 8233
 - id: z4z6ycnuq0gr
   title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src/main/kotlin
   port: 8080
+- id: nhtcw92vsc1e
+  title: Temporal UI
+  type: service
+  hostname: workshop
+  path: /
+  port: 8233
 - id: y3hvqceqamea
   title: Terminal
   type: terminal
@@ -63,7 +63,7 @@ enhanced_loading: null
 
 # Swap the Stub
 
-Click the [button label="Exercise" background="#444CE7"](tab-1) tab, open
+Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
 `payments/temporal/PaymentProcessingWorkflowImpl.kt`, and follow the TODO comments.
 
 The call site barely changes. Same method name, same input, same output. What changes
@@ -134,7 +134,7 @@ the Workflow task retries forever. Silence, not an error.
 
 # See the Boundary
 
-Click the [button label="Temporal UI" background="#444CE7"](tab-0) tab.
+Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab.
 
 In `payments-namespace`, open the newest `PaymentProcessingWorkflow` and find
 `NexusOperationScheduled` and `NexusOperationCompleted` in the Event History. Click

@@ -95,12 +95,17 @@ are zero-indexed positions, not ids, so reordering tabs means remapping every bu
 
 | Index | Tab | Type |
 |-------|-----|------|
-| tab-0 | Temporal UI | service, port 8233 |
-| tab-1 | Exercise | service, port 8080 (code-server) |
+| tab-0 | Exercise | service, port 8080 (code-server) |
+| tab-1 | Temporal UI | service, port 8233 |
 | tab-2 | Terminal | terminal |
 | tab-3 | Payments Worker | terminal |
 | tab-4 | Compliance Worker | terminal |
 | tab-5 | Solution | service, port 8080 (code-server) |
+
+Exercise is first on purpose. Instruqt renders the first tab as the active one, so its
+iframe has real dimensions at load. code-server cannot lay itself out in a 0x0 iframe,
+which is what left the editor blank until a manual refresh. Solution is still position 5
+and still boots hidden, so it may still need one refresh.
 
 Both editor tabs share ONE code-server instance and select their directory with
 `?folder=`. Instruqt loads every service tab's iframe at challenge start, including

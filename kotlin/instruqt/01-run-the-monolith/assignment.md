@@ -23,18 +23,18 @@ notes:
 
     Right now only one of them has anything in it.
 tabs:
-- id: 0zbvnbeb8mif
-  title: Temporal UI
-  type: service
-  hostname: workshop
-  path: /
-  port: 8233
 - id: pau5q3wwpsps
   title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src/main/kotlin
   port: 8080
+- id: 0zbvnbeb8mif
+  title: Temporal UI
+  type: service
+  hostname: workshop
+  path: /
+  port: 8233
 - id: kzygtdxjoavt
   title: Terminal
   type: terminal
@@ -111,7 +111,7 @@ works exactly as intended.
 
 # Find the Coupling
 
-Click the [button label="Exercise" background="#444CE7"](tab-1) tab and open
+Click the [button label="Exercise" background="#444CE7"](tab-0) tab and open
 `payments/temporal/PaymentsWorkerApp.kt`.
 
 Look at what this one Worker registers. `PaymentActivityImpl` belongs to Payments.
@@ -128,7 +128,7 @@ An in-process Activity call across a team boundary that should not be in-process
 
 # Look at the Namespaces
 
-Click the [button label="Temporal UI" background="#444CE7"](tab-0) tab. Use the
+Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab. Use the
 Namespace selector at the top and switch to `compliance-namespace`.
 
 Empty. Compliance has its own Namespace and nothing runs in it, because Compliance

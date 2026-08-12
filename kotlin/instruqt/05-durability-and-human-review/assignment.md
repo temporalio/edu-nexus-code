@@ -23,18 +23,18 @@ notes:
 
     Your payment Workflow is about to do the same thing.
 tabs:
-- id: fvigy3pejd74
-  title: Temporal UI
-  type: service
-  hostname: workshop
-  path: /
-  port: 8233
 - id: 5sn9cnguszxu
   title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src/main/kotlin
   port: 8080
+- id: fvigy3pejd74
+  title: Temporal UI
+  type: service
+  hostname: workshop
+  path: /
+  port: 8233
 - id: k9vuphhzqdqo
   title: Terminal
   type: terminal
@@ -95,7 +95,7 @@ seconds.
 
 # Look at What Did Not Happen
 
-Click the [button label="Temporal UI" background="#444CE7"](tab-0) tab. In
+Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab. In
 `payments-namespace`, click the newest payment Workflow.
 
 Status is **Running**, not Failed. The Event History shows `NexusOperationScheduled`

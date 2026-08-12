@@ -23,18 +23,18 @@ notes:
 
     You write the Service now. The other three come next.
 tabs:
-- id: 0kexznfd37ia
-  title: Temporal UI
-  type: service
-  hostname: workshop
-  path: /
-  port: 8233
 - id: foqsemrm4t7k
   title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src/main/kotlin
   port: 8080
+- id: 0kexznfd37ia
+  title: Temporal UI
+  type: service
+  hostname: workshop
+  path: /
+  port: 8233
 - id: nvgfbgah0mkc
   title: Terminal
   type: terminal
@@ -70,7 +70,7 @@ It lives in `shared/` on purpose. Neither team owns it alone.
 
 # Write It
 
-Click the [button label="Exercise" background="#444CE7"](tab-1) tab, open
+Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
 `shared/nexus/ComplianceNexusService.kt`, and follow the TODO comments.
 
 The editor saves as you type. There is no save button.

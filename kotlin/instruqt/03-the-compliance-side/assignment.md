@@ -23,18 +23,18 @@ notes:
     The Solution tab is one click away. Use it if you stall. Learning the shape
     beats staring at a blank method.
 tabs:
-- id: wxvp1e3jvhdl
-  title: Temporal UI
-  type: service
-  hostname: workshop
-  path: /
-  port: 8233
 - id: vyijrbhaj7it
   title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src/main/kotlin
   port: 8080
+- id: wxvp1e3jvhdl
+  title: Temporal UI
+  type: service
+  hostname: workshop
+  path: /
+  port: 8233
 - id: bnzko3euv8md
   title: Terminal
   type: terminal
@@ -71,7 +71,7 @@ Three pieces, all on this team's side of the boundary.
 
 # Write the Handler
 
-Click the [button label="Exercise" background="#444CE7"](tab-1) tab, open
+Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
 `compliance/temporal/ComplianceNexusServiceImpl.kt`, and follow the TODO comments.
 
 You write two methods in this file. They look similar. They are not.
@@ -145,7 +145,7 @@ Nexus one appears only when a Nexus Service is registered. If it is missing, you
 handler is not wired even though the Worker started.
 
 **Two: the Temporal UI.** Click the
-[button label="Temporal UI" background="#444CE7"](tab-0) tab, switch the Namespace
+[button label="Temporal UI" background="#444CE7"](tab-1) tab, switch the Namespace
 selector to `compliance-namespace`, and open **Workers** in the left menu. Your Worker
 is listed as **Running**.
 
