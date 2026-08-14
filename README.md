@@ -153,6 +153,18 @@ CI pushes only the **track** on merge to `main`
 image: the image lives in a personal GHCR namespace that this repo's `GITHUB_TOKEN`
 cannot write to, so the build stays a manual step and the digest above is what ships.
 
+**That push is currently a no-op.** This repo has no `INSTRUQT_TOKEN` secret, so the
+push job warns and skips rather than failing the run. Until someone adds one (Instruqt
+-> Team Settings -> API keys, then a repo secret named `INSTRUQT_TOKEN`), publishing is
+manual: `cd kotlin/instruqt && instruqt track push`. Nothing else has to change when the
+secret lands.
+
+The caller grants `packages: write` even though it never builds an image. A caller's
+`permissions:` block is the ceiling for every job in the called workflow, and GitHub
+checks that ceiling when it loads the workflow, before any `if:` runs. A read-only
+ceiling therefore fails the entire run at startup with zero jobs and no readable log,
+even though `build-image` is disabled.
+
 ### Known issues and gotchas
 
 - **A wrong Nexus Endpoint name hangs rather than fails.** The server rejects the

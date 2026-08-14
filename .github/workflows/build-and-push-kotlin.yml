@@ -36,9 +36,15 @@ on:
 
 jobs:
   ci:
+    # packages: write looks wrong next to build_image: false, but it is required.
+    # A caller's permissions block is the CEILING for every job in the called
+    # workflow, and GitHub validates that ceiling when it loads the workflow,
+    # before any `if:` is evaluated. _track-ci.yml's build-image job asks for
+    # packages: write, so a read-only ceiling fails the whole run at startup with
+    # zero jobs, even though build-image never runs. Do not narrow this back.
     permissions:
       contents: read
-      packages: read
+      packages: write
     uses: ./.github/workflows/_track-ci.yml
     with:
       track_dir: "kotlin"

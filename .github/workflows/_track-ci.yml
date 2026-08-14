@@ -88,7 +88,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The secrets context is not available in a job-level `if`, so the token
+      # check has to be a step. Without it a repo that has not set INSTRUQT_TOKEN
+      # yet goes red on every merge, which trains people to ignore a red main.
+      # Warn loudly and skip instead. This starts working on its own the moment
+      # someone adds the secret, with no change here.
+      - name: Check for an Instruqt token
+        id: auth
+        env:
+          INSTRUQT_TOKEN: ${{ secrets.INSTRUQT_TOKEN }}
+        run: |
+          if [ -z "${INSTRUQT_TOKEN}" ]; then
+            echo "has_token=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Track not pushed::INSTRUQT_TOKEN is not set, so this run did not publish the track. Add a repo secret named INSTRUQT_TOKEN (Instruqt -> Team Settings -> API keys), or keep pushing by hand with 'instruqt track push'."
+          else
+            echo "has_token=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install Instruqt CLI
+        if: steps.auth.outputs.has_token == 'true'
         run: |
           curl -fsSL \
             https://github.com/instruqt/cli/releases/latest/download/instruqt-linux.zip \
@@ -98,16 +116,19 @@ jobs:
           instruqt version
 
       - name: Validate track
+        if: steps.auth.outputs.has_token == 'true'
         working-directory: ${{ inputs.track_dir }}/instruqt
         env:
           INSTRUQT_TOKEN: ${{ secrets.INSTRUQT_TOKEN }}
         run: instruqt track validate
 
       - name: Push track to Instruqt
+        if: steps.auth.outputs.has_token == 'true'
         working-directory: ${{ inputs.track_dir }}/instruqt
         env:
           INSTRUQT_TOKEN: ${{ secrets.INSTRUQT_TOKEN }}
         run: instruqt track push --force
 
       - name: Note checksum writeback policy
+        if: steps.auth.outputs.has_token == 'true'
         run: echo "Track pushed with --force. Do not commit checksum-only writeback from CI."
