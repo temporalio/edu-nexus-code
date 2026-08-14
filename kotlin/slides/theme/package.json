@@ -1,0 +1,40 @@
+{
+  "name": "slidev-theme-temporal",
+  "version": "0.1.0",
+  "description": "Slidev theme matching Temporal's 2026 brand. Inter typography, PPT-exact mint/purple/blue palette, 29 layouts mirroring the official Temporal Slidey Slides corporate deck.",
+  "keywords": ["slidev-theme", "slidev", "temporal"],
+  "license": "MIT",
+  "author": "Temporal Technologies Inc.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/temporalio/slidev-theme-temporal.git"
+  },
+  "homepage": "https://github.com/temporalio/slidev-theme-temporal#readme",
+  "bugs": {
+    "url": "https://github.com/temporalio/slidev-theme-temporal/issues"
+  },
+  "files": [
+    "assets",
+    "components",
+    "layouts",
+    "setup",
+    "styles"
+  ],
+  "engines": {
+    "slidev": ">=52.0.0"
+  },
+  "slidev": {
+    "defaults": {
+      "aspectRatio": "16/9",
+      "canvasWidth": 980,
+      "fonts": {
+        "sans": "Inter",
+        "mono": "Noto Sans Mono",
+        "weights": "200,300,400,500,600",
+        "italic": false
+      }
+    },
+    "colorSchema": "dark",
+    "highlighter": "shiki"
+  }
+}

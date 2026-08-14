@@ -1,0 +1,18 @@
+{
+  "name": "nexus-kotlin-workshop-slides",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Slides for the Decouple a Monolith with Temporal Nexus (Kotlin) workshop",
+  "scripts": {
+    "dev": "slidev --open",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@slidev/cli": "^52.19.0",
+    "playwright-chromium": "^1.62.1",
+    "prettier": "^3.9.6",
+    "prettier-plugin-slidev": "^1.0.5"
+  }
+}

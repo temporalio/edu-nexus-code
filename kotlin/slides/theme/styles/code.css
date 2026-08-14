@@ -1,0 +1,32 @@
+/* ABOUTME: Code panel styling for the Temporal Slidev theme.
+   ABOUTME: Pairs with the `temporal` Shiki token theme in setup/shiki.ts. */
+
+.slidev-layout .slidev-code,
+.slidev-layout pre.shiki,
+.slidev-layout pre code {
+  font-family: 'Noto Sans Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.slidev-layout pre.shiki,
+.slidev-layout div[class*="language-"] > pre {
+  background: var(--temporal-bg-elev) !important;
+  border: 1px solid var(--temporal-border);
+  border-radius: 0.4rem;
+  padding: 0.7rem 0.9rem;
+  margin: 0.4rem 0;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset,
+              0 12px 40px -20px rgba(0, 0, 0, 0.8);
+}
+
+.slidev-layout :not(pre) > code {
+  background: rgba(93, 36, 189, 0.14);
+  color: var(--temporal-lavender);
+  padding: 0.08em 0.4em;
+  border-radius: 0.3rem;
+  font-size: 1.35rem;
+  border: 1px solid rgba(93, 36, 189, 0.25);
+}
