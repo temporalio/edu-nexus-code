@@ -112,17 +112,88 @@ Three transactions go through. Watch what comes back:
   TXN-C   Result: DECLINED_COMPLIANCE   Risk: HIGH
 ```
 
-TXN-C is $75,000. Compliance blocked it, so the payment never executed. The system
-works exactly as intended.
+# See It in the Temporal UI
+
+The terminal gave you three lines. The server has the whole story.
+
+Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab. Check that the
+Namespace selector at the top reads `payments-namespace`.
+
+Three Workflows, every one of them **Completed**. Click refresh if you do not see them yet.
+
+| Workflow ID | Amount | What happened |
+|---|---|---|
+| `payment-TXN-A` | $250 | paid |
+| `payment-TXN-B` | $12,000 | paid |
+| `payment-TXN-C` | $75,000 | declined by Compliance |
+
+Open `payment-TXN-C`, find the **Input and Results** panel, and open **Results**:
+
+```json,nocopy
+{
+  "success": false,
+  "transactionId": "TXN-C",
+  "status": "DECLINED_COMPLIANCE",
+  "riskLevel": "HIGH",
+  "explanation": "Transaction amount exceeds $50,000 threshold. Requires enhanced due diligence review.",
+  "confirmationNumber": null,
+  "error": null
+}
+```
+
+Read that closely. `success` is `false`, `error` is `null`, and the Workflow status is
+**Completed** rather than Failed.
+
+Compliance looked at a $75,000 payment and said no. That is the system working. A declined
+payment is an answer, so the Workflow returned it and finished normally. Keep the two ideas
+apart: a declined payment is a business outcome, a failed Workflow is a defect. You will
+watch this same result travel across a team boundary in challenge 4, and it should still
+look exactly like this.
+
+# Review the Monolith Architecture
+
+Before you hunt for the coupling in code, look at the shape of what you just ran.
+
+Click the [button label="Monolith Architecture" background="#444CE7"](tab-6) tab.
+
+Two shaded zones, one per team. Payments is blue, Compliance is amber. Every box carries
+its file name and the method that matters.
+
+Click **Walk the flow**, then move with the **left** and **right** arrows on screen or on
+your keyboard. Eight steps.
+
+Two of them are the point of this challenge:
+
+- **Step 5 of 8** is the Workflow calling the Compliance team's Activity. Watch the arrow
+  cross from the blue zone into the amber one while staying inside a single process.
+- **Step 8 of 8** is the consequence. Compliance owns a Namespace with nothing in it.
+
+Then read the dashed outline that wraps both zones. It is labeled
+`PaymentsWorkerApp.kt · one JVM process · one Task Queue payments-processing`. That is the
+coupling stated as plainly as it can be: both teams' code, one process, one queue. Every
+box inside that outline is polled by the same Worker.
+
+**Fit** brings everything back on screen. **Reset view** undoes any zooming.
 
 # Find the Coupling
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab and open
 `payments/temporal/PaymentsWorkerApp.kt`.
 
-Look at what this one Worker registers. `PaymentActivityImpl` belongs to Payments.
-`ComplianceActivityImpl` belongs to Compliance. Same process. Same deployment. Same
-blast radius.
+Look at what this one Worker registers. Two lines, two different teams:
+
+```kotlin,nocopy
+worker.registerActivitiesImplementations(PaymentActivityImpl(PaymentGateway()))
+
+worker.registerActivitiesImplementations(ComplianceActivityImpl(ComplianceChecker()))
+```
+
+`PaymentActivityImpl` belongs to Payments. `ComplianceActivityImpl` belongs to
+Compliance. They sit two lines apart in one file, which means the same process, the same
+deployment, and the same blast radius. Compliance cannot ship a fix without Payments
+shipping too.
+
+The second line is the one you delete in challenge 4. That deletion is the decoupling.
 
 Now open `payments/temporal/PaymentProcessingWorkflowImpl.kt` and find step 2:
 
@@ -132,18 +203,19 @@ val compliance = complianceActivity.checkCompliance(compReq)
 
 An in-process Activity call across a team boundary that should not be in-process.
 
-# Look at the Namespaces
+# See the Empty Namespace
 
-Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab. Use the
-Namespace selector at the top and switch to `compliance-namespace`.
+The diagram claims Compliance owns a Namespace with nothing in it. Confirm it.
 
-Empty. Compliance has its own Namespace and nothing runs in it, because Compliance
-code is running inside the Payments Worker.
+Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab and switch the
+Namespace selector to `compliance-namespace`.
 
-Switch back to `payments-namespace` and click your newest Workflow at the top of the
-list. Click refresh if you do not see it yet. Open the Event History and look for
-`ActivityTaskScheduled` for the compliance check. That Activity is what you are going
-to replace.
+Empty. Compliance has a Namespace of its own, and nothing runs there, because their code
+is executing inside the Payments Worker.
+
+Switch back to `payments-namespace`, open `payment-TXN-C` again, and read the Event
+History. Find **Activity Task Scheduled** for the compliance check. That single event is
+what you spend the rest of this lab replacing.
 
 Click **Check** when your three transactions have finished.
 
@@ -151,4 +223,5 @@ Click **Check** when your three transactions have finished.
 
 - One Worker runs both teams. One bug takes down both.
 - The compliance check is an ordinary Activity call.
+- A declined payment completes. It does not fail.
 - Compliance has a Namespace, and it is empty.

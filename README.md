@@ -31,12 +31,13 @@ an Instruqt track and is built for a live 90 minute workshop with a 40 minute la
 ```
 kotlin/
 ├── decouple-monolith/
-│   ├── exercise/          Gradle KTS, TODOs 1 to 11 open
+│   ├── exercise/          Gradle KTS, TODOs 1 to 10 open
 │   └── solution/          Gradle KTS, complete
 ├── sandbox/Dockerfile     Temurin 21 + Temporal CLI + pre-warmed Gradle cache
+├── diagrams/              architecture diagram, served on 8090
 └── instruqt/
     ├── track.yml          no challenges: block, challenges auto-discovered
-    ├── config.yml         container `workshop`, 8192 MB, ports 8233/8080
+    ├── config.yml         container `workshop`, 8192 MB, ports 8233/8080/8090
     ├── track_scripts/     setup-workshop, cleanup-workshop
     ├── 01-run-the-monolith/
     ├── 02-the-shared-contract/
@@ -90,7 +91,7 @@ end-to-end integration test.
 If this track is ever reused self-paced, with no instructor watching, put the checks
 back. The git history has them.
 
-Every challenge has six tabs in a fixed order. The `tab-N` buttons in `assignment.md`
+Every challenge has seven tabs in a fixed order. The `tab-N` buttons in `assignment.md`
 are zero-indexed positions, not ids, so reordering tabs means remapping every button.
 
 | Index | Tab | Type |
@@ -101,6 +102,7 @@ are zero-indexed positions, not ids, so reordering tabs means remapping every bu
 | tab-3 | Payments Worker | terminal |
 | tab-4 | Compliance Worker | terminal |
 | tab-5 | Solution | service, port 8080 (code-server) |
+| tab-6 | Monolith Architecture | service, port 8090 (jwebserver) |
 
 Exercise is first on purpose. Instruqt renders the first tab as the active one, so its
 iframe has real dimensions at load. code-server cannot lay itself out in a 0x0 iframe,
@@ -113,6 +115,20 @@ hidden ones, and code-server cannot lay itself out in a 0x0 iframe. Running one
 instance instead of two halves that exposure and matches the shape of
 `temporal-ai-agents-python-v4`, the one Temporal track known to run code-server through
 this proxy successfully.
+
+### Maintenance mode is deliberately OFF
+
+`track.yml` carries no `maintenance:` key. The track is therefore launchable by anyone
+with the link rather than by owners only, which is what a live workshop needs.
+
+Two consequences worth knowing:
+
+- `instruqt track push` drops `maintenance: false` from the file, because the serializer
+  omits false values. An absent key IS the off state, not a forgotten setting. To turn it
+  back on, add `maintenance: true` and push again.
+- The `create-instruqt-tutorial` guardrail hook refuses to run any command whose text
+  contains `push` while the track is out of maintenance mode. That includes `git push`.
+  Shipping changes from here needs a human to run the final git push by hand.
 
 ### CLI workflow
 

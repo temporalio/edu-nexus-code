@@ -80,31 +80,15 @@ Three pieces, all on this team's side of the boundary.
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
 `compliance/temporal/ComplianceNexusServiceImpl.kt`, and follow the TODO comments.
 
-You write two methods in this file. They look similar. They are not.
-
-**`checkCompliance` is the slow one.** A $12,000 transfer has to be approved by a
-person, and that person might be at lunch. So this call cannot sit there waiting for
-an answer. It starts a Workflow and returns immediately, handing back something like
-a claim ticket. Temporal uses that ticket to find the Workflow later and collect the
-result whenever it finishes, minutes or hours from now.
-
-**`submitReview` is the fast one.** By the time it runs, the compliance check is
-already going and is parked waiting for a decision. All this method does is find that
-Workflow and hand it the yes or no. That takes milliseconds, so it can do the work and
-return the answer in the same call.
-
-Nexus gives you a different tool for each, and the file tells you which is which.
-
-If you use the fast tool for the slow job, two things break. The call is cut off after
-10 seconds, so it fails while the human is still deciding. And because Temporal retries
-a failed call, each retry starts **another** compliance check for the same payment.
+Two methods, and each one needs a different Nexus tool. Read both TODOs before you write
+either one, because the difference between them is the whole point of this challenge.
 
 # Register the Handler
 
 Open `compliance/temporal/ComplianceWorkerApp.kt` and follow the TODO comment.
 
-A Worker only handles work it has been told about. This one owns three things, and
-leaving any of them out fails in a different way.
+Three registrations. Two of them stop the Worker from starting if you miss them. The
+third lets it start and answer nothing, which is the one to watch for.
 
 # Create the Endpoint
 
@@ -128,27 +112,25 @@ Click the [button label="Compliance Worker" background="#444CE7"](tab-4) tab:
 ./gradlew complianceWorker
 ```
 
-Scroll up past the log lines and you should see the banner:
+If the Worker started, the output looks like this:
 
 ```bash,nocopy
-=========================================================
+> Task :complianceWorker
+[main] INFO io.temporal.serviceclient.WorkflowServiceStubsImpl - Created WorkflowServiceStubs for channel: ManagedChannelOrphanWrapper{delegate=ManagedChannelImpl{logId=1, target=127.0.0.1:7233}}
+[main] INFO io.temporal.internal.worker.MultiThreadedPoller - start: MultiThreadedPoller{name=Workflow Poller taskQueue="compliance-risk", namespace="compliance-namespace", identity=11418@workshop}
+[main] INFO io.temporal.internal.worker.MultiThreadedPoller - start: MultiThreadedPoller{name=Nexus Poller taskQueue="compliance-risk", namespace="compliance-namespace", identity=11418@workshop}
+[main] INFO io.temporal.internal.worker.MultiThreadedPoller - start: MultiThreadedPoller{name=Activity Poller taskQueue="compliance-risk", namespace="compliance-namespace", identity=11418@workshop}
   Compliance Worker started on: compliance-risk
   Namespace: compliance-namespace
-=========================================================
 ```
 
-That banner only means the process is alive. It prints whether or not you registered
-anything, so it is not proof. Two things are.
+The banner at the bottom only tells you the process is alive. It prints whether or not
+you registered anything, so it is not proof. Two things are.
 
-**One: the Nexus Poller line.** Look above the banner for:
-
-```bash,nocopy
-start: MultiThreadedPoller{name=Nexus Poller taskQueue="compliance-risk", ...}
-```
-
-There are three pollers, one per kind of work: Workflow, Activity, and Nexus. The
-Nexus one appears only when a Nexus Service is registered. If it is missing, your
-handler is not wired even though the Worker started.
+**One: the Nexus Poller line.** Three pollers start, one per kind of work: Workflow,
+Activity, and Nexus. The Nexus one appears only when a Nexus Service is registered. If
+you see Workflow and Activity but no Nexus, your handler is not registered even though
+the Worker started.
 
 **Two: the Temporal UI.** Click the
 [button label="Temporal UI" background="#444CE7"](tab-1) tab, switch the Namespace

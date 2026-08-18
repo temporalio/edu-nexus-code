@@ -43,9 +43,7 @@ fun main() {
     //      Leave this one out and the Worker still starts, Payments' calls just go
     //      unanswered forever. That is the failure you are guarding against.
     //
-    // Each call name starts with `register`. The editor here gives you Kotlin
-    // highlighting but no autocomplete, so look the names up rather than waiting for
-    // a dropdown. The imports at the top tell you which classes you need.
+    // Each call name starts with `register`.
     //
     // Stuck? "Ask AI" on https://docs.temporal.io:
     //   "what do I register on a Java Worker that handles Nexus Operations?"

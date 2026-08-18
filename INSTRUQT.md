@@ -281,6 +281,58 @@ itself when someone adds the secret.
 
 ---
 
+## Assignment wording
+
+### Name UI elements the way the UI names them
+
+The Web UI renders history event types with spaces: **Activity Task Scheduled**, not
+`ActivityTaskScheduled`. A learner told to look for `NexusOperationScheduled` is
+scanning for a string that is not on screen. Bold the on-screen label, and save the
+camel-case identifier for when they are reading code or JSON.
+
+### A run of `=` inside a fence desynchronises the whole page
+
+A `bash,nocopy` block containing the Worker's startup banner:
+
+```
+=========================================================
+  Compliance Worker started on: compliance-risk
+=========================================================
+```
+
+rendered as a collapsible divider, then an `<h1>`, then a code block that swallowed the
+next several paragraphs of prose and displayed the following ```` ```bash,nocopy ````
+marker as literal text. The raw markdown was correct and `instruqt track validate`
+passed.
+
+Instruqt's renderer does not honour the fence around a leading run of `=`. The trailing
+run then forms a setext heading out of the lines above it, and every fence after that
+point is off by one. Nine other `nocopy` fences in the same track rendered fine, so the
+`=` runs are the trigger.
+
+**Never put a line of only `=` in an assignment**, fenced or not. If a program prints a
+banner like that, show the meaningful lines and drop the separators. Grep for it before
+every publish:
+
+```bash
+grep -rn '^ *==*$' */assignment.md
+```
+
+### Show the line, do not describe it
+
+"Look at what this Worker registers" makes the learner hunt and guess. Paste the two
+lines in a `kotlin,nocopy` fence and then say what they mean. Costs four lines of
+assignment, removes all the guessing.
+
+### A long edge label will cover your diagram
+
+Node text and edge labels are drawn in different layers, so a label wider than the gap
+between two columns lands on top of the box text with no warning. Measure: our gutter
+was 70px and the label was about 300px. Keep labels to roughly the gutter width and put
+the sentence in the step caption instead, where there is room for it.
+
+---
+
 ## Architecture diagrams
 
 A diagram tab is worth building when the point is *where code runs*, not what it

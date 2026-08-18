@@ -22,8 +22,7 @@ import payments.temporal.activity.PaymentActivityImpl
  *
  * That last line is the problem. A bug in compliance code takes payments down with it.
  *
- * You have two TODOs here: 10 and 11. Do them after TODO 8, which moves the Workflow
- * onto a Nexus stub.
+ * Do TODO 10 after TODOs 8 and 9, which move the Workflow onto a Nexus stub.
  */
 fun main() {
     // Client (newInstance): connect, scoped to the Payments team's own Namespace.
@@ -40,25 +39,10 @@ fun main() {
     val worker = factory.newWorker(Shared.TASK_QUEUE)
 
     // ── TODO 10 ───────────────────────────────────────────────────────────────────
-    // THE LINE TO CHANGE is the very next line of code, the one starting with
-    // `worker.registerWorkflowImplementationTypes(`. Today it says: run this one
-    // Workflow. You need it to say two more things.
+    // Two edits, both on the registration lines below.
     //
-    // 1. Where compliance lives.
-    //    In PaymentProcessingWorkflowImpl you created a stub for
-    //    ComplianceNexusService. That stub knows the service by NAME but has no idea
-    //    which Worker answers it. So somewhere you have to write down the pair:
-    //
-    //        the name "ComplianceNexusService"  ->  the Endpoint "compliance-endpoint"
-    //
-    //    That pair is all "Endpoint mapping" means. It goes here, on the Worker, and
-    //    NOT in the Workflow. That is what keeps the Workflow reusable: change the
-    //    Endpoint later and no Workflow code changes.
-    //
-    // 2. That ReviewCallerWorkflowImpl exists.
-    //    It calls the same service, so it needs the same pairing. Challenge 5 uses it.
-    //
-    // COPY THIS over the line below, and fill in the one blank marked TODO:
+    // ONE. Replace the registerWorkflowImplementationTypes line with this, filling in
+    // the single blank:
     //
     //     worker.registerWorkflowImplementationTypes(
     //         WorkflowImplementationOptions.newBuilder()
@@ -74,20 +58,15 @@ fun main() {
     //         ReviewCallerWorkflowImpl::class.java,
     //     )
     //
+    // TWO. Delete the ComplianceActivityImpl registration, and the two compliance
+    // imports at the top of this file.
+    //
     // Stuck on the blank? "Ask AI" on https://docs.temporal.io:
     //   "how do I set the Endpoint on NexusServiceOptions in Java?"
     worker.registerWorkflowImplementationTypes(PaymentProcessingWorkflowImpl::class.java)
 
     worker.registerActivitiesImplementations(PaymentActivityImpl(PaymentGateway()))
 
-    // ── TODO 11 ───────────────────────────────────────────────────────────────────
-    // Delete the `worker.registerActivitiesImplementations(ComplianceActivityImpl(...))`
-    // line below, plus the two compliance imports at the top of this file
-    // (ComplianceChecker and ComplianceActivityImpl).
-    //
-    // Compliance code no longer runs in this process once it is reachable over Nexus.
-    // This deletion is the decoupling. After it, a bug in Compliance code can no
-    // longer crash this process.
     worker.registerActivitiesImplementations(ComplianceActivityImpl(ComplianceChecker()))
 
     // Start (start): begin polling.

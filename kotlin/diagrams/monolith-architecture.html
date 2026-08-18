@@ -127,6 +127,9 @@
     border:1px solid var(--line-strong); border-radius:999px; font-family:var(--mono); font-size:12.5px;
     font-weight:700; color:var(--ink); white-space:nowrap; }
   .proc .plabel .pp { color:var(--faint); font-weight:500; }
+  /* The Task Queue name is the coupling, so give it the code treatment and let
+     it read brighter than the rest of the band label. */
+  .proc .plabel .pp b { font-family:var(--mono); font-weight:600; color:var(--muted); }
 
   /* team zones */
   .zone { position:absolute; z-index:1; border:2px solid; border-radius:16px; cursor:pointer; }
@@ -270,7 +273,7 @@ const EDGES = [
   { id:"e-reg",   from:"workerapp", to:"wf",      cat:"wire", label:"registers",       fs:"b", ts:"t" },
   { id:"e-s1",    from:"wf",        to:"payact",  cat:"pay",  label:"step 1 validate", fs:"b", ts:"t" },
   { id:"e-gw",    from:"payact",    to:"gateway", cat:"ext",  label:"calls",           fs:"b", ts:"t" },
-  { id:"e-s2",    from:"wf",        to:"compact", cat:"comp", label:"step 2 · crosses the team boundary, in-process", fs:"r", ts:"l" },
+  { id:"e-s2",    from:"wf",        to:"compact", cat:"comp", label:"step 2\nin-process",  fs:"r", ts:"l" },
   { id:"e-chk",   from:"compact",   to:"checker", cat:"comp", label:"calls",           fs:"b", ts:"t" },
 ];
 
@@ -306,7 +309,7 @@ const snip=t=>!t?'':t.map(x=>x[0]==='nl'?'\n':`<span class="${x[0]}">${esc(x[1])
 
 /* process + zone shells are created first, sized after the nodes are measured */
 const procPay=mk('div','proc'), procNs=mk('div','proc empty');
-procPay.innerHTML='<span class="plabel">PaymentsWorkerApp.kt <span class="pp">· one JVM process</span></span>';
+procPay.innerHTML='<span class="plabel">PaymentsWorkerApp.kt <span class="pp">· one JVM process · one Task Queue <b>payments-processing</b></span></span>';
 procNs.innerHTML='<span class="plabel">compliance-namespace <span class="pp">· exists, and is empty</span></span>';
 const zonePay=mk('div','zone pay'), zoneComp=mk('div','zone comp');
 zonePay.innerHTML='<span class="zlabel">PAYMENTS TEAM</span><span class="ztag">owns the Workflow and the payment Activities</span>';
@@ -392,10 +395,20 @@ function drawEdges(){
     p.dataset.id=e.id; p.dataset.from=e.from; p.dataset.to=e.to;
     svg.appendChild(p);
     if(e.label){
+      // Labels wrap on \n. The gap between the two team zones is about 70px, so
+      // one long line runs straight over the node text on both sides of it.
+      // Keep each line short rather than widening the layout to suit a label.
+      const lines=e.label.split('\n');
       const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x',mid.x); t.setAttribute('y',mid.y);
+      t.setAttribute('x',mid.x); t.setAttribute('y',mid.y-(lines.length-1)*7);
       t.setAttribute('text-anchor','middle'); t.setAttribute('class','elabel');
-      t.dataset.id=e.id; t.textContent=e.label; svg.appendChild(t);
+      t.dataset.id=e.id;
+      lines.forEach((ln,i)=>{
+        const s=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+        s.setAttribute('x',mid.x); if(i) s.setAttribute('dy','14');
+        s.textContent=ln; t.appendChild(s);
+      });
+      svg.appendChild(t);
     }
   });
 }

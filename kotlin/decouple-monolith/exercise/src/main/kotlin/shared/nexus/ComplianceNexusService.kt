@@ -19,7 +19,7 @@ import shared.domain.ReviewRequest
  */
 // ── TODO 1 ──────────────────────────────────────────────────────────────────────
 // Annotate this interface so Temporal treats it as a cross-team Nexus contract rather
-// than an ordinary Kotlin interface. The annotation lives in io.nexusrpc.
+// than an ordinary Kotlin interface.
 interface ComplianceNexusService {
 
     // ── TODO 2 ──────────────────────────────────────────────────────────────────
