@@ -251,13 +251,55 @@ Source: compliance/temporal/ComplianceNexusServiceImpl.kt:28-58
 -->
 
 ---
-layout: cta-banner
-eyebrow: TIME TO BUILD
-headline: Open the lab
-subhead: Two teams, one Worker. Find the coupling before you fix it.
-cta: t.mp/nexus-kotlin
-href: https://t.mp/nexus-kotlin
+layout: default
+class: "!p-0"
 ---
+
+<div class="absolute inset-0 grid grid-cols-2">
+
+  <div class="relative overflow-hidden bg-black">
+    <video
+      :src="'/mia-programming.mp4'"
+      autoplay
+      loop
+      muted
+      playsinline
+      class="absolute inset-0 w-full h-full object-cover"
+    />
+  </div>
+
+  <div class="flex flex-col justify-center items-start gap-5 px-14 bg-glow">
+    <p class="eyebrow">TIME TO BUILD</p>
+    <h1 class="cta-headline">Open the lab</h1>
+    <a class="cta-pill" href="https://t.mp/nexus-kotlin">t.mp/nexus-kotlin</a>
+  </div>
+
+</div>
+
+<style scoped>
+.cta-headline {
+  font-size: 3rem;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--temporal-text-strong);
+  margin: 0;
+}
+.cta-pill {
+  display: inline-block;
+  padding: 0.55rem 1.5rem;
+  border: 1px solid var(--temporal-green);
+  border-radius: 999px;
+  color: var(--temporal-green);
+  font-weight: 500;
+  font-size: 1.35rem;
+  text-decoration: none;
+  transition: background 140ms ease;
+}
+.cta-pill:hover {
+  background: rgba(89, 253, 160, 0.14);
+}
+</style>
 
 <!--
 Last slide of segment 0. Leave it up while people get into the sandbox — this is
