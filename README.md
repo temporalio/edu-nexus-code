@@ -116,6 +116,20 @@ instance instead of two halves that exposure and matches the shape of
 `temporal-ai-agents-python-v4`, the one Temporal track known to run code-server through
 this proxy successfully.
 
+### Maintenance mode is deliberately OFF
+
+`track.yml` carries no `maintenance:` key. The track is therefore launchable by anyone
+with the link rather than by owners only, which is what a live workshop needs.
+
+Two consequences worth knowing:
+
+- `instruqt track push` drops `maintenance: false` from the file, because the serializer
+  omits false values. An absent key IS the off state, not a forgotten setting. To turn it
+  back on, add `maintenance: true` and push again.
+- The `create-instruqt-tutorial` guardrail hook refuses to run any command whose text
+  contains `push` while the track is out of maintenance mode. That includes `git push`.
+  Shipping changes from here needs a human to run the final git push by hand.
+
 ### CLI workflow
 
 ```bash
