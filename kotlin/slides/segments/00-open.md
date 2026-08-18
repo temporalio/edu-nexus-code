@@ -7,9 +7,10 @@ class: "!p-0"
 
   <div class="flex items-center gap-2">
     <img
+      v-click
       :src="'/mia.jpg'"
       alt="Mia, a black and tan rescue dog"
-      class="w-[248px] h-[248px] rounded-full object-cover"
+      class="mia-photo w-[248px] h-[248px] rounded-full object-cover"
       style="object-position: 50% 30%"
     />
     <img
@@ -40,6 +41,12 @@ class: "!p-0"
 </div>
 
 <style scoped>
+/* v-click only fades opacity, which leaves Mia's 248px reserved and pushes the
+   headshot off-centre before the click. Collapsing her instead keeps the first
+   state centred and lets her pop in. */
+.mia-photo.slidev-vclick-hidden {
+  display: none;
+}
 .intro-name {
   font-size: 2.9rem;
   font-weight: 200;
