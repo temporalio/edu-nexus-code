@@ -249,3 +249,23 @@ Source: compliance/temporal/ComplianceNexusServiceImpl.kt:28-58
 - If this slide feels cramped, the `comparison` layout is built for exactly
   this shape.
 -->
+
+---
+layout: cta-banner
+eyebrow: TIME TO BUILD
+headline: Open the lab
+subhead: Two teams, one Worker. Find the coupling before you fix it.
+cta: t.mp/nexus-kotlin
+href: https://t.mp/nexus-kotlin
+---
+
+<!--
+Last slide of segment 0. Leave it up while people get into the sandbox — this is
+the only URL they have to type all day, so give them a moment on it.
+
+Ziggy takes a minute to warm the sandbox. Say what is happening while it does:
+a Temporal dev server, and two Namespaces, one per team.
+
+This slide opens the lab environment. The per-challenge handoffs are separate,
+on the `exercise` layout with its countdown timer, at the end of each segment.
+-->
