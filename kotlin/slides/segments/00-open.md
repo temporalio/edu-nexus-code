@@ -87,61 +87,193 @@ callback if you want one.
 -->
 
 ---
-layout: default
+layout: full-image
+image: /nexus-intro/04.webp
+alt: "Temporal-based services in an application"
 ---
 
-# The 3 AM failure
+<!--
+Set the scene: several Temporal services in one application, each owned by a
+different team.
 
-2 Teams. Compliance team ensures payments are legal.
-Payments team ensures payments go through successfully.
-They're bound together in a single flow.
-An issue on one team affects the other team.
+Rendered page 4 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/05.webp
+alt: "How do they communicate?"
+---
 
 <!--
-Presenter notes go here.
+The question the whole segment answers. Let it sit for a beat.
+
+Rendered page 5 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/06.webp
+alt: "Before: child workflow and activity wrapper"
+---
+
+<!--
+The two things people reach for today: a child workflow, or an activity that
+wraps a call to another service.
+
+Rendered page 6 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/07.webp
+alt: "Before: no clean API contract"
+---
+
+<!--
+Child workflow first. The killer line is the last one: blast radius is not
+isolated. That is the same argument this workshop's payments monolith makes.
+
+Rendered page 7 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/08.webp
+alt: "Before: overly permissive namespace access"
+---
+
+<!--
+Activity wrapper next. Broad namespace access is the cost, and mTLS cert
+management is the part nobody budgets for.
+
+Rendered page 8 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/09.webp
+alt: "Before: overly permissive namespace access, continued"
+---
+
+<!--
+Same slide, built out: three hops, two of them wrappers, and full namespace
+write access at both ends.
+
+Rendered page 9 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/10.webp
+alt: "Before: bespoke gateways to connect workflows"
+---
+
+<!--
+The third option: build a gateway. Note it is not durable, which is the point
+that sets up Nexus.
+
+Rendered page 10 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/11.webp
+alt: "Now: Nexus endpoints and service contracts, open source and Temporal Cloud"
+---
+
+<!--
+The payoff. Endpoints and service contracts, in open source and Cloud.
+
+Rendered page 11 of the [External] Temporal Nexus Overview Slides 2026 deck.
+-->
+
+---
+layout: full-image
+image: /nexus-intro/12.webp
+alt: "Now: Nexus on Temporal Cloud"
+---
+
+<!--
+What Cloud adds on top: global registry, multi-cloud routing, mTLS mesh,
+access controls, metrics, audit logs.
+
+Rendered page 12 of the [External] Temporal Nexus Overview Slides 2026 deck.
 -->
 
 ---
 layout: default
+class: "!p-0"
 ---
 
-# Before and after
+<div class="absolute inset-0 grid grid-cols-2">
 
-<div class="flex justify-center mt-2">
-  <img
-    :src="'/nexus-architecture.svg'"
-    alt="Payments and Compliance separated by a Nexus boundary: validatePayment and executePayment on the Payments side, NexusServiceImpl and ComplianceChecker on the Compliance side"
-    class="w-full max-h-[62vh]"
-  />
+  <div class="relative overflow-hidden bg-black">
+    <video
+      :src="'/mia-programming.mp4'"
+      autoplay
+      loop
+      muted
+      playsinline
+      class="absolute inset-0 w-full h-full object-cover"
+    />
+  </div>
+
+  <div class="flex flex-col justify-center items-start gap-5 px-14 bg-glow">
+    <p class="eyebrow">TIME TO BUILD</p>
+    <h1 class="cta-headline">Open the lab</h1>
+    <a class="cta-pill" href="https://t.mp/nexus-kotlin">t.mp/nexus-kotlin</a>
+  </div>
+
 </div>
 
+<style scoped>
+.cta-headline {
+  font-size: 3rem;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--temporal-text-strong);
+  margin: 0;
+}
+.cta-pill {
+  display: inline-block;
+  padding: 0.55rem 1.5rem;
+  border: 1px solid var(--temporal-green);
+  border-radius: 999px;
+  color: var(--temporal-green);
+  font-weight: 500;
+  font-size: 1.35rem;
+  text-decoration: none;
+  transition: background 140ms ease;
+}
+.cta-pill:hover {
+  background: rgba(89, 253, 160, 0.14);
+}
+</style>
+
 <!--
-Your words here. One sentence each for before and after. Name the shape of the
-change, not the mechanism — the six concept slides that follow are the mechanism.
+Last slide of segment 0. Leave it up while people get into the sandbox — this is
+the only URL they have to type all day, so give them a moment on it.
 
-The diagram animates: data flows left to right through validate, compliance
-check, execute. Let one loop play before you talk over it.
+Ziggy takes a minute to warm the sandbox. Say what is happening while it does:
+a Temporal dev server, and two Namespaces, one per team.
 
-Diagram source, canonical:
-temporalio/temporal-learning → docs/tutorials/nexus/ui/architecture-overview.svg
-Rendered in the Overview of learn.temporal.io/tutorials/nexus/nexus-sync-tutorial-java
-(inlined there as base64). public/nexus-architecture.svg is byte-identical to the
-committed file, so re-sync from temporal-learning if the diagram changes.
-
-Sibling diagrams exist in that same ui/ folder if a later segment ever wants one.
+This slide opens the lab environment. The per-challenge handoffs are separate,
+on the `exercise` layout with its countdown timer, at the end of each segment.
 -->
 
 ---
 layout: section
 ---
 
-# The six words
+# Nexus Fundamentals
 
-Everything Nexus adds, before you write any of it.
+Every term you need, with the code that uses it.
 
 <!--
-Framing line for the block. ~15 seconds. Something to the effect of: six
-concepts, one slide each, you'll write all of them today.
+Framing line for the block. ~15 seconds. Six concepts, one slide each, and
+you write all of them in the lab you just opened.
 -->
 
 ---
@@ -336,66 +468,4 @@ Source: compliance/temporal/ComplianceNexusServiceImpl.kt:28-58
 - Nexus sync operations complete as part of the start request itself — meaning the caller is holding an open connection waiting for the response.
 - If this slide feels cramped, the `comparison` layout is built for exactly
   this shape.
--->
-
----
-layout: default
-class: "!p-0"
----
-
-<div class="absolute inset-0 grid grid-cols-2">
-
-  <div class="relative overflow-hidden bg-black">
-    <video
-      :src="'/mia-programming.mp4'"
-      autoplay
-      loop
-      muted
-      playsinline
-      class="absolute inset-0 w-full h-full object-cover"
-    />
-  </div>
-
-  <div class="flex flex-col justify-center items-start gap-5 px-14 bg-glow">
-    <p class="eyebrow">TIME TO BUILD</p>
-    <h1 class="cta-headline">Open the lab</h1>
-    <a class="cta-pill" href="https://t.mp/nexus-kotlin">t.mp/nexus-kotlin</a>
-  </div>
-
-</div>
-
-<style scoped>
-.cta-headline {
-  font-size: 3rem;
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  color: var(--temporal-text-strong);
-  margin: 0;
-}
-.cta-pill {
-  display: inline-block;
-  padding: 0.55rem 1.5rem;
-  border: 1px solid var(--temporal-green);
-  border-radius: 999px;
-  color: var(--temporal-green);
-  font-weight: 500;
-  font-size: 1.35rem;
-  text-decoration: none;
-  transition: background 140ms ease;
-}
-.cta-pill:hover {
-  background: rgba(89, 253, 160, 0.14);
-}
-</style>
-
-<!--
-Last slide of segment 0. Leave it up while people get into the sandbox — this is
-the only URL they have to type all day, so give them a moment on it.
-
-Ziggy takes a minute to warm the sandbox. Say what is happening while it does:
-a Temporal dev server, and two Namespaces, one per team.
-
-This slide opens the lab environment. The per-challenge handoffs are separate,
-on the `exercise` layout with its countdown timer, at the end of each segment.
 -->
