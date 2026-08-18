@@ -5,7 +5,7 @@ containers:
   # older image that had no code-server in it, so the editor tabs showed
   # "Please wait" forever. Re-pin this after every image rebuild with:
   #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-kotlin-sandbox:latest --format "{{.Manifest.Digest}}"
-  image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox@sha256:16cb8c5567ac430b729e5f9c7e3cea1b6530cac24ab69588eae5487c9102de4a
+  image: ghcr.io/nadvolod/edu-nexus-kotlin-sandbox@sha256:0896ac82b6a13ea6a79397e06191df59e6f2452b3bb5b1b6b03a8eec45bcdeac
   shell: /bin/bash
   # Two JVM Workers, a Gradle daemon, a dev server, and one code-server.
   memory: 8192
