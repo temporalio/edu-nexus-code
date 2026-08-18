@@ -77,10 +77,17 @@ is everything underneath it.
 
 # Point the Contract at the Endpoint
 
-Open `payments/temporal/PaymentsWorkerApp.kt` and follow the TODO comments.
+Open `payments/temporal/PaymentsWorkerApp.kt` and follow the TODO comment.
 
-The last one deletes a single registration. That deletion is the decoupling.
-Everything before it was wiring.
+Two edits on the registration lines. Replace one so the Worker knows which Endpoint
+answers for `ComplianceNexusService`, then delete the one that runs Compliance's Activity
+inside this process.
+
+The Endpoint name belongs here, on the Worker, not in the Workflow. That is what keeps
+the Workflow reusable: point it at a different Endpoint later and no Workflow code
+changes.
+
+That deletion is the decoupling. Everything else is wiring.
 
 # Run It Decoupled
 
@@ -98,12 +105,9 @@ Click the [button label="Payments Worker" background="#444CE7"](tab-3) tab:
 ./gradlew paymentsWorker
 ```
 
-Read its banner. `ComplianceActivity` is gone and a Nexus line replaced it:
-
-```bash,nocopy
-  Registered: PaymentProcessingWorkflow, ReviewCallerWorkflow, PaymentActivity
-  Nexus: ComplianceNexusService -> compliance-endpoint
-```
+It should start without errors. Its banner still lists `ComplianceActivity`, because that
+line is hardcoded text rather than a report of what you registered. Ignore it. The proof
+comes from the run.
 
 Click the [button label="Terminal" background="#444CE7"](tab-2) tab:
 

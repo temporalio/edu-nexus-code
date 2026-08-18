@@ -31,7 +31,7 @@ an Instruqt track and is built for a live 90 minute workshop with a 40 minute la
 ```
 kotlin/
 ├── decouple-monolith/
-│   ├── exercise/          Gradle KTS, TODOs 1 to 11 open
+│   ├── exercise/          Gradle KTS, TODOs 1 to 10 open
 │   └── solution/          Gradle KTS, complete
 ├── sandbox/Dockerfile     Temurin 21 + Temporal CLI + pre-warmed Gradle cache
 ├── diagrams/              architecture diagram, served on 8090
