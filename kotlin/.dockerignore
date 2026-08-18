@@ -1,0 +1,14 @@
+# Build context is kotlin/. Keep local build output out of the sandbox image.
+#
+# Without this, `COPY decouple-monolith/` bakes in exercise/bin/ and solution/bin/,
+# which Gradle and the IDE fill with a second copy of every .kt file. Those copies
+# are stale the moment you edit src/, so the image ends up carrying two versions of
+# the same TODO comments. Verified present in the image before this file existed.
+#
+# The Dockerfile compiles both trees itself, so nothing here is needed at build time.
+bin/
+build/
+.gradle/
+.idea/
+*.iml
+.DS_Store

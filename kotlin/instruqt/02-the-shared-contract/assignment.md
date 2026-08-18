@@ -81,18 +81,6 @@ Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
 
 The editor saves as you type. There is no save button.
 
-# One Rule That Bites
-
-The Nexus runtime validates every method in the interface when a Worker starts.
-Annotate `checkCompliance` and forget `submitReview`, and the Worker dies with:
-
-```bash,nocopy
-Missing @Operation annotation
-```
-
-You are not calling `submitReview` until challenge 5. It still needs the annotation
-today.
-
 # Compile It
 
 Click the [button label="Terminal" background="#444CE7"](tab-2) tab:
