@@ -267,6 +267,34 @@ The Web UI renders history event types with spaces: **Activity Task Scheduled**,
 scanning for a string that is not on screen. Bold the on-screen label, and save the
 camel-case identifier for when they are reading code or JSON.
 
+### A run of `=` inside a fence desynchronises the whole page
+
+A `bash,nocopy` block containing the Worker's startup banner:
+
+```
+=========================================================
+  Compliance Worker started on: compliance-risk
+=========================================================
+```
+
+rendered as a collapsible divider, then an `<h1>`, then a code block that swallowed the
+next several paragraphs of prose and displayed the following ```` ```bash,nocopy ````
+marker as literal text. The raw markdown was correct and `instruqt track validate`
+passed.
+
+Instruqt's renderer does not honour the fence around a leading run of `=`. The trailing
+run then forms a setext heading out of the lines above it, and every fence after that
+point is off by one. Nine other `nocopy` fences in the same track rendered fine, so the
+`=` runs are the trigger.
+
+**Never put a line of only `=` in an assignment**, fenced or not. If a program prints a
+banner like that, show the meaningful lines and drop the separators. Grep for it before
+every publish:
+
+```bash
+grep -rn '^ *==*$' */assignment.md
+```
+
 ### Show the line, do not describe it
 
 "Look at what this Worker registers" makes the learner hunt and guess. Paste the two

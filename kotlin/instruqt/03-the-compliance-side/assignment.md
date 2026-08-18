@@ -112,27 +112,25 @@ Click the [button label="Compliance Worker" background="#444CE7"](tab-4) tab:
 ./gradlew complianceWorker
 ```
 
-Scroll up past the log lines and you should see the banner:
+If the Worker started, the output looks like this:
 
 ```bash,nocopy
-=========================================================
+> Task :complianceWorker
+[main] INFO io.temporal.serviceclient.WorkflowServiceStubsImpl - Created WorkflowServiceStubs for channel: ManagedChannelOrphanWrapper{delegate=ManagedChannelImpl{logId=1, target=127.0.0.1:7233}}
+[main] INFO io.temporal.internal.worker.MultiThreadedPoller - start: MultiThreadedPoller{name=Workflow Poller taskQueue="compliance-risk", namespace="compliance-namespace", identity=11418@workshop}
+[main] INFO io.temporal.internal.worker.MultiThreadedPoller - start: MultiThreadedPoller{name=Nexus Poller taskQueue="compliance-risk", namespace="compliance-namespace", identity=11418@workshop}
+[main] INFO io.temporal.internal.worker.MultiThreadedPoller - start: MultiThreadedPoller{name=Activity Poller taskQueue="compliance-risk", namespace="compliance-namespace", identity=11418@workshop}
   Compliance Worker started on: compliance-risk
   Namespace: compliance-namespace
-=========================================================
 ```
 
-That banner only means the process is alive. It prints whether or not you registered
-anything, so it is not proof. Two things are.
+The banner at the bottom only tells you the process is alive. It prints whether or not
+you registered anything, so it is not proof. Two things are.
 
-**One: the Nexus Poller line.** Look above the banner for:
-
-```bash,nocopy
-start: MultiThreadedPoller{name=Nexus Poller taskQueue="compliance-risk", ...}
-```
-
-There are three pollers, one per kind of work: Workflow, Activity, and Nexus. The
-Nexus one appears only when a Nexus Service is registered. If it is missing, your
-handler is not wired even though the Worker started.
+**One: the Nexus Poller line.** Three pollers start, one per kind of work: Workflow,
+Activity, and Nexus. The Nexus one appears only when a Nexus Service is registered. If
+you see Workflow and Activity but no Nexus, your handler is not registered even though
+the Worker started.
 
 **Two: the Temporal UI.** Click the
 [button label="Temporal UI" background="#444CE7"](tab-1) tab, switch the Namespace
