@@ -258,6 +258,30 @@ Pushing from a checkout without them creates a second track.
 
 ---
 
+## Assignment wording
+
+### Name UI elements the way the UI names them
+
+The Web UI renders history event types with spaces: **Activity Task Scheduled**, not
+`ActivityTaskScheduled`. A learner told to look for `NexusOperationScheduled` is
+scanning for a string that is not on screen. Bold the on-screen label, and save the
+camel-case identifier for when they are reading code or JSON.
+
+### Show the line, do not describe it
+
+"Look at what this Worker registers" makes the learner hunt and guess. Paste the two
+lines in a `kotlin,nocopy` fence and then say what they mean. Costs four lines of
+assignment, removes all the guessing.
+
+### A long edge label will cover your diagram
+
+Node text and edge labels are drawn in different layers, so a label wider than the gap
+between two columns lands on top of the box text with no warning. Measure: our gutter
+was 70px and the label was about 300px. Keep labels to roughly the gutter width and put
+the sentence in the step caption instead, where there is room for it.
+
+---
+
 ## Architecture diagrams
 
 A diagram tab is worth building when the point is *where code runs*, not what it
