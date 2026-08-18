@@ -1,0 +1,261 @@
+/* ABOUTME: Global palette, typography, and layout polish for the Temporal Slidev theme.
+   ABOUTME: Palette sourced from the official 2026 PPTX (theme1.xml). Inter + Noto Sans Mono. */
+
+/* Palette mapping → PPT accents in Temporal Slidey Slides Optimized v2026.pptx:
+     --temporal-green   #59FDA0  →  accent6  (mint, primary accent)
+     --temporal-purple  #5D24BD  →  accent2  (deep purple, chrome / clusters)
+     --temporal-magenta #FF6BFF  →  accent3
+     --temporal-yellow  #FECB2F  →  accent4
+     --temporal-red     #ED360E  →  accent5
+     --temporal-blue    #444CE7  →  accent1  (hyperlinks)
+   Mint green is reserved for accent text, code highlights, and decorative UI affordances.
+   It MUST NEVER tint the Temporal logo — see styles/layout.css and per-layout scoped CSS. */
+
+:root {
+  --temporal-bg:          #0B1020;
+  --temporal-bg-elev:     #111827;
+  --temporal-bg-overlay:  rgba(11, 16, 32, 0.72);
+
+  --temporal-text:        #C7D7FE;
+  --temporal-text-strong: #F8FAFC;
+  --temporal-text-muted:  #7C8FB1;
+
+  --temporal-green:       #59FDA0;
+  --temporal-purple:      #5D24BD;
+  --temporal-lavender:    #C3A0FF;
+  --temporal-magenta:     #FF6BFF;
+  --temporal-cyan:        #00E0E0;
+  --temporal-yellow:      #FECB2F;
+  --temporal-blue:        #444CE7;
+  --temporal-red:         #ED360E;
+
+  --temporal-border:      rgba(199, 215, 254, 0.12);
+  --temporal-border-hi:   rgba(199, 215, 254, 0.28);
+
+  --slidev-theme-primary: var(--temporal-green);
+  --slidev-code-background: var(--temporal-bg-elev);
+}
+
+html,
+body,
+#app {
+  background: var(--temporal-bg);
+  color: var(--temporal-text);
+}
+
+.slidev-layout {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-weight: 300;
+  font-feature-settings: 'ss01', 'cv11';
+  color: var(--temporal-text);
+  background: var(--temporal-bg);
+  padding: 2rem 3rem 1.5rem;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 1.5rem;
+}
+
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3,
+.slidev-layout h4 {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 200;
+  letter-spacing: -0.012em;
+  color: var(--temporal-text-strong);
+  line-height: 1.1;
+}
+
+.slidev-layout h1 {
+  font-size: 3rem;
+  margin: 0 0 1rem;
+}
+
+.slidev-layout h2 {
+  font-size: 2.2rem;
+  font-weight: 300;
+  margin: 0 0 0.85rem;
+}
+
+.slidev-layout h3 {
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--temporal-lavender);
+  margin: 0 0 0.6rem;
+}
+
+.slidev-layout p,
+.slidev-layout li {
+  font-weight: 300;
+  line-height: 1.4;
+  color: var(--temporal-text);
+  margin: 0.3rem 0;
+  font-size: 1.5rem;
+}
+
+.slidev-layout p:first-child { margin-top: 0; }
+.slidev-layout p:last-child { margin-bottom: 0; }
+
+.slidev-layout strong {
+  color: var(--temporal-text-strong);
+  font-weight: 500;
+}
+
+.slidev-layout em {
+  color: var(--temporal-lavender);
+  font-style: normal;
+}
+
+.slidev-layout a {
+  color: var(--temporal-blue);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(68, 76, 231, 0.4);
+  transition: border-color 120ms ease;
+}
+.slidev-layout a:hover {
+  border-bottom-color: var(--temporal-blue);
+}
+
+.slidev-layout ul,
+.slidev-layout ol {
+  padding-left: 1.25rem;
+  margin: 0.4rem 0;
+}
+.slidev-layout ul > li {
+  position: relative;
+  list-style: none;
+  padding-left: 1rem;
+  margin: 0.35rem 0;
+}
+.slidev-layout ul > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 0.45rem;
+  height: 1px;
+  background: var(--temporal-green);
+  opacity: 0.9;
+}
+.slidev-layout ol {
+  list-style: decimal-leading-zero outside;
+  padding-left: 3.5rem;
+}
+.slidev-layout ol > li {
+  padding-left: 0.5rem;
+  margin: 0.35rem 0;
+}
+.slidev-layout ol > li > pre.shiki,
+.slidev-layout ol > li > div[class*="language-"] > pre {
+  margin: 0.25rem 0;
+}
+.slidev-layout ol > li::marker {
+  color: var(--temporal-green);
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+}
+
+.slidev-layout blockquote {
+  border-left: 2px solid var(--temporal-green);
+  padding-left: 1rem;
+  color: var(--temporal-text-strong);
+  font-weight: 300;
+  font-style: normal;
+  margin: 1rem 0;
+}
+
+.slidev-layout table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+.slidev-layout th,
+.slidev-layout td {
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--temporal-border);
+}
+.slidev-layout th {
+  font-weight: 500;
+  color: var(--temporal-text-strong);
+  border-bottom-color: var(--temporal-border-hi);
+}
+
+/* Footer pinned to bottom of layout via flex parent; no absolute positioning
+   so content above can claim whatever vertical space it needs without overlap.
+   The solid-ish backdrop keeps it readable even if a stray element squeezes past. */
+.temporal-footer {
+  margin-top: auto;
+  padding: 0.6rem 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.65rem;
+  color: var(--temporal-text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(to bottom, transparent 0%, var(--temporal-bg) 40%);
+}
+
+/* Mermaid diagrams: constrain the rendered SVG to the available slide area.
+   Without this, large flowcharts render at their natural height and spill past the footer. */
+.slidev-layout .slidev-mermaid,
+.slidev-layout div[class*="mermaid"] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0.25rem 0;
+}
+.slidev-layout .slidev-mermaid svg,
+.slidev-layout div[class*="mermaid"] svg {
+  max-width: 100%;
+  max-height: 60vh;
+  width: auto !important;
+  height: auto !important;
+  display: block;
+}
+
+/* ---- Background helpers ---- */
+
+.bg-grid          { background: #0B1020 url('../assets/grid.webp')          center/cover no-repeat; }
+.bg-planet-teal   { background: #0B1020 url('../assets/planet-teal.webp')   center/cover no-repeat; }
+.bg-planet-purple { background: #0B1020 url('../assets/planet-purple.webp') center/cover no-repeat; }
+.bg-rex           { background: #0B1020 url('../assets/rex.webp')           center/cover no-repeat; }
+.bg-glow          { background: #0B1020 url('../assets/glow.webp')          center/cover no-repeat; }
+.bg-plain         { background: var(--temporal-bg); }
+
+/* Asset-pending placeholder used by layouts whose primary artwork is asset-blocked
+   per spec §5. Layouts render this in place of the missing image/illustration so
+   the structure is visible and the gap is obvious to reviewers. */
+.asset-pending {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  border: 1px dashed var(--temporal-border-hi);
+  border-radius: 0.5rem;
+  background: rgba(124, 58, 237, 0.04);
+  color: var(--temporal-text-muted);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 1rem;
+  line-height: 1.4;
+}
+.asset-pending::before {
+  content: 'ASSET PENDING';
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  border: 1px solid var(--temporal-border-hi);
+  border-radius: 999px;
+  color: var(--temporal-yellow);
+}
+

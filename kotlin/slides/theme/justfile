@@ -1,0 +1,100 @@
+# Justfile for slidev-theme-temporal.
+# Run `just` (or `just --list`) to see every recipe.
+
+# Default recipe — list available recipes.
+default:
+    @just --list
+
+# Run a Slidev dev server.
+# Examples:
+#   just dev                        → example/slides.md (reference deck)
+#   just dev workshop               → example/workshop.md
+#   just dev feature-launch         → example/feature-launch.md
+#   just dev customer-story         → example/customer-story.md
+#   just dev path/to/slides.md      → custom path
+dev DECK='slides':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -f "{{DECK}}" ]]; then
+      path="{{DECK}}"
+    elif [[ -f "example/{{DECK}}.md" ]]; then
+      path="example/{{DECK}}.md"
+    else
+      echo "No deck found at '{{DECK}}' or 'example/{{DECK}}.md'"
+      echo "Available example decks:"
+      ls example/*.md | sed 's|^|  |'
+      exit 1
+    fi
+    echo "Starting Slidev on ${path}..."
+    pnpm dlx @slidev/cli "${path}" --open
+
+# Build a deck to a static SPA in dist/<name>.
+# Example: just build slides
+build DECK='slides':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -f "{{DECK}}" ]]; then
+      path="{{DECK}}"
+    elif [[ -f "example/{{DECK}}.md" ]]; then
+      path="example/{{DECK}}.md"
+    else
+      echo "No deck found at '{{DECK}}' or 'example/{{DECK}}.md'"
+      exit 1
+    fi
+    out="dist/{{DECK}}"
+    pnpm dlx @slidev/cli build "$path" --out "$out"
+    echo "→ Static site at $out/index.html"
+
+# Export a deck to PDF (requires Playwright; Slidev will prompt to install on first run).
+# Example: just pdf slides → slides.pdf
+pdf DECK='slides':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -f "{{DECK}}" ]]; then
+      path="{{DECK}}"
+    elif [[ -f "example/{{DECK}}.md" ]]; then
+      path="example/{{DECK}}.md"
+    else
+      echo "No deck found at '{{DECK}}' or 'example/{{DECK}}.md'"
+      exit 1
+    fi
+    out="{{DECK}}.pdf"
+    pnpm dlx @slidev/cli export "$path" --output "$out"
+    echo "→ PDF at $out"
+
+# Export a deck to per-slide PNGs (good for embedding slides in other docs).
+# Example: just export-png slides → dist/png-slides/
+export-png DECK='slides':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -f "{{DECK}}" ]]; then
+      path="{{DECK}}"
+    elif [[ -f "example/{{DECK}}.md" ]]; then
+      path="example/{{DECK}}.md"
+    else
+      echo "No deck found at '{{DECK}}' or 'example/{{DECK}}.md'"
+      exit 1
+    fi
+    out="dist/png-{{DECK}}"
+    mkdir -p "$out"
+    pnpm dlx @slidev/cli export "$path" --format png --output "$out"
+    echo "→ PNGs at $out/"
+
+# List the example decks bundled with this theme.
+list-examples:
+    @echo "Example decks:"
+    @ls example/*.md | sed 's|^example/|  |; s|\.md$||'
+
+# Wipe Slidev caches and built output.
+clean:
+    rm -rf example/.slidev dist *.pdf
+
+# Bootstrap a new deck wired to this theme via a local link.
+# Usage:
+#   just new ~/decks/q4-review                 → minimal starter
+#   just new ~/decks/q4-review reference       → seeded from example/slides.md
+#   just new ~/decks/q4-review workshop        → seeded from example/workshop.md
+#   just new ~/decks/q4-review feature-launch  → seeded from example/feature-launch.md
+#   just new ~/decks/q4-review customer-story  → seeded from example/customer-story.md
+new TARGET STARTER='minimal':
+    ./scripts/new-deck.sh "{{TARGET}}" "{{STARTER}}"
