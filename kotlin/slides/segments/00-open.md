@@ -1,5 +1,86 @@
 ---
 layout: default
+class: "!p-0"
+---
+
+<div class="absolute inset-0 flex flex-col items-center justify-center gap-6">
+
+  <div class="flex items-center gap-2">
+    <img
+      :src="'/mia.jpg'"
+      alt="Mia, a black and tan rescue dog"
+      class="w-[248px] h-[248px] rounded-full object-cover"
+      style="object-position: 50% 30%"
+    />
+    <img
+      :src="'/nikolay.jpg'"
+      alt="Nikolay Advolodkin"
+      class="w-[248px] h-[248px] rounded-full object-cover"
+    />
+  </div>
+
+  <h1 class="intro-name">Nikolay Advolodkin</h1>
+
+  <div class="flex flex-col items-center gap-1">
+    <p class="intro-line">Staff Developer Advocate @ Temporal</p>
+    <p class="intro-line">Dog Dad &amp; Roller Skater</p>
+  </div>
+
+  <div class="flex items-center gap-10">
+    <a class="intro-social" href="https://x.com/nikolay_a00">
+      <img :src="'/icon-x.png'" alt="X" class="w-[34px] h-[34px] rounded-md" />
+      <span>@nikolay_a00</span>
+    </a>
+    <a class="intro-social" href="https://www.linkedin.com/in/nikolayadvolodkin/">
+      <img :src="'/icon-linkedin.png'" alt="LinkedIn" class="w-[34px] h-[34px] rounded-md" />
+      <span>/in/nikolayadvolodkin/</span>
+    </a>
+  </div>
+
+</div>
+
+<style scoped>
+.intro-name {
+  font-size: 2.9rem;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--temporal-text-strong);
+  margin: 0;
+}
+.intro-line {
+  font-size: 1.15rem;
+  color: var(--temporal-text);
+  margin: 0;
+}
+.intro-social {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.1rem;
+  color: var(--temporal-text);
+  text-decoration: none;
+  /* The theme underlines every link with a border-bottom; not wanted here. */
+  border-bottom: none;
+}
+.intro-social:hover {
+  color: var(--temporal-green);
+}
+</style>
+
+<!--
+Intro slide, rebuilt from slide 2 of the Agentic AI Summit 2026 deck. Same
+elements: both circular photos, name, role, the Dog Dad line, and the two social
+handles with their icons.
+
+Keep it short. Thirty seconds. The room came for Nexus, not for a bio.
+
+Mia appears again on the lab slide at the end of this segment, which is a nice
+callback if you want one.
+-->
+
+---
+layout: default
 ---
 
 # The 3 AM failure
