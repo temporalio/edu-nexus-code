@@ -104,7 +104,7 @@ seconds.
 Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab. In
 `payments-namespace`, click the newest payment Workflow.
 
-Status is **Running**, not Failed. The Event History shows `NexusOperationScheduled`
+Status is **Running**, not Failed. The Event History shows **Nexus Operation Scheduled**
 with no completion. The Operation is waiting for a handler that does not exist yet.
 
 No connection error. No retry loop you had to write. The caller's

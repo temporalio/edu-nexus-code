@@ -168,6 +168,11 @@ Two of them are the point of this challenge:
   cross from the blue zone into the amber one while staying inside a single process.
 - **Step 8 of 8** is the consequence. Compliance owns a Namespace with nothing in it.
 
+Then read the dashed outline that wraps both zones. It is labeled
+`PaymentsWorkerApp.kt · one JVM process · one Task Queue payments-processing`. That is the
+coupling stated as plainly as it can be: both teams' code, one process, one queue. Every
+box inside that outline is polled by the same Worker.
+
 **Fit** brings everything back on screen. **Reset view** undoes any zooming.
 
 # Find the Coupling
@@ -175,9 +180,20 @@ Two of them are the point of this challenge:
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab and open
 `payments/temporal/PaymentsWorkerApp.kt`.
 
-Look at what this one Worker registers. `PaymentActivityImpl` belongs to Payments.
-`ComplianceActivityImpl` belongs to Compliance. Same process. Same deployment. Same
-blast radius.
+Look at what this one Worker registers. Two lines, two different teams:
+
+```kotlin,nocopy
+worker.registerActivitiesImplementations(PaymentActivityImpl(PaymentGateway()))
+
+worker.registerActivitiesImplementations(ComplianceActivityImpl(ComplianceChecker()))
+```
+
+`PaymentActivityImpl` belongs to Payments. `ComplianceActivityImpl` belongs to
+Compliance. They sit two lines apart in one file, which means the same process, the same
+deployment, and the same blast radius. Compliance cannot ship a fix without Payments
+shipping too.
+
+The second line is the one you delete in challenge 4. That deletion is the decoupling.
 
 Now open `payments/temporal/PaymentProcessingWorkflowImpl.kt` and find step 2:
 
@@ -198,8 +214,8 @@ Empty. Compliance has a Namespace of its own, and nothing runs there, because th
 is executing inside the Payments Worker.
 
 Switch back to `payments-namespace`, open `payment-TXN-C` again, and read the Event
-History. Find `ActivityTaskScheduled` for the compliance check. That single event is what
-you spend the rest of this lab replacing.
+History. Find **Activity Task Scheduled** for the compliance check. That single event is
+what you spend the rest of this lab replacing.
 
 Click **Check** when your three transactions have finished.
 

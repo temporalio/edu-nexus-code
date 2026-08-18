@@ -143,7 +143,7 @@ the Workflow task retries forever. Silence, not an error.
 Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab.
 
 In `payments-namespace`, open the newest `PaymentProcessingWorkflow` and find
-`NexusOperationScheduled` and `NexusOperationCompleted` in the Event History. Click
+**Nexus Operation Scheduled** and **Nexus Operation Completed** in the Event History. Click
 refresh if the list looks stale.
 
 Now switch the Namespace selector to `compliance-namespace`. Three

@@ -34,9 +34,10 @@ kotlin/
 │   ├── exercise/          Gradle KTS, TODOs 1 to 11 open
 │   └── solution/          Gradle KTS, complete
 ├── sandbox/Dockerfile     Temurin 21 + Temporal CLI + pre-warmed Gradle cache
+├── diagrams/              architecture diagram, served on 8090
 └── instruqt/
     ├── track.yml          no challenges: block, challenges auto-discovered
-    ├── config.yml         container `workshop`, 8192 MB, ports 8233/8080
+    ├── config.yml         container `workshop`, 8192 MB, ports 8233/8080/8090
     ├── track_scripts/     setup-workshop, cleanup-workshop
     ├── 01-run-the-monolith/
     ├── 02-the-shared-contract/
@@ -90,7 +91,7 @@ end-to-end integration test.
 If this track is ever reused self-paced, with no instructor watching, put the checks
 back. The git history has them.
 
-Every challenge has six tabs in a fixed order. The `tab-N` buttons in `assignment.md`
+Every challenge has seven tabs in a fixed order. The `tab-N` buttons in `assignment.md`
 are zero-indexed positions, not ids, so reordering tabs means remapping every button.
 
 | Index | Tab | Type |
@@ -101,6 +102,7 @@ are zero-indexed positions, not ids, so reordering tabs means remapping every bu
 | tab-3 | Payments Worker | terminal |
 | tab-4 | Compliance Worker | terminal |
 | tab-5 | Solution | service, port 8080 (code-server) |
+| tab-6 | Monolith Architecture | service, port 8090 (jwebserver) |
 
 Exercise is first on purpose. Instruqt renders the first tab as the active one, so its
 iframe has real dimensions at load. code-server cannot lay itself out in a 0x0 iframe,
