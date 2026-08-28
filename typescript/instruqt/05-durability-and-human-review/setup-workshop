@@ -1,0 +1,18 @@
+#!/bin/bash
+# ABOUTME: Challenge 05 setup. Clean slate so the outage demo is deterministic.
+#
+# Terminates leftovers from challenge 04, including the parked TXN-B. Without
+# this, re-running the starter collides with the still-Running payment-TXN-B and
+# the whole demo fails on "Workflow execution already started".
+set -euxo pipefail
+
+pkill -f "payments/worker.ts"   || true
+pkill -f "compliance/worker.ts" || true
+
+ADDR=127.0.0.1:7233
+temporal workflow terminate --address "$ADDR" --namespace payments-namespace \
+    --query 'ExecutionStatus="Running"' --reason "challenge 05 reset" --yes >/dev/null 2>&1 || true
+temporal workflow terminate --address "$ADDR" --namespace compliance-namespace \
+    --query 'ExecutionStatus="Running"' --reason "challenge 05 reset" --yes >/dev/null 2>&1 || true
+sleep 2
+true

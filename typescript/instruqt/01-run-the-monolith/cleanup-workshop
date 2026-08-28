@@ -1,0 +1,7 @@
+#!/bin/bash
+# ABOUTME: Challenge 01 cleanup. One pkill per pattern.
+set -euo pipefail
+
+pkill -f "payments/worker.ts"      || true
+pkill -f "npm run payments-worker" || true
+sleep 1

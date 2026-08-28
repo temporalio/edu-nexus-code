@@ -1,0 +1,39 @@
+#!/bin/bash
+# ABOUTME: Challenge 03 solve. Copies the Compliance side from the solution and
+# creates the Endpoint, because the learner creates it by hand in this challenge.
+# Skipping without it would leave challenge 04 unroutable.
+set -euxo pipefail
+
+SRC=/root/workshop/solution/src
+DST=/root/workshop/exercise/src
+
+# The contract too, in case challenge 02 was skipped without solving.
+cp "$SRC/shared/nexus-service.ts"        "$DST/shared/"
+cp "$SRC/compliance/nexus-handler.ts"    "$DST/compliance/"
+cp "$SRC/compliance/worker.ts"           "$DST/compliance/"
+
+temporal operator nexus endpoint create \
+    --name compliance-endpoint \
+    --target-namespace compliance-namespace \
+    --target-task-queue compliance-risk \
+    --address 127.0.0.1:7233 || true
+
+cd /root/workshop/exercise
+
+# The Compliance side now typechecks on its own. The Payments side still calls
+# the Activity proxy, which is valid, so the whole tree compiles here.
+npx tsc --noEmit
+
+# Prove the wiring boots, then stop it. Challenge 04 starts its own Workers.
+pkill -f "compliance/worker.ts" || true
+sleep 1
+nohup npm run compliance-worker > /tmp/compliance-worker.log 2>&1 &
+for i in $(seq 1 120); do
+    grep -q "Compliance Worker started" /tmp/compliance-worker.log && break
+    sleep 1
+done
+# The banner alone proves nothing. A Worker with no Nexus Service registered
+# logs that it is skipping Nexus polling, so assert that line is ABSENT.
+grep -q "Compliance Worker started" /tmp/compliance-worker.log
+! grep -q "No Nexus services registered" /tmp/compliance-worker.log
+pkill -f "compliance/worker.ts" || true

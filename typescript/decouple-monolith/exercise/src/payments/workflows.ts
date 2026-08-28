@@ -112,7 +112,7 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
   };
 }
 
-// ── TODO 7 ──────────────────────────────────────────────────────────────────────────
+// ── TODO 6 ──────────────────────────────────────────────────────────────────────────
 // You come back to this one in challenge 05, once the Nexus path works end to end.
 //
 // Submitting a human review through the Endpoint respects the team boundary: neither
@@ -122,5 +122,5 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
 // the 10-second handler deadline. Use a 10-second scheduleToCloseTimeout here, not the
 // 10 minutes used for the async check.
 export async function reviewCallerWorkflow(_request: ReviewRequest): Promise<ComplianceResult> {
-  throw new Error('TODO 7: submit the review decision through the Nexus Endpoint');
+  throw new Error('TODO 6: submit the review decision through the Nexus Endpoint');
 }

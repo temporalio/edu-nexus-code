@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Challenge 1 · The Payments Monolith</title>
+<style>
+  :root {
+    --bg:#eef1f5; --bg-grid:#e2e7ee; --panel:#ffffff; --panel-2:#f7f9fc;
+    --ink:#18202e; --muted:#5b6676; --faint:#8b95a4; --line:#d3dae3; --line-strong:#b9c2ce;
+    --pay:#2a78d6; --comp:#c9791b; --wire:#5b6676; --ext:#8b95a4; --empty:#0f9d94;
+    --syn-kw:#0b4fbd; --syn-ann:#795e26; --syn-str:#a31515; --syn-type:#267f99; --syn-com:#6a8759;
+    --on-accent:#ffffff;
+    --shadow:0 1px 2px rgba(20,30,50,.06), 0 8px 24px rgba(20,30,50,.08);
+    --radius:13px;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,"Menlo","Cascadia Code","Roboto Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#0d1117; --bg-grid:#131a24; --panel:#161d28; --panel-2:#1b2432;
+      --ink:#e6ebf2; --muted:#93a0b1; --faint:#64707f; --line:#29323f; --line-strong:#38434f;
+      --pay:#4a9bf5; --comp:#f0a848; --wire:#93a0b1; --ext:#64707f; --empty:#3ad6ce;
+      --syn-kw:#569cd6; --syn-ann:#dcdcaa; --syn-str:#ce9178; --syn-type:#4ec9b0; --syn-com:#6a9955;
+      --on-accent:#141922;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0d1117; --bg-grid:#131a24; --panel:#161d28; --panel-2:#1b2432;
+    --ink:#e6ebf2; --muted:#93a0b1; --faint:#64707f; --line:#29323f; --line-strong:#38434f;
+    --pay:#4a9bf5; --comp:#f0a848; --wire:#93a0b1; --ext:#64707f; --empty:#3ad6ce;
+    --syn-kw:#569cd6; --syn-ann:#dcdcaa; --syn-str:#ce9178; --syn-type:#4ec9b0; --syn-com:#6a9955;
+    --on-accent:#141922;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+  }
+
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    background:radial-gradient(circle at 1px 1px, var(--bg-grid) 1px, transparent 0) 0 0 / 26px 26px, var(--bg);
+    color:var(--ink); font-family:var(--sans); line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:1700px; margin:0 auto; padding:18px 18px 36px; }
+  .eyebrow { font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--comp); font-weight:600; margin:0 0 6px; }
+  h1 { font-size:clamp(22px,3vw,32px); line-height:1.1; margin:0; letter-spacing:-.02em; font-weight:700; }
+  .sub { margin:8px 0 0; color:var(--muted); font-size:14.5px; max-width:80ch; }
+
+  .bar { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin:14px 0 10px;
+    padding:10px 14px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .clabel { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); font-weight:600; }
+  .btn { font-family:var(--sans); font-size:12.5px; font-weight:500; cursor:pointer; color:var(--ink);
+    background:var(--panel-2); border:1px solid var(--line); padding:6px 13px; border-radius:8px; transition:border-color .15s; }
+  .btn:hover { border-color:var(--line-strong); }
+  .btn:disabled { opacity:.4; cursor:default; }
+  .btn.primary { background:var(--pay); color:var(--on-accent); border-color:var(--pay); font-weight:600; }
+  .btn.primary:hover { filter:brightness(1.07); }
+  .stepbtn { min-width:40px; text-align:center; font-size:15px; padding:5px 10px; }
+  .zoomlabel { font-family:var(--mono); font-size:12px; color:var(--muted); min-width:44px; text-align:center; }
+  .spacer { flex:1 1 auto; }
+  .stepno { font-family:var(--mono); font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums;
+    white-space:nowrap; min-width:96px; text-align:center; }
+
+  /* The flow bar must NOT change height or reflow as you step through, or the
+     arrows move out from under the cursor. Three things keep it still:
+       - the bar has a fixed height
+       - the narration reserves exactly two lines, whatever the caption length
+       - the play button has a fixed width, so "Restart" and "Walk the flow"
+         do not shift the arrows sideways
+     Captions are written to fit two lines; the longest is 156 characters. */
+  .flowbar { height:78px; align-items:center; flex-wrap:nowrap; }
+  #play { min-width:152px; }
+  .narr { flex:1 1 320px; min-width:220px; height:40px; overflow:hidden; line-height:20px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .phase { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    padding:2px 9px; border-radius:999px; white-space:nowrap; display:inline-block;
+    margin-right:8px; vertical-align:1px; }
+  .phase.pay  { color:var(--on-accent); background:var(--pay); }
+  .phase.comp { color:var(--on-accent); background:var(--comp); }
+  .phase.wire { color:var(--on-accent); background:var(--wire); }
+  .cap { font-size:13px; color:var(--ink); line-height:20px; }
+  /* keep the reserved height even when the pill is hidden */
+  .bar.idle .phase { visibility:hidden; display:inline-block; }
+  .bar.idle .cap { color:var(--muted); }
+  .btn:focus-visible, .node:focus-visible, .zone:focus-visible, .proc:focus-visible { outline:2px solid var(--pay); outline-offset:2px; }
+
+  .stage { display:flex; align-items:stretch; }
+  .canvasScroll { flex:1 1 auto; min-width:0; height:74vh; min-height:500px; overflow:auto; position:relative;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); }
+  .canvasFit { position:relative; width:100%; }
+  .canvas { position:absolute; top:0; left:0; transform-origin:top left; }
+  svg.edges { position:absolute; inset:0; pointer-events:none; z-index:4; overflow:visible; }
+  svg.edges path { fill:none; transition:opacity .18s, stroke-width .18s; }
+  svg.edges .elabel { font-family:var(--mono); font-size:11px; fill:var(--muted); paint-order:stroke;
+    stroke:var(--panel); stroke-width:4px; stroke-linejoin:round; transition:opacity .18s; }
+  .e-pay { stroke:var(--pay); } .e-comp { stroke:var(--comp); }
+  .e-wire { stroke:var(--wire); stroke-dasharray:4 4; } .e-ext { stroke:var(--ext); stroke-dasharray:5 5; }
+  path.dim, text.dim { opacity:.10 !important; }
+  path.hot { stroke-width:3.6px !important; }
+
+  .detail { width:0; flex:0 0 auto; overflow:hidden; transition:width .2s ease; background:var(--panel);
+    border-radius:var(--radius); box-shadow:var(--shadow); }
+  .stage.detail-open .detail { width:350px; margin-left:14px; border:1px solid var(--line); }
+  .detail-inner { width:350px; height:74vh; min-height:500px; overflow:auto; padding:18px 18px 26px; }
+  .detail-close { float:right; cursor:pointer; border:1px solid var(--line); background:var(--panel-2);
+    color:var(--muted); width:26px; height:26px; border-radius:7px; font-size:15px; line-height:1; }
+  .dbadge { display:inline-block; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.05em;
+    text-transform:uppercase; padding:3px 9px; border-radius:999px; margin-bottom:10px; color:var(--on-accent); }
+  .dbadge.pay{background:var(--pay)} .dbadge.comp{background:var(--comp)}
+  .dbadge.wire{background:var(--wire)} .dbadge.ext{background:var(--ext)} .dbadge.empty{background:var(--empty)}
+  .detail h2 { font-size:16.5px; margin:2px 0 4px; font-family:var(--mono); word-break:break-word; }
+  .detail .dpath { font-family:var(--mono); font-size:12px; color:var(--muted); margin:0 0 12px; word-break:break-all; }
+  .detail p.ddesc { font-size:13.5px; margin:0 0 12px; }
+  .detail .dmeta { font-family:var(--mono); font-size:11.5px; color:var(--faint);
+    border-top:1px solid var(--line); padding-top:10px; margin-top:12px; }
+  .detail ul { margin:6px 0 0; padding-left:18px; }
+  .detail li { font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-bottom:5px; word-break:break-word; }
+  .placeholder { color:var(--faint); font-size:13.5px; }
+
+  /* one process outline */
+  .proc { position:absolute; z-index:0; border:1.6px dashed var(--line-strong); border-radius:20px; cursor:pointer; }
+  .proc:hover { border-color:var(--ink); }
+  .proc.lit { border-style:solid; border-color:var(--ink); }
+  .proc.empty { border-color:color-mix(in srgb, var(--empty) 50%, var(--line-strong)); }
+  .proc.empty.lit { border-color:var(--empty); }
+  .proc .plabel { position:absolute; top:-14px; left:24px; padding:3px 14px; background:var(--panel);
+    border:1px solid var(--line-strong); border-radius:999px; font-family:var(--mono); font-size:12.5px;
+    font-weight:700; color:var(--ink); white-space:nowrap; }
+  .proc .plabel .pp { color:var(--faint); font-weight:500; }
+  /* The Task Queue name is the coupling, so give it the code treatment and let
+     it read brighter than the rest of the band label. */
+  .proc .plabel .pp b { font-family:var(--mono); font-weight:600; color:var(--muted); }
+
+  /* team zones */
+  .zone { position:absolute; z-index:1; border:2px solid; border-radius:16px; cursor:pointer; }
+  .zone.pay  { border-color:var(--pay);  background:color-mix(in srgb, var(--pay) 7%, transparent); }
+  .zone.comp { border-color:var(--comp); background:color-mix(in srgb, var(--comp) 9%, transparent); }
+  .zone .zlabel { position:absolute; top:-15px; left:20px; padding:4px 14px; border-radius:999px;
+    font-family:var(--sans); font-size:12.5px; font-weight:700; letter-spacing:.01em; color:var(--on-accent); white-space:nowrap; }
+  .zone.pay  .zlabel { background:var(--pay); }
+  .zone.comp .zlabel { background:var(--comp); }
+  .zone .ztag { position:absolute; bottom:10px; left:20px; right:20px; font-family:var(--mono);
+    font-size:11px; color:var(--muted); }
+
+  .node { position:absolute; z-index:3; background:var(--panel); border:1px solid var(--line);
+    border-left-width:5px; border-radius:10px; padding:9px 12px 10px; cursor:pointer; box-shadow:var(--shadow);
+    transition:transform .12s, box-shadow .15s, opacity .18s; }
+  .node:hover { transform:translateY(-1px); }
+  .node.h-pay{border-left-color:var(--pay)} .node.h-comp{border-left-color:var(--comp)}
+  .node.h-wire{border-left-color:var(--wire)} .node.h-ext{border-left-color:var(--ext)}
+  .node.h-empty{border-left-color:var(--empty)}
+  .node.lit { box-shadow:0 0 0 3px color-mix(in srgb, var(--pay) 45%, transparent), var(--shadow); }
+  .node.lit.h-comp { box-shadow:0 0 0 3px color-mix(in srgb, var(--comp) 55%, transparent), var(--shadow); }
+  .node.faded { opacity:.28; }
+  .node .nfile { font-family:var(--mono); font-size:11px; font-weight:700; margin-bottom:2px; }
+  .node.h-pay .nfile{color:var(--pay)} .node.h-comp .nfile{color:var(--comp)}
+  .node.h-wire .nfile{color:var(--wire)} .node.h-ext .nfile{color:var(--ext)}
+  .node.h-empty .nfile{color:var(--empty)}
+  .node .nsig { font-family:var(--mono); font-size:12.5px; color:var(--ink); word-break:break-word; }
+  .node .nsnip { margin-top:7px; padding-top:7px; border-top:1px dashed var(--line); font-family:var(--mono);
+    font-size:11px; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+  .k{color:var(--syn-kw);font-weight:600} .a{color:var(--syn-ann)} .s{color:var(--syn-str)}
+  .t{color:var(--syn-type)} .c{color:var(--syn-com);font-style:italic}
+  .snipbox { margin-top:10px; padding:10px 12px; background:var(--panel-2); border:1px solid var(--line);
+    border-radius:8px; font-family:var(--mono); font-size:11.5px; line-height:1.6; white-space:pre-wrap; overflow-x:auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Challenge 1 · Before Nexus</p>
+    <h1>The Payments Monolith</h1>
+    <p class="sub">Two teams. One process. Step through the flow with the arrows, or click any block for its file,
+      signature and role.</p>
+  </header>
+
+  <div class="bar flowbar idle" id="flowbar">
+    <button class="btn primary" id="play" type="button">▶ Walk the flow</button>
+    <button class="btn stepbtn" id="prev" type="button" aria-label="Previous step" disabled>◀</button>
+    <span class="stepno" id="stepno">step — / —</span>
+    <button class="btn stepbtn" id="next" type="button" aria-label="Next step">▶</button>
+    <div class="narr">
+      <span class="phase" id="phase"></span>
+      <span class="cap" id="cap">Three payments, two teams, one Worker.</span>
+    </div>
+  </div>
+
+  <div class="bar">
+    <span class="clabel">Zoom</span>
+    <button class="btn" id="zoomOut" type="button" aria-label="Zoom out">&minus;</button>
+    <span class="zoomlabel" id="zoomLabel">100%</span>
+    <button class="btn" id="zoomIn" type="button" aria-label="Zoom in">+</button>
+    <button class="btn" id="zoomFit" type="button">Fit</button>
+    <span class="spacer"></span>
+    <button class="btn" id="reset" type="button">Reset view</button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="canvasScroll" id="canvasScroll">
+      <div class="canvasFit" id="canvasFit">
+        <div class="canvas" id="canvas"><svg class="edges" id="edges" aria-hidden="true"></svg></div>
+      </div>
+    </div>
+    <aside class="detail" id="detail" aria-live="polite">
+      <div class="detail-inner" id="detailInner"></div>
+    </aside>
+  </div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ nodes */
+const NODES = {
+  starter: { hue:"ext", file:"payments/starter.ts", sig:"run()",
+    type:"Client · separate process", tq:"starts work on payments-processing",
+    desc:"Runs three transactions: TXN-A ($250 domestic), TXN-B ($12,000 to the UK) and TXN-C ($75,000). It starts all three without blocking, then collects results.",
+    members:["client.workflow.start(paymentProcessingWorkflow, ...)","TXN-A  250.00  US -> US","TXN-B  12,000.00  US -> UK","TXN-C  75,000.00  US -> US"],
+    snip:[['t','client'],['p','.workflow.'],['k','start'],['p','(paymentProcessingWorkflow, { args: [txn] })']] },
+
+  workerapp: { hue:"wire", file:"payments/worker.ts", sig:"run()",
+    type:"Worker bootstrap", tq:"payments-processing",
+    desc:"Creates the Worker and registers what it can run. The last registration is the problem: it hands the Compliance team's Activity to the Payments Worker. Deleting that line is the decoupling you perform in challenge 4.",
+    members:["workflowsPath: require.resolve('./workflows')","activities: { ...paymentActivities,","             ...complianceActivities }  <- coupling","await worker.run()"],
+    snip:[['p','activities: { ...paymentActivities,'],['nl'],['p','              ...'],['t','complianceActivities'],['p',' }  '],['c','// the coupling']] },
+
+  wf: { hue:"pay", file:"payments/workflows.ts",
+    sig:"paymentProcessingWorkflow(request)", type:"Workflow function", tq:"payments-processing",
+    desc:"Three steps in order. Validate, check compliance, execute. Step 2 must pass before step 3 runs. In challenge 4 step 2 becomes a Nexus call and nothing else about this method changes.",
+    members:["Step 1: await validatePayment(request)","Step 2: await checkCompliance(compReq)","Step 3: await executePayment(request)"],
+    snip:[['k','export async function '],['p','paymentProcessingWorkflow('],['nl'],['p','  request: '],['t','PaymentRequest'],['p','): '],['t','Promise<PaymentResult>']] },
+
+  payact: { hue:"pay", file:"payments/activities.ts",
+    sig:"validatePayment(...) / executePayment(...)", type:"Activity module", tq:"payments-processing",
+    desc:"The Payments team's own Activities, steps 1 and 3. A thin wrapper over the gateway, so retries and timeouts are Temporal's problem rather than yours.",
+    members:["validatePayment(request): Promise<boolean>","executePayment(request): Promise<string>","startToCloseTimeout: '30 seconds'"],
+    snip:[['k','export async function '],['p','validatePayment('],['nl'],['p','  request: '],['t','PaymentRequest'],['p','): '],['t','Promise<boolean>']] },
+
+  gateway: { hue:"ext", file:"payments/gateway.ts", sig:"executePayment(request): Promise<string>",
+    type:"Simulated external system", tq:"runs inside the Activity",
+    desc:"Stands in for Stripe or SWIFT. Fails 10 percent of the time on purpose so you can watch Temporal retry an Activity for free. The confirmation number comes from the transaction ID, not the clock, so a retry returns the same value.",
+    members:["Fails ~10% of attempts by design","CONF-{transactionId}  (idempotent)"],
+    snip:[['k','if '],['p','('],['t','Math'],['p','.random() < '],['s','0.10'],['p',') '],['k','throw new '],['t','Error']] },
+
+  compact: { hue:"comp", file:"compliance/activities.ts",
+    sig:"checkCompliance(request): Promise<ComplianceResult>", type:"Activity module", tq:"payments-processing",
+    desc:"The Compliance team's code, registered on the Payments Worker and running on the Payments Task Queue. It works, which is what makes it easy to miss. Compliance cannot deploy, scale or roll back without touching Payments.",
+    members:["Registered in payments/worker.ts","Runs on payments-processing","Owned by a team that cannot deploy it"],
+    snip:[['k','export async function '],['p','checkCompliance('],['nl'],['p','  request: '],['t','ComplianceRequest'],['p','): '],['t','Promise<ComplianceResult>']] },
+
+  checker: { hue:"comp", file:"compliance/checker.ts", sig:"checkCompliance(request): ComplianceResult",
+    type:"Business logic", tq:"runs inside the Activity",
+    desc:"Rule based and deterministic. OFAC country or over $50,000 is HIGH and blocked. Over $10,000 is MEDIUM. Everything else is LOW. TXN-B is MEDIUM, which matters once this moves behind Nexus.",
+    members:["Sanctioned country -> HIGH, blocked","Amount > $50,000 -> HIGH, blocked","Amount > $10,000 -> MEDIUM","Otherwise -> LOW"],
+    snip:[['k','if '],['p','(request.amount > '],['s','50_000'],['p',') '],['k','return '],['p','{ ..., riskLevel: '],['s',"'HIGH'"],['p',' }']] },
+
+  empty: { hue:"empty", file:"compliance-namespace", sig:"0 Workers · 0 Workflows",
+    type:"Namespace", tq:"nothing polls it",
+    desc:"The Compliance team already has its own Namespace. Nothing runs in it, because their code is executing inside the Payments process instead. Open the Temporal UI and switch the Namespace selector to see it empty. Compare it at the end of challenge 4.",
+    members:["Created at lab start","No Worker polling","No Workflows","Filled in challenge 4"],
+    snip:[['c','// Temporal UI -> Namespace selector'],['nl'],['c','// compliance-namespace: (empty)']] },
+};
+
+/* ------------------------------------------- columns drive the whole layout */
+const GAP = 30;
+const COLS = [
+  { x:100, w:440, top:300, ids:["workerapp","wf","payact","gateway"] },
+  { x:610, w:430, top:300, ids:["compact","checker"] },
+  { x:1180, w:340, top:300, ids:["empty"] },
+];
+const STARTER = { x:390, w:440, y:40 };
+
+const EDGES = [
+  { id:"e-start", from:"starter",   to:"wf",      cat:"pay",  label:"start Workflow",  fs:"b", ts:"t" },
+  { id:"e-reg",   from:"workerapp", to:"wf",      cat:"wire", label:"registers",       fs:"b", ts:"t" },
+  { id:"e-s1",    from:"wf",        to:"payact",  cat:"pay",  label:"step 1 validate", fs:"b", ts:"t" },
+  { id:"e-gw",    from:"payact",    to:"gateway", cat:"ext",  label:"calls",           fs:"b", ts:"t" },
+  { id:"e-s2",    from:"wf",        to:"compact", cat:"comp", label:"step 2\nin-process",  fs:"r", ts:"l" },
+  { id:"e-chk",   from:"compact",   to:"checker", cat:"comp", label:"calls",           fs:"b", ts:"t" },
+];
+
+/* ------------------------------------------------------------- flow player */
+const FLOW = [
+  { phase:"setup", cls:"wire", cap:"One Worker registers everything: the Workflow, the Payments Activities, and the Compliance Activity.",
+    nodes:["workerapp","wf"], edges:["e-reg"] },
+  { phase:"start", cls:"pay",  cap:"The starter kicks off PaymentProcessingWorkflow on the payments-processing Task Queue.",
+    nodes:["starter","wf"], edges:["e-start"] },
+  { phase:"step 1", cls:"pay", cap:"Validate the payment. The Payments team's own Activity, in the Payments team's own code.",
+    nodes:["wf","payact"], edges:["e-s1"] },
+  { phase:"step 1", cls:"pay", cap:"The Activity calls the payment gateway. It fails 10 percent of the time, and Temporal retries it for you.",
+    nodes:["payact","gateway"], edges:["e-gw"] },
+  { phase:"step 2", cls:"comp", cap:"The boundary. The Workflow calls the COMPLIANCE team's Activity. Different owner, same process, same Task Queue.",
+    nodes:["wf","compact"], edges:["e-s2"] },
+  { phase:"step 2", cls:"comp", cap:"The Compliance Activity runs the risk rules. TXN-B is MEDIUM risk, which becomes important in challenge 5.",
+    nodes:["compact","checker"], edges:["e-chk"] },
+  { phase:"step 3", cls:"pay", cap:"Only if compliance approved: execute the payment. Back on the Payments side.",
+    nodes:["wf","payact","gateway"], edges:["e-s1","e-gw"] },
+  { phase:"the problem", cls:"comp", cap:"Compliance has its own Namespace, and it is empty. Their code runs inside the Payments process, so one bug takes both teams down.",
+    nodes:["compact","checker","empty"], edges:[] },
+];
+
+/* ---------------------------------------------------------------- rendering */
+const canvas=document.getElementById('canvas'), svg=document.getElementById('edges');
+const canvasFit=document.getElementById('canvasFit'), canvasScroll=document.getElementById('canvasScroll');
+const stage=document.getElementById('stage'), detailInner=document.getElementById('detailInner');
+const flowbar=document.getElementById('flowbar');
+const els={}; let W=1560, H=1000;
+const PLACEHOLDER='<p class="placeholder">Click a block for its file, signature and role. Or walk the flow with the arrows above.</p>';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const snip=t=>!t?'':t.map(x=>x[0]==='nl'?'\n':`<span class="${x[0]}">${esc(x[1])}</span>`).join('');
+
+/* process + zone shells are created first, sized after the nodes are measured */
+const procPay=mk('div','proc'), procNs=mk('div','proc empty');
+procPay.innerHTML='<span class="plabel">payments/worker.ts <span class="pp">· one Node process · one Task Queue <b>payments-processing</b></span></span>';
+procNs.innerHTML='<span class="plabel">compliance-namespace <span class="pp">· exists, and is empty</span></span>';
+const zonePay=mk('div','zone pay'), zoneComp=mk('div','zone comp');
+zonePay.innerHTML='<span class="zlabel">PAYMENTS TEAM</span><span class="ztag">owns the Workflow and the payment Activities</span>';
+zoneComp.innerHTML='<span class="zlabel">COMPLIANCE TEAM</span><span class="ztag">owns this code, but cannot deploy it</span>';
+[procPay,procNs,zonePay,zoneComp].forEach(e=>canvas.appendChild(e));
+
+function mk(tag,cls){ const e=document.createElement(tag); e.className=cls; return e; }
+
+Object.entries(NODES).forEach(([id,n])=>{
+  const e=mk('div',`node h-${n.hue}`);
+  e.tabIndex=0; e.setAttribute('role','button');
+  e.innerHTML=`<div class="nfile">${esc(n.file.split('/').pop())}</div>
+               <div class="nsig">${esc(n.sig)}</div>
+               ${n.snip?`<div class="nsnip">${snip(n.snip)}</div>`:''}`;
+  e.addEventListener('click',ev=>{ev.stopPropagation(); select(id);});
+  e.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();select(id);}});
+  canvas.appendChild(e); els[id]=e;
+});
+
+/* measure, then stack. boxes can never overlap because every top is computed
+   from the measured height of the box above it. */
+const box={};
+function layout(){
+  els.starter.style.cssText=`left:${STARTER.x}px;top:${STARTER.y}px;width:${STARTER.w}px`;
+  box.starter={x:STARTER.x,y:STARTER.y,w:STARTER.w,h:els.starter.offsetHeight};
+
+  COLS.forEach(col=>{
+    let y=col.top;
+    col.ids.forEach(id=>{
+      const e=els[id];
+      e.style.cssText=`left:${col.x}px;top:${y}px;width:${col.w}px`;
+      const h=e.offsetHeight;
+      box[id]={x:col.x,y,w:col.w,h};
+      y+=h+GAP;
+    });
+    col.bottom=y-GAP;
+  });
+
+  const pad=30, lab=34;
+  const zp={x:COLS[0].x-pad, y:COLS[0].top-lab, w:COLS[0].w+pad*2, h:(COLS[0].bottom-COLS[0].top)+lab+pad+18};
+  const zc={x:COLS[1].x-pad, y:COLS[1].top-lab, w:COLS[1].w+pad*2, h:zp.h};
+  zonePay.style.cssText=`left:${zp.x}px;top:${zp.y}px;width:${zp.w}px;height:${zp.h}px`;
+  zoneComp.style.cssText=`left:${zc.x}px;top:${zc.y}px;width:${zc.w}px;height:${zc.h}px`;
+
+  const pp={x:zp.x-34, y:zp.y-40, w:(zc.x+zc.w)-(zp.x-34)+34, h:zp.h+40+34};
+  procPay.style.cssText=`left:${pp.x}px;top:${pp.y}px;width:${pp.w}px;height:${pp.h}px`;
+
+  const np={x:COLS[2].x-pad, y:pp.y, w:COLS[2].w+pad*2, h:pp.h};
+  procNs.style.cssText=`left:${np.x}px;top:${np.y}px;width:${np.w}px;height:${np.h}px`;
+  els.empty.style.top=(np.y+np.h/2-box.empty.h/2)+'px';
+  box.empty.y=np.y+np.h/2-box.empty.h/2;
+
+  W=np.x+np.w+40; H=pp.y+pp.h+50;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.style.width=W+'px'; svg.style.height=H+'px';
+}
+
+function anchor(id,side){
+  const b=box[id];
+  if(side==='t') return {x:b.x+b.w/2, y:b.y};
+  if(side==='b') return {x:b.x+b.w/2, y:b.y+b.h};
+  if(side==='l') return {x:b.x,       y:b.y+b.h/2};
+  return {x:b.x+b.w, y:b.y+b.h/2};
+}
+function drawEdges(){
+  svg.innerHTML='';
+  EDGES.forEach(e=>{
+    const a=anchor(e.from,e.fs), b=anchor(e.to,e.ts);
+    let d, mid;
+    if(e.fs==='r'||e.fs==='l'){
+      const mx=(a.x+b.x)/2;
+      d=`M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`;
+      mid={x:(a.x+b.x)/2, y:Math.min(a.y,b.y)-16};
+    } else {
+      const my=a.y+Math.max(18,(b.y-a.y)/2);
+      d=`M${a.x},${a.y} C${a.x},${my} ${b.x},${my} ${b.x},${b.y}`;
+      mid={x:(a.x+b.x)/2, y:(a.y+b.y)/2-4};
+    }
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',d); p.setAttribute('class',`e-${e.cat}`);
+    p.setAttribute('stroke-width', e.cat==='comp'?'3':'2.2');
+    p.dataset.id=e.id; p.dataset.from=e.from; p.dataset.to=e.to;
+    svg.appendChild(p);
+    if(e.label){
+      // Labels wrap on \n. The gap between the two team zones is about 70px, so
+      // one long line runs straight over the node text on both sides of it.
+      // Keep each line short rather than widening the layout to suit a label.
+      const lines=e.label.split('\n');
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',mid.x); t.setAttribute('y',mid.y-(lines.length-1)*7);
+      t.setAttribute('text-anchor','middle'); t.setAttribute('class','elabel');
+      t.dataset.id=e.id;
+      lines.forEach((ln,i)=>{
+        const s=document.createElementNS('http://www.w3.org/2000/svg','tspan');
+        s.setAttribute('x',mid.x); if(i) s.setAttribute('dy','14');
+        s.textContent=ln; t.appendChild(s);
+      });
+      svg.appendChild(t);
+    }
+  });
+}
+
+/* ------------------------------------------------------------- interaction */
+let selected=null, step=-1;
+function clearHot(){
+  Object.values(els).forEach(e=>e.classList.remove('lit','faded'));
+  svg.querySelectorAll('path,text').forEach(p=>p.classList.remove('hot','dim'));
+}
+function select(id){
+  if(selected===id){ deselect(); return; }
+  selected=id; step=-1; renderStepUI();
+  clearHot();
+  els[id].classList.add('lit');
+  svg.querySelectorAll('path').forEach(p=>{ if(p.dataset.from===id||p.dataset.to===id) p.classList.add('hot'); });
+  const n=NODES[id];
+  detailInner.innerHTML=`<button class="detail-close" id="dc" aria-label="Close">&times;</button>
+    <span class="dbadge ${n.hue}">${esc(n.type)}</span>
+    <h2>${esc(n.file.split('/').pop())}</h2>
+    <p class="dpath">${esc(n.file)}</p>
+    <p class="ddesc">${esc(n.desc)}</p>
+    ${n.snip?`<div class="snipbox">${snip(n.snip)}</div>`:''}
+    <div class="dmeta">Task queue · ${esc(n.tq)}</div>
+    <ul>${n.members.map(m=>`<li>${esc(m)}</li>`).join('')}</ul>`;
+  document.getElementById('dc').addEventListener('click',deselect);
+  stage.classList.add('detail-open');
+}
+function deselect(){ selected=null; clearHot(); stage.classList.remove('detail-open'); detailInner.innerHTML=PLACEHOLDER; }
+canvasScroll.addEventListener('click',()=>{ if(selected) deselect(); });
+detailInner.innerHTML=PLACEHOLDER;
+
+function showStep(i){
+  step=i; selected=null; stage.classList.remove('detail-open'); detailInner.innerHTML=PLACEHOLDER;
+  clearHot();
+  const s=FLOW[i];
+  Object.keys(els).forEach(id=>{ if(!s.nodes.includes(id)) els[id].classList.add('faded'); });
+  s.nodes.forEach(id=>els[id].classList.add('lit'));
+  svg.querySelectorAll('path,text').forEach(p=>{
+    if(s.edges.includes(p.dataset.id)) p.classList.add('hot'); else p.classList.add('dim');
+  });
+  flowbar.classList.remove('idle');
+  document.getElementById('phase').className='phase '+s.cls;
+  document.getElementById('phase').textContent=s.phase;
+  document.getElementById('cap').textContent=s.cap;
+  renderStepUI();
+}
+function renderStepUI(){
+  const at=step>=0;
+  document.getElementById('stepno').textContent=at?`step ${step+1} / ${FLOW.length}`:'step — / —';
+  document.getElementById('prev').disabled=!at||step===0;
+  document.getElementById('next').disabled=at&&step===FLOW.length-1;
+  document.getElementById('play').textContent=at?'↺ Restart':'▶ Walk the flow';
+  if(!at){ flowbar.classList.add('idle'); document.getElementById('cap').textContent='Three payments, two teams, one Worker.'; }
+}
+document.getElementById('next').addEventListener('click',()=>showStep(Math.min(FLOW.length-1,step+1)));
+document.getElementById('prev').addEventListener('click',()=>showStep(Math.max(0,step-1)));
+document.getElementById('play').addEventListener('click',()=>showStep(0));
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'&&step<FLOW.length-1) showStep(step+1);
+  if(e.key==='ArrowLeft'&&step>0) showStep(step-1);
+});
+
+/* ---------------------------------------------------------------- zoom */
+let zoom=1;
+function applyZoom(){
+  canvas.style.transform=`scale(${zoom})`;
+  canvasFit.style.height=(H*zoom)+'px';
+  document.getElementById('zoomLabel').textContent=Math.round(zoom*100)+'%';
+}
+function fit(){ zoom=Math.min(1,Math.max(.3,(canvasScroll.clientWidth-24)/W)); applyZoom(); }
+document.getElementById('zoomIn').addEventListener('click',()=>{zoom=Math.min(1.8,zoom+.1);applyZoom();});
+document.getElementById('zoomOut').addEventListener('click',()=>{zoom=Math.max(.3,zoom-.1);applyZoom();});
+document.getElementById('zoomFit').addEventListener('click',fit);
+document.getElementById('reset').addEventListener('click',()=>{
+  step=-1; deselect(); renderStepUI(); fit(); canvasScroll.scrollTo({top:0,left:0,behavior:'smooth'});
+});
+window.addEventListener('resize',()=>{ layout(); drawEdges(); fit(); });
+
+layout(); drawEdges(); renderStepUI(); fit();
+</script>
+</body>
+</html>

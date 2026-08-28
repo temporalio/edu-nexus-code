@@ -1,0 +1,31 @@
+#!/bin/bash
+# ABOUTME: Challenge 04 solve. Applies the whole solution, starts both Workers,
+# and runs the starter so challenge 05 inherits a parked TXN-B.
+set -euxo pipefail
+
+rm -rf /root/workshop/exercise/src
+cp -R /root/workshop/solution/src /root/workshop/exercise/src
+
+temporal operator nexus endpoint create \
+    --name compliance-endpoint \
+    --target-namespace compliance-namespace \
+    --target-task-queue compliance-risk \
+    --address 127.0.0.1:7233 || true
+
+cd /root/workshop/exercise
+npx tsc --noEmit
+
+pkill -f "compliance/worker.ts" || true
+pkill -f "payments/worker.ts"   || true
+sleep 1
+
+nohup npm run compliance-worker > /tmp/compliance-worker.log 2>&1 &
+nohup npm run payments-worker   > /tmp/payments-worker.log   2>&1 &
+for i in $(seq 1 120); do
+    grep -q "Compliance Worker started" /tmp/compliance-worker.log 2>/dev/null \
+      && grep -q "Payments Worker started" /tmp/payments-worker.log 2>/dev/null && break
+    sleep 1
+done
+
+npm run starter > /tmp/starter.log 2>&1 || true
+cat /tmp/starter.log
