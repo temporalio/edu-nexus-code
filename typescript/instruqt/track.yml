@@ -23,6 +23,9 @@ tags:
 - typescript
 - node
 owner: temporal
+# First publish goes up in maintenance mode so nobody can walk into an unverified
+# track. A human flips this to false to take it live.
+maintenance: true
 developers:
 - nikolay.advolodkin@temporal.io
 skipping_enabled: true
