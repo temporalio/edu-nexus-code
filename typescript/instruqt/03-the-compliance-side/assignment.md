@@ -1,5 +1,6 @@
 ---
 slug: the-compliance-side
+id: lwb2jpje3u96
 type: challenge
 title: 3. The Compliance Side
 teaser: Implement both handlers, register them on a Worker, and create the Endpoint.
@@ -22,34 +23,41 @@ notes:
     The Solution tab is one click away. Use it if you stall. Learning the shape
     beats staring at a blank function.
 tabs:
-- title: Exercise
+- id: gok4feicejlo
+  title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src
   port: 8080
-- title: Temporal UI
+- id: rhie9uzgyhfq
+  title: Temporal UI
   type: service
   hostname: workshop
   path: /
   port: 8233
-- title: Terminal
+- id: hcqbwck0rvo9
+  title: Terminal
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Payments Worker
+- id: jjlm3enbxo4t
+  title: Payments Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Compliance Worker
+- id: xy2tk6mpbv0t
+  title: Compliance Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Solution
+- id: xp7aoiijy8bj
+  title: Solution
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/solution/src
   port: 8080
-- title: Monolith Architecture
+- id: ujvrlheqjxnv
+  title: Monolith Architecture
   type: service
   hostname: workshop
   path: /monolith-architecture.html

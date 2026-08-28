@@ -1,4 +1,5 @@
 slug: nexus-typescript-decouple-monolith
+id: fxx1wuc1irwu
 title: Decouple a Monolith with Temporal Nexus (TypeScript)
 teaser: Split a payments monolith into two independently deployable services connected
   by Nexus.
@@ -20,14 +21,12 @@ icon: ""
 tags:
 - nexus
 - temporal
-- typescript
 - node
+- typescript
 owner: temporal
-# First publish goes up in maintenance mode so nobody can walk into an unverified
-# track. A human flips this to false to take it live.
-maintenance: true
 developers:
 - nikolay.advolodkin@temporal.io
+maintenance: true
 skipping_enabled: true
 idle_timeout: 3600
 timelimit: 7200
@@ -53,4 +52,5 @@ lab_config:
   hideStopButton: false
   default_layout: AssignmentLeft
   default_layout_sidebar_size: 33
+checksum: "7568052846915990700"
 enhanced_loading: false

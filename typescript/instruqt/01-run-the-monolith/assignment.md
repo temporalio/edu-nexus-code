@@ -1,5 +1,6 @@
 ---
 slug: run-the-monolith
+id: nwdcc4mlob8f
 type: challenge
 title: 1. Run the Monolith
 teaser: Three payments, two teams, one Worker. Find the coupling before you fix it.
@@ -22,34 +23,41 @@ notes:
 
     Right now only one of them has anything in it.
 tabs:
-- title: Exercise
+- id: jy7gspk7rzja
+  title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src
   port: 8080
-- title: Temporal UI
+- id: osmynelncext
+  title: Temporal UI
   type: service
   hostname: workshop
   path: /
   port: 8233
-- title: Terminal
+- id: bhx6tjsdyrva
+  title: Terminal
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Payments Worker
+- id: utwhvn6xykly
+  title: Payments Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Compliance Worker
+- id: xcqorbmjolyq
+  title: Compliance Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Solution
+- id: bwvwdih1vjnt
+  title: Solution
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/solution/src
   port: 8080
-- title: Monolith Architecture
+- id: kaxawqn9yd2g
+  title: Monolith Architecture
   type: service
   hostname: workshop
   path: /monolith-architecture.html

@@ -1,9 +1,10 @@
 ---
 slug: the-payments-side
+id: xbklygolip1u
 type: challenge
 title: 4. The Payments Side
-teaser: Swap the Activity proxy for a Nexus client, point it at the Endpoint, and delete
-  the coupling.
+teaser: Swap the Activity proxy for a Nexus client, point it at the Endpoint, and
+  delete the coupling.
 notes:
 - type: text
   contents: |-
@@ -22,34 +23,41 @@ notes:
 
     Deleting it is the decoupling. Everything else is wiring.
 tabs:
-- title: Exercise
+- id: jt0nbvtyxv2o
+  title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src
   port: 8080
-- title: Temporal UI
+- id: xrdqvojuovik
+  title: Temporal UI
   type: service
   hostname: workshop
   path: /
   port: 8233
-- title: Terminal
+- id: ak56yyflojys
+  title: Terminal
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Payments Worker
+- id: auuddyhhaflq
+  title: Payments Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Compliance Worker
+- id: gmgtqjw8yg6r
+  title: Compliance Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Solution
+- id: xpohqyhbtdz3
+  title: Solution
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/solution/src
   port: 8080
-- title: Monolith Architecture
+- id: slczt2wyuij1
+  title: Monolith Architecture
   type: service
   hostname: workshop
   path: /monolith-architecture.html

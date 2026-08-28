@@ -1,5 +1,6 @@
 ---
 slug: durability-and-human-review
+id: hcijwjx63wn2
 type: challenge
 title: 5. Break It, Then Finish It
 teaser: Take the Compliance Worker down mid-payment. Watch the payment wait instead
@@ -22,34 +23,41 @@ notes:
 
     Your payment Workflow is about to do the same thing.
 tabs:
-- title: Exercise
+- id: uxvwrjemsoea
+  title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src
   port: 8080
-- title: Temporal UI
+- id: kirogybfummw
+  title: Temporal UI
   type: service
   hostname: workshop
   path: /
   port: 8233
-- title: Terminal
+- id: gsmserb7horg
+  title: Terminal
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Payments Worker
+- id: fxetrm2uuagt
+  title: Payments Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Compliance Worker
+- id: xcwthyvjsofb
+  title: Compliance Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Solution
+- id: rynbymolm35m
+  title: Solution
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/solution/src
   port: 8080
-- title: Monolith Architecture
+- id: dwrcskq7wzji
+  title: Monolith Architecture
   type: service
   hostname: workshop
   path: /monolith-architecture.html

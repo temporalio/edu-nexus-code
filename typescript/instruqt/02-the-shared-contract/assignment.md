@@ -1,5 +1,6 @@
 ---
 slug: the-shared-contract
+id: ynazxaoijxil
 type: challenge
 title: 2. The Shared Contract
 teaser: Write the interface both teams depend on. One file, two Operations.
@@ -22,34 +23,41 @@ notes:
 
     You write the Service now. The other three come next.
 tabs:
-- title: Exercise
+- id: fsl9wnyvzlt2
+  title: Exercise
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/exercise/src
   port: 8080
-- title: Temporal UI
+- id: 7iygieqqyuko
+  title: Temporal UI
   type: service
   hostname: workshop
   path: /
   port: 8233
-- title: Terminal
+- id: nljg80a3snn1
+  title: Terminal
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Payments Worker
+- id: ymi443zqbrnc
+  title: Payments Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Compliance Worker
+- id: znmrv8zywaej
+  title: Compliance Worker
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- title: Solution
+- id: 4m8yg9ygjnkm
+  title: Solution
   type: service
   hostname: workshop
   path: /?folder=/root/workshop/solution/src
   port: 8080
-- title: Monolith Architecture
+- id: 1wdriwhm5mby
+  title: Monolith Architecture
   type: service
   hostname: workshop
   path: /monolith-architecture.html
