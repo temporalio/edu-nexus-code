@@ -10,3 +10,7 @@ build/
 
 # VS Code Kotlin language server output
 bin/
+
+# Node (typescript/)
+node_modules/
+lib/
