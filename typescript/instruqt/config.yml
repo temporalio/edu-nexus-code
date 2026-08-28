@@ -5,7 +5,7 @@ containers:
   # image that had no code-server in it, so the editor tabs showed "Please wait"
   # forever. Re-pin this after every image rebuild with:
   #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-typescript-sandbox:latest --format "{{.Manifest.Digest}}"
-  image: ghcr.io/nadvolod/edu-nexus-typescript-sandbox:latest
+  image: ghcr.io/nadvolod/edu-nexus-typescript-sandbox@sha256:ce2f1b9f1671a9f6b61f7042cc417e95ca887d09acbb62ec209ae5b7e540ea44
   shell: /bin/bash
   # Two Node Workers, a dev server, and one code-server. The Kotlin track needs
   # 8192 for two JVMs plus a Gradle daemon; Node does not.
