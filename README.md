@@ -23,6 +23,20 @@ See the [Nexus documentation](https://docs.temporal.io/nexus) to explore more.
 
 You can launch an exercise environment for this tutorial using GitHub Codespaces by following [this](codespaces.md) walkthrough.
 
+## Language tracks
+
+Two hands-on lab versions of this material exist as Instruqt tracks, in addition to the
+Java tutorial under `java/`:
+
+| Language | Directory | Track slug | Sandbox image |
+|---|---|---|---|
+| Kotlin | `kotlin/` | `nexus-kotlin-decouple-monolith` | `ghcr.io/nadvolod/edu-nexus-kotlin-sandbox` |
+| TypeScript | `typescript/` | `nexus-typescript-decouple-monolith` | `ghcr.io/nadvolod/edu-nexus-typescript-sandbox` |
+
+The slide decks are **not** in this repo. They live in
+[`temporalio/temporal-devdays-ts`](https://github.com/temporalio/temporal-devdays-ts)
+under `decks/`, which is the index and deck library for TypeScript DevDays content.
+
 ## Kotlin Instruqt track
 
 A hands-on lab version of this material, in Kotlin, lives under `kotlin/`. It runs as
@@ -206,3 +220,151 @@ even though `build-image` is disabled.
 - **`track.yml` and every `assignment.md` frontmatter are rewritten on push.** Comments
   are stripped and keys reordered. Keep durable explanation here, not in those files.
   `config.yml` is left alone.
+
+## TypeScript Instruqt track
+
+The same material in TypeScript, under `typescript/`, on the Temporal TypeScript SDK.
+Same five challenges, same narrative, same 90 minute shape.
+
+```
+typescript/
+├── decouple-monolith/
+│   ├── exercise/          npm + ts-node, TODOs 1 to 7 open
+│   └── solution/          complete
+├── sandbox/
+│   ├── Dockerfile         node:22-bookworm + Temporal CLI + code-server
+│   └── serve-diagrams.mjs static server for the diagram tab
+├── diagrams/              architecture diagram, served on 8090
+├── .dockerignore          keeps node_modules out of the build context
+└── instruqt/
+    ├── track.yml, config.yml, track_scripts/
+    └── 01-run-the-monolith/ ... 05-durability-and-human-review/
+```
+
+**Nexus support in the TypeScript SDK is at Pre-release and its APIs are marked
+experimental.** The deck and challenge 2 both say so out loud rather than letting an
+attendee discover it later.
+
+### Three lessons that do not survive the port
+
+These are real design differences between the SDKs, not translation choices. The
+assignments call each one out, including a note aimed at anyone who has delivered the
+Java or Kotlin version.
+
+- **Challenge 2 ends with a deliberately FAILING typecheck.** `ServiceHandlerFor<Ops>` is
+  a non-optional mapped type, so declaring an Operation obliges a matching handler at
+  compile time. Kotlin fails at Worker startup with `Missing handlers for service
+  operations`; TypeScript refuses to compile:
+
+  ```
+  TS2345: Type '{}' is missing the following properties from type
+  'ServiceHandlerFor<...>': checkCompliance, submitReview
+  ```
+
+  So `02/solve-workshop` deliberately does not typecheck. The build is red until
+  challenge 3 fills the handlers in, and that is the lesson, not a defect.
+
+- **Challenge 3's proof of registration inverts.** There is no `Nexus Poller` line to
+  look for. A Worker *without* `nexusServices` logs `No Nexus services registered, not
+  polling for Nexus tasks`; a correctly wired one logs nothing. Absence is the signal, so
+  the assignment tells learners to go looking for it deliberately.
+
+- **The Endpoint moves to the call site.** Java and Kotlin configure it on the Worker via
+  `NexusServiceOptions`, which is what makes the Kotlin lesson "notice you do NOT write
+  the Endpoint name here." In TypeScript, `wf.createNexusServiceClient({ service,
+  endpoint })` takes it inside the Workflow. The decoupling argument still holds one
+  level in — the Workflow knows a name, the Registry knows the address — and
+  `COMPLIANCE_ENDPOINT` is a single constant in `shared/types.ts`.
+
+### Challenges
+
+TODOs are numbered 1 to 7, not 1 to 10. Kotlin's TODOs 1 to 3 were annotations, which
+have no TypeScript counterpart, and the Endpoint step is gone.
+
+| # | Slug | Format | Files touched | TODOs |
+|---|------|--------|---------------|-------|
+| 01 | run-the-monolith | observe | none | — |
+| 02 | the-shared-contract | code | `shared/nexus-service.ts` | 1 |
+| 03 | the-compliance-side | code | `compliance/nexus-handler.ts`, `compliance/worker.ts`, plus the Endpoint CLI | 2, 3, 4 |
+| 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 5, 6, 7 |
+| 05 | durability-and-human-review | observe | none | — |
+
+Tab order, the seven-tab layout, and the `tab-N`-is-a-position rule are identical to the
+Kotlin track. Port 8090 is served by `node /opt/serve-diagrams.mjs` rather than
+`jwebserver`, since there is no JDK in this image.
+
+### What the sandbox image bakes in
+
+`node:22-bookworm`, the Temporal CLI, code-server, both trees at `/opt/workshop` with
+`node_modules` installed, and the diagram. Both trees are typechecked at build time, so
+a broken port fails the image build rather than the workshop.
+
+Three deliberate differences from the Kotlin image:
+
+- **`memory: 4096`, not 8192.** That budget existed for two JVMs and a Gradle daemon.
+- **No language extension is installed.** The Kotlin image pinned a syntax-only extension
+  to keep a language server from competing with two JVMs. Here the built-in TypeScript
+  service is wanted: it renders the challenge-2 compile error as a live red squiggle.
+- **Track setup symlinks `node_modules` instead of copying it.** It is 292 MB per tree,
+  so copying both would move ~600 MB before the attendee can type. Consequence:
+  `npm install` inside the lab cannot write to `node_modules`. The workshop never needs
+  it.
+
+`.dockerignore` is load-bearing, not tidiness. The build context is `typescript/` and the
+Dockerfile copies `decouple-monolith/`. Without the ignore the build ships ~600 MB of
+host-built `node_modules` that are also the wrong architecture — the host is arm64, the
+image amd64, and `@temporalio` ships a native core bridge. Context drops from 584 MB to
+0.3 MB.
+
+### Publishing
+
+```bash
+cd typescript/instruqt && instruqt track validate
+```
+
+Build for `linux/amd64`. An arm64 image fails to start on Instruqt with an empty log:
+
+```bash
+cd typescript
+docker buildx build --platform linux/amd64 \
+  -f sandbox/Dockerfile -t ghcr.io/nadvolod/edu-nexus-typescript-sandbox:latest .
+docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-typescript-sandbox:latest \
+  --format "{{.Manifest.Digest}}"
+```
+
+Same rule as Kotlin: **the image is pinned by digest, so any change under
+`typescript/decouple-monolith/` requires a rebuild AND a re-pin.** Only changes under
+`typescript/instruqt/` ship without one.
+
+**The GHCR package must be public.** A newly published package is private by default and
+Instruqt pulls anonymously, which surfaces as `Could not find the image` with nothing
+else to go on. Check it without credentials:
+
+```bash
+tok=$(curl -s "https://ghcr.io/token?scope=repository:nadvolod/edu-nexus-typescript-sandbox:pull&service=ghcr.io" | jq -r .token)
+curl -s -o /dev/null -w '%{http_code}\n' -H "Authorization: Bearer $tok" \
+  https://ghcr.io/v2/nadvolod/edu-nexus-typescript-sandbox/manifests/latest
+```
+
+200 is public, 403 is private. GitHub exposes no REST endpoint for package visibility, so
+flipping it is a web-UI action.
+
+### TypeScript-specific gotchas
+
+- **`proxyActivities` silently types away synchronous Activities.** An Activity that is
+  not `async` becomes `NotAnActivityMethod`, and the failure appears at the *call site* in
+  the Workflow as `Type 'Symbol' has no call signatures` — which is verbatim the error the
+  SDK's own JSDoc quotes. Every Activity here is `async` for that reason.
+- **A `setHandler` validator must take the same arguments as its handler.** A zero-arg
+  validator makes TypeScript infer `Args = []` and select the wrong `setHandler` overload,
+  producing an error that points at the definition rather than at the validator.
+- **Workflow type names are camelCase in visibility queries.** Challenge 04's check queries
+  `WorkflowType="paymentProcessingWorkflow"`, the exported function name, not a class name.
+- **Running the Kotlin and TypeScript workshops against one dev server does not work.**
+  Both poll `compliance-risk` in `compliance-namespace`. A stray Kotlin Worker will pick
+  up a TypeScript Workflow task and fail it with `Unknown workflow type
+  "complianceWorkflow". Known types are [ComplianceWorkflow]`, costing a Workflow-task
+  retry. Harmless in a sandbox, confusing locally.
+- **`track.yml` and every `assignment.md` frontmatter are rewritten on publish**, exactly
+  as on the Kotlin track. Comments are stripped and keys reordered. Keep durable
+  explanation here.
