@@ -76,6 +76,16 @@ export const complianceServiceHandler = nexus.serviceHandler(complianceService, 
   // `reviewUpdate` is already imported at the top of this file. It takes two arguments,
   // in this order: whether the reviewer approved, and their explanation.
   //
-  // Until you write this, the build stays red — the contract in challenge 2 declared
-  // two Operations and this handler only answers one of them.
+  // Until you write this, the build stays red — the contract declared two Operations and
+  // this handler only answers one of them.
+  //
+  // One thing to know before you start. You do not annotate the handler's parameters:
+  // their types come from the contract, which is what makes the Service a contract at
+  // all. So if TODO 1 is still unfinished, the contract is empty, TypeScript has nothing
+  // to infer from, and you get:
+  //
+  //     error TS7006: Parameter '_ctx' implicitly has an 'any' type.
+  //
+  // That error points at this file, but the fix is in shared/nexus-service.ts. Finish
+  // TODO 1 first.
 });

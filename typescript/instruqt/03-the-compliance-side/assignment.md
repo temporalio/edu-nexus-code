@@ -121,6 +121,23 @@ npx tsc --noEmit
 Silence means it passed. The Payments side still calls the Activity proxy, which is
 perfectly valid — you change that in challenge 4.
 
+### If you see an error about `_ctx`
+
+```bash,nocopy
+error TS7006: Parameter '_ctx' implicitly has an 'any' type.
+```
+
+That error points at `nexus-handler.ts`, but the fix is in `shared/nexus-service.ts`.
+
+You never annotate a handler's parameter types — they are inferred **from the contract**.
+So if TODO 1 from challenge 2 is unfinished, the Service has no Operations, there is
+nothing to infer from, and the parameter falls back to `any`, which `strict` rejects.
+
+Go back and declare the two Operations. Then this file compiles unchanged.
+
+It is worth noticing what just happened: the contract is not documentation sitting beside
+the code. Delete it and the handlers stop type checking.
+
 # Create the Endpoint
 
 The Endpoint is the routing rule: a name, a target Namespace, and a target Task Queue.
