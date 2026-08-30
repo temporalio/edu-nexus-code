@@ -5,7 +5,7 @@ containers:
   # image that had no code-server in it, so the editor tabs showed "Please wait"
   # forever. Re-pin this after every image rebuild with:
   #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-typescript-sandbox:latest --format "{{.Manifest.Digest}}"
-  image: ghcr.io/nadvolod/edu-nexus-typescript-sandbox@sha256:e86dbaffb0ad1dbfc17730cb2eafb4ac138b09d12946c94e9cce3ea2ee41c9e6
+  image: ghcr.io/nadvolod/edu-nexus-typescript-sandbox@sha256:8c0d7059211849d86604b729a66eb4075e150f10d8389a738949b375964060fe
   shell: /bin/bash
   # Sized for two Node Workers, a Temporal dev server, and one code-server.
   memory: 4096
