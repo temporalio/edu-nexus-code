@@ -46,9 +46,38 @@ RUN for d in /root/.cs-exercise /root/.cs-solution; do \
         '    "workbench.startupEditor": "none",' \
         '    "editor.fontSize": 14,' \
         '    "editor.tabSize": 2,' \
-        '    "telemetry.telemetryLevel": "off"' \
+        '    "telemetry.telemetryLevel": "off",' \
+        '    "files.autoSave": "afterDelay",' \
+        '    "files.autoSaveDelay": 300,' \
+        '    "typescript.tsdk": "/opt/workshop/exercise/node_modules/typescript/lib",' \
+        '    "typescript.disableAutomaticTypeAcquisition": true,' \
+        '    "typescript.inlayHints.parameterNames.enabled": "literals",' \
+        '    "typescript.inlayHints.functionLikeReturnTypes.enabled": true,' \
+        '    "typescript.inlayHints.propertyDeclarationTypes.enabled": true,' \
+        '    "typescript.preferences.importModuleSpecifier": "relative",' \
+        '    "javascript.suggestionActions.enabled": false,' \
+        '    "editor.stickyScroll.enabled": true,' \
+        '    "editor.minimap.enabled": false,' \
+        '    "editor.inlayHints.fontSize": 11,' \
+        '    "workbench.editor.enablePreview": false,' \
+        '    "explorer.compactFolders": false,' \
+        '    "errorLens.enabledDiagnosticLevels": ["error", "warning"],' \
+        '    "errorLens.messageMaxChars": 0' \
         '}' > "$d/User/settings.json"; \
     done
+
+# --- Editor extensions ---------------------------------------------------------
+# Error Lens renders diagnostics inline at the end of the offending line instead of
+# only underlining them. That is not decoration here: challenge 2 ends on a
+# deliberate compile error, and the whole lesson is that the contract is enforced
+# before anything runs. An error the learner has to hover to read is a lesson
+# half-delivered.
+#
+# code-server resolves extensions from Open VSX, not the VS Code marketplace.
+# Installed into the default extensions dir so the runtime invocation needs no
+# --extensions-dir flag.
+RUN code-server --install-extension usernamehw.errorlens || \
+      echo "==> WARNING: Error Lens did not install; diagnostics will still underline, just not inline."
 
 # --- Architecture diagram -----------------------------------------------------
 # Lives outside the challenge folders on purpose: Instruqt parses every file
