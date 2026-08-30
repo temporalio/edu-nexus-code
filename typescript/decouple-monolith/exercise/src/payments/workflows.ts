@@ -20,7 +20,7 @@ const { validatePayment, executePayment } = wf.proxyActivities<typeof paymentAct
   retry: { initialInterval: '1 second', backoffCoefficient: 2 },
 });
 
-// ── TODO 5 ──────────────────────────────────────────────────────────────────────────
+// ── TODO 4 ──────────────────────────────────────────────────────────────────────────
 // Delete the `checkCompliance` proxy below and build a Nexus Service client instead.
 //
 // What that proxy is: a fake object you call like a normal function. It does not run the
@@ -112,7 +112,7 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
   };
 }
 
-// ── TODO 6 ──────────────────────────────────────────────────────────────────────────
+// ── TODO 5 ──────────────────────────────────────────────────────────────────────────
 // You come back to this one in challenge 05, once the Nexus path works end to end.
 //
 // Submitting a human review through the Endpoint respects the team boundary: neither
@@ -122,5 +122,5 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
 // the 10-second handler deadline. Use a 10-second scheduleToCloseTimeout here, not the
 // 10 minutes used for the async check.
 export async function reviewCallerWorkflow(_request: ReviewRequest): Promise<ComplianceResult> {
-  throw new Error('TODO 6: submit the review decision through the Nexus Endpoint');
+  throw new Error('TODO 5: submit the review decision through the Nexus Endpoint');
 }

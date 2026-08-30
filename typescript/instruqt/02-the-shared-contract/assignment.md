@@ -95,15 +95,17 @@ npx tsc --noEmit
 **This is supposed to fail.** Read what it says:
 
 ```bash,nocopy
-src/compliance/nexus-handler.ts(25,81): error TS2345: Argument of type '{}' is not
-assignable to parameter of type 'ServiceHandlerFor<{ checkCompliance: ...;
-submitReview: ...; }>'.
-  Type '{}' is missing the following properties from type
-  'ServiceHandlerFor<...>': checkCompliance, submitReview
+src/compliance/nexus-handler.ts(29,81): error TS2345: Argument of type
+'{ checkCompliance: WorkflowRunOperationHandler<...>; }' is not assignable to
+parameter of type 'ServiceHandlerFor<...>'.
+  Property 'submitReview' is missing in type
+  '{ checkCompliance: WorkflowRunOperationHandler<...>; }' but required in type
+  'ServiceHandlerFor<...>'.
 ```
 
-You declared two Operations, and TypeScript immediately went looking for the two handlers
-that answer them. It cannot find either, so it refuses to compile.
+You declared two Operations, and TypeScript immediately went looking for the handlers
+that answer them. One of them, `checkCompliance`, is already written for you. The other
+is not, so it refuses to compile and names the one that is missing.
 
 That is the contract doing its job, and it is worth sitting with for a second. You have
 not run anything. No Worker has started. No call has been made. The compiler already knows

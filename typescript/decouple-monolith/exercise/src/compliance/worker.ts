@@ -1,7 +1,7 @@
 // The Compliance team's Worker. This process is the only place their code runs.
 //
 // The connection and the Worker itself are set up for you. What is missing is the part
-// that decides what this Worker can actually do: see TODO 4.
+// that decides what this Worker can actually do: see TODO 3.
 import { NativeConnection, Worker } from '@temporalio/worker';
 import * as activities from './activities';
 import { complianceServiceHandler } from './nexus-handler';
@@ -19,7 +19,7 @@ async function run() {
       workflowsPath: require.resolve('./workflows'),
       activities,
 
-      // ── TODO 4 ────────────────────────────────────────────────────────────────
+      // ── TODO 3 ────────────────────────────────────────────────────────────────
       // A Worker only handles work it has been told about. This one already knows about
       // its Workflows (workflowsPath) and its Activities (activities). What it does not
       // yet know about is the Nexus handler — the thing that makes this team callable by

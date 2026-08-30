@@ -75,29 +75,37 @@ Three pieces, all on this team's side of the boundary.
 2. The Worker that runs them.
 3. The Endpoint that tells Temporal where to route.
 
-# Write the Handlers
+# Read the Worked Example First
 
-Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
-`compliance/nexus-handler.ts`, and follow TODO 2 and TODO 3.
+Click the [button label="Exercise" background="#444CE7"](tab-0) tab and open
+`compliance/nexus-handler.ts`.
 
-Two Operations, and each one needs a different shape. Read both TODOs before you write
-either one, because the difference between them is the whole point of this challenge.
+`checkCompliance` is already written. Read it before you write anything, because the
+Operation you are about to write is the other half of the same pattern, and the contrast
+between the two is the whole point of this challenge.
 
 | Operation | Shape | Why |
 |---|---|---|
-| `checkCompliance` | `new temporalNexus.WorkflowRunOperationHandler(...)` | Slow. Starts a Workflow and returns a reference to it. |
-| `submitReview` | a plain `async (ctx, input) => {...}` | Fast. Answers inside the call, in milliseconds. |
+| `checkCompliance` *(given)* | `new temporalNexus.WorkflowRunOperationHandler(...)` | Slow. Starts a Workflow and returns a reference to it. |
+| `submitReview` *(yours)* | a plain `async (ctx, input) => {...}` | Fast. Answers inside the call, in milliseconds. |
 
-Get `checkCompliance` wrong by writing it as a plain async function and two things break:
-it is cut off at the ten second handler deadline, and a retry starts a **second**
-compliance check for the same payment.
+Notice why the given one has to be that shape. Written as a plain async function it would
+be a synchronous Operation: cut off at the ten second handler deadline, and every retry
+would start a **second** compliance check for the same payment.
 
-As you fill each one in, the `TS2345` error from challenge 2 shrinks. When both are
-written it disappears.
+# Write the Other Handler
+
+Follow TODO 2 in the same file.
+
+`submitReview` is the fast path, so it is the plain async function. It gets a Client,
+finds the Workflow the example started, and hands it the decision. Slow work starts a
+Workflow and returns a reference; fast work answers in the call.
+
+When you have written it, the `TS2345` error from challenge 2 disappears.
 
 # Register the Handler
 
-Open `compliance/worker.ts` and follow TODO 4.
+Open `compliance/worker.ts` and follow TODO 3.
 
 The Worker already knows its Workflows and Activities. One option is missing: the one
 that makes this team callable by Payments at all.

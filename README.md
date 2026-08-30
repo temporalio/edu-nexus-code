@@ -279,15 +279,20 @@ not reintroduce a comparison into attendee-facing material.
 
 ### Challenges
 
-TODOs are numbered 1 to 7, not 1 to 10. Kotlin's TODOs 1 to 3 were annotations, which
-have no TypeScript counterpart, and the Endpoint step is gone.
+Six TODOs, numbered 1 to 6, plus one worked example.
+
+`checkCompliance` in `compliance/nexus-handler.ts` is **given, not a TODO**. It is the
+harder of the two Nexus Operations and the one whose shape carries the lesson, so a
+learner reads it as a worked example and then writes `submitReview`, which is the
+opposite shape on the same Service. That contrast is what challenge 3 is for, and it
+lands better from a working example than from two blank functions.
 
 | # | Slug | Format | Files touched | TODOs |
 |---|------|--------|---------------|-------|
 | 01 | run-the-monolith | observe | none | — |
 | 02 | the-shared-contract | code | `shared/nexus-service.ts` | 1 |
-| 03 | the-compliance-side | code | `compliance/nexus-handler.ts`, `compliance/worker.ts`, plus the Endpoint CLI | 2, 3, 4 |
-| 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 5, 6, 7 |
+| 03 | the-compliance-side | code | `compliance/nexus-handler.ts`, `compliance/worker.ts`, plus the Endpoint CLI | 2, 3 (+ worked example) |
+| 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 4, 5, 6 |
 | 05 | durability-and-human-review | observe | none | — |
 
 Tab order, the seven-tab layout, and the `tab-N`-is-a-position rule are identical to the

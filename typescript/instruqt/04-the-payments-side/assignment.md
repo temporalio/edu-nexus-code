@@ -70,7 +70,7 @@ enhanced_loading: null
 # Swap the Proxy for a Nexus Client
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
-`payments/workflows.ts`, and follow TODO 5.
+`payments/workflows.ts`, and follow TODO 4.
 
 The call site barely changes. Same operation name, same input, same result type. What
 changes is everything underneath it.
@@ -103,7 +103,7 @@ is exactly one place to edit if it is ever renamed.
 
 # Write the Review Caller
 
-Still in `payments/workflows.ts`, follow TODO 6.
+Still in `payments/workflows.ts`, follow TODO 5.
 
 `submitReview` is a **synchronous** Operation, so the Compliance handler must finish inside
 the ten second handler deadline. Use a `scheduleToCloseTimeout` of `'10 seconds'` here, not
@@ -113,7 +113,7 @@ Challenge 5 uses this.
 
 # Delete the Coupling
 
-Open `payments/worker.ts` and follow TODO 7.
+Open `payments/worker.ts` and follow TODO 6.
 
 Remove `...complianceActivities` from the `activities` object, and delete its import.
 

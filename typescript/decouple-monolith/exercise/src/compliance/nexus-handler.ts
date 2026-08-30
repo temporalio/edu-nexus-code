@@ -2,17 +2,21 @@
 // shared/nexus-service.ts. This file is the code that answers those calls, and only
 // the Compliance team owns it.
 //
-// This is the hardest file in the lab. Two things you will need:
+// One Operation is written for you as a worked example. The other one is yours, and it
+// is the opposite shape. Read the example first — the contrast between them is the
+// whole point of this challenge.
+//
+// Two things you will need:
 //
 //   temporalNexus.getClient()
 //     A Temporal Client, already connected to this team's Namespace.
 //
-//   `compliance-${transactionId}`
-//     The Workflow ID to use. Same ID both times: one Operation creates that Workflow,
-//     the other looks up the same one.
+//   workflowIdFor(transactionId)
+//     The Workflow ID. The SAME id in both Operations: one creates that Workflow, the
+//     other looks up the one already running.
 //
 // Stuck? "Ask AI" on https://docs.temporal.io:
-//   "how do I start a Workflow from a Nexus Operation handler in TypeScript?"
+//   "how do I send a Workflow Update from a Nexus Operation handler in TypeScript?"
 import * as nexus from 'nexus-rpc';
 import * as temporalNexus from '@temporalio/nexus';
 import { complianceService } from '../shared/nexus-service';
@@ -23,30 +27,55 @@ import { complianceWorkflow, reviewUpdate } from './workflows';
 const workflowIdFor = (transactionId: string) => `compliance-${transactionId}`;
 
 export const complianceServiceHandler = nexus.serviceHandler(complianceService, {
-  // ── TODO 2 ──────────────────────────────────────────────────────────────────────
-  // Implement checkCompliance.
+  // ── WORKED EXAMPLE — read this, then write TODO 2 below ──────────────────────────
   //
-  // This is the SLOW call. A risky payment has to be approved by a person, so an answer
-  // can be minutes or hours away. This Operation must not sit and wait for it.
+  // checkCompliance is the SLOW call. A risky payment has to be approved by a person,
+  // so an answer can be minutes or hours away. This Operation must not sit and wait.
   //
-  // Instead: start a complianceWorkflow and return immediately, handing back a reference
-  // to it. Temporal holds that reference and collects the result whenever the Workflow
-  // finishes. Use `new temporalNexus.WorkflowRunOperationHandler<I, O>(async (ctx, input) => ...)`
-  // and call `temporalNexus.startWorkflow(ctx, complianceWorkflow, { args, workflowId })`
-  // inside it.
+  // So it does not return an answer at all. It starts a Workflow and returns a
+  // REFERENCE to it. Temporal holds that reference and collects the result whenever the
+  // Workflow finishes, however long that takes.
   //
-  // Do NOT write a plain async function here. That is a synchronous Operation: it is cut
-  // off after 10 seconds, and when Temporal retries the failed call it would start a
-  // SECOND compliance check for the same payment.
+  // That is what WorkflowRunOperationHandler is for. Note the shape:
+  //
+  //   - it wraps a function of (ctx, input)
+  //   - that function calls temporalNexus.startWorkflow(ctx, <workflow>, { ... })
+  //   - the Workflow ID is business-meaningful, so a retried Operation re-attaches to
+  //     the same compliance check instead of starting a second one
+  //
+  // A plain async function would NOT work here. That is a synchronous Operation: it is
+  // cut off at the 10-second handler deadline, and each retry would start another
+  // compliance check for the same payment.
+  checkCompliance: new temporalNexus.WorkflowRunOperationHandler<ComplianceRequest, ComplianceResult>(
+    async (ctx, input: ComplianceRequest) =>
+      temporalNexus.startWorkflow(ctx, complianceWorkflow, {
+        args: [input],
+        workflowId: workflowIdFor(input.transactionId),
+        // Task queue defaults to the queue this Operation is handled on.
+      }),
+  ),
 
-  // ── TODO 3 ──────────────────────────────────────────────────────────────────────
-  // Implement submitReview.
+  // ── TODO 2 ──────────────────────────────────────────────────────────────────────
+  // Implement submitReview, the other half of the pattern.
   //
-  // This is the FAST call. By now the compliance check is already running and is parked
-  // waiting for a decision. All you do is find that Workflow and hand it the yes or no.
-  // That takes milliseconds, so a plain `async (ctx, input) => { ... }` is the right
-  // shape here.
+  // This is the FAST call, and it is the opposite shape to the example above. By the
+  // time it arrives, the compliance check is already running and parked waiting for a
+  // decision. All this Operation does is find that Workflow and hand it the yes or no.
+  // That takes milliseconds, so it can answer inside the call.
   //
-  // Get a client with temporalNexus.getClient(), get a handle to the Workflow by its ID,
-  // then call executeUpdate with the `reviewUpdate` definition imported above.
+  // Which means: NOT a WorkflowRunOperationHandler. A plain async function is right
+  // here. Slow work starts a Workflow and returns a reference; fast work answers in the
+  // call. Same Service, two Operations, two shapes.
+  //
+  //     submitReview: async (_ctx, input: ReviewRequest): Promise<ComplianceResult> => {
+  //       // 1. get a Client with temporalNexus.getClient()
+  //       // 2. get a handle to the running Workflow, using workflowIdFor(...)
+  //       // 3. return await handle.executeUpdate(reviewUpdate, { args: [...] })
+  //     },
+  //
+  // `reviewUpdate` is already imported at the top of this file. It takes two arguments,
+  // in this order: whether the reviewer approved, and their explanation.
+  //
+  // Until you write this, the build stays red — the contract in challenge 2 declared
+  // two Operations and this handler only answers one of them.
 });
