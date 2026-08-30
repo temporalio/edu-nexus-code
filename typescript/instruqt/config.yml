@@ -5,10 +5,9 @@ containers:
   # image that had no code-server in it, so the editor tabs showed "Please wait"
   # forever. Re-pin this after every image rebuild with:
   #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-typescript-sandbox:latest --format "{{.Manifest.Digest}}"
-  image: ghcr.io/nadvolod/edu-nexus-typescript-sandbox@sha256:ce2f1b9f1671a9f6b61f7042cc417e95ca887d09acbb62ec209ae5b7e540ea44
+  image: ghcr.io/nadvolod/edu-nexus-typescript-sandbox@sha256:e86dbaffb0ad1dbfc17730cb2eafb4ac138b09d12946c94e9cce3ea2ee41c9e6
   shell: /bin/bash
-  # Two Node Workers, a dev server, and one code-server. The Kotlin track needs
-  # 8192 for two JVMs plus a Gradle daemon; Node does not.
+  # Sized for two Node Workers, a Temporal dev server, and one code-server.
   memory: 4096
   # Every port a challenge tab points at MUST be listed here. Instruqt's proxy
   # cannot reach an undeclared port, and the tab shows "Please wait" forever.

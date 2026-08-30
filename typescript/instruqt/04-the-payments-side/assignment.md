@@ -89,19 +89,17 @@ The ten minutes is the budget for the whole call, retries included. It is what l
 Operation survive the Compliance Worker going away rather than failing the moment it does.
 You prove that in challenge 5.
 
-# A Note if You Have Taken the Java or Kotlin Version
+# Where the Endpoint Name Lives
 
-In those SDKs the Endpoint name is configured on the **Worker**, and the Workflow never
-names it. That is a real design difference, not a translation of the same code.
+Look at what you just wrote. The Workflow names two things: a **contract** and an
+**Endpoint**. It does not name a Namespace, a Task Queue, a hostname, or a port.
 
-In TypeScript, `wf.createNexusServiceClient({ service, endpoint })` takes the Endpoint
-**inside the Workflow**, at the call site. So the decoupling argument holds one level in
-rather than at the Worker: the Workflow knows a contract and an Endpoint name, and the
-Registry knows the address that name resolves to. Change where Compliance runs and no
-Workflow code changes — but the Endpoint name does appear in this file.
+That is the boundary. An Endpoint is a name the Registry resolves into an address. Move
+Compliance to a different Namespace or a different Task Queue tomorrow, update the
+Endpoint, and not one line of this Workflow changes.
 
-The Endpoint name itself is a constant in `shared/types.ts`, so there is one place to
-change it.
+The name itself is a single constant, `COMPLIANCE_ENDPOINT` in `shared/types.ts`, so there
+is exactly one place to edit if it is ever renamed.
 
 # Write the Review Caller
 

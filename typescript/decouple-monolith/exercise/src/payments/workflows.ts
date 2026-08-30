@@ -45,9 +45,9 @@ const { validatePayment, executePayment } = wf.proxyActivities<typeof paymentAct
 // Operation survive the Compliance Worker going away, instead of failing the moment it
 // does. You prove that in challenge 05.
 //
-// Note how the Endpoint name appears HERE, at the call site. If you have seen the Java
-// or Kotlin version of this workshop, that is a real difference: there the Endpoint is
-// configured on the Worker instead. In TypeScript the client carries it.
+// Note what the Workflow names: a contract and an Endpoint, and nothing else. No
+// Namespace, no Task Queue, no address. The Registry resolves the Endpoint name into
+// those, which is what keeps this Workflow unchanged when Compliance moves.
 //
 // Stuck? "Ask AI" on https://docs.temporal.io:
 //   "how do I call a Nexus Operation from a Workflow in TypeScript?"

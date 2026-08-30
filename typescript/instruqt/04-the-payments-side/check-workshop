@@ -13,8 +13,7 @@
 # prints nothing useful. Silence, not an error. Without this check that becomes
 # an instructor support queue during the tightest part of the lab.
 #
-# Note the Workflow type is camelCase here: in TypeScript the type name is the
-# exported function name, not a class name as on the JVM.
+# Note the Workflow type is camelCase: the type name is the exported function name.
 #
 # Anything else passes. If nothing is stuck, there is nothing to report.
 set -uo pipefail

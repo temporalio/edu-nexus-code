@@ -24,12 +24,9 @@ RUN curl -sSL \
 # The native Instruqt `type: code` tab is "a simple code editor" with no
 # documented language support. code-server gives real VS Code.
 #
-# Unlike the Kotlin image, NO language extension is installed here and that is
-# deliberate, not an omission: TypeScript support is built into VS Code. The
-# Kotlin image pinned a syntax-only extension specifically to avoid running a
-# language server next to two JVMs. Here the language service is wanted — it is
-# what surfaces the compile error in challenge 2 as a red squiggle, live, which
-# is the lesson. Node leaves plenty of headroom for it.
+# No language extension is installed, deliberately: TypeScript support is built
+# into VS Code. The language service is wanted here — it is what surfaces the
+# compile error in challenge 2 as a red squiggle, live, which is the lesson.
 ARG CODE_SERVER_VERSION=4.96.4
 RUN curl -fsSL https://code-server.dev/install.sh | sh -s -- --version ${CODE_SERVER_VERSION}
 

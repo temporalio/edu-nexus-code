@@ -1,8 +1,7 @@
 // [GIVEN] The data that crosses team boundaries.
 //
-// These are plain interfaces. Unlike the Kotlin version, nothing here needs a
-// no-arg constructor or parameter-name retention: the TypeScript SDK's default
-// data converter is JSON, so a structural type is all the Nexus boundary needs.
+// Plain interfaces, and that is all they need to be. The default data converter is
+// JSON, so a structural type is enough to cross the Nexus boundary in both directions.
 
 /** A payment transaction to be processed. */
 export interface PaymentRequest {

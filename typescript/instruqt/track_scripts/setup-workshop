@@ -67,8 +67,7 @@ fi
 
 # 3b. Serve the architecture diagram on 8090.
 #
-# The Kotlin image used jwebserver, which ships with the JDK. There is no JDK
-# here, so a small Node static server is baked into the image instead.
+# A small Node static server is baked into the image for this.
 # Must also be listed under `ports:` in config.yml or the tab cannot reach it.
 if ! curl -sf -o /dev/null "http://127.0.0.1:8090/" 2>/dev/null; then
     nohup node /opt/serve-diagrams.mjs > /tmp/diagrams.log 2>&1 &

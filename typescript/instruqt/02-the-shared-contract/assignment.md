@@ -109,10 +109,9 @@ That is the contract doing its job, and it is worth sitting with for a second. Y
 not run anything. No Worker has started. No call has been made. The compiler already knows
 Compliance owes Payments two implementations, purely from the shape of the Service.
 
-If you have taken the Java or Kotlin version of this workshop, this is the moment that
-differs most. There the Worker starts fine and fails at runtime with
-`Missing handlers for service operations`. In TypeScript that class of mistake cannot
-reach a running process.
+Notice *when* it told you: at compile time, before anything ran. A Service with an
+unanswered Operation cannot reach a running Worker, because the code carrying the gap does
+not build.
 
 You fix this in challenge 3, by writing the handlers. Leave it red.
 

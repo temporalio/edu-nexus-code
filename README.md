@@ -247,9 +247,10 @@ attendee discover it later.
 
 ### Three lessons that do not survive the port
 
-These are real design differences between the SDKs, not translation choices. The
-assignments call each one out, including a note aimed at anyone who has delivered the
-Java or Kotlin version.
+These are real design differences between the SDKs, not translation choices. Recorded
+here for whoever maintains the port. **The workshop itself is standalone and never
+mentions another language** — the assignments teach each of these on its own terms, so do
+not reintroduce a comparison into attendee-facing material.
 
 - **Challenge 2 ends with a deliberately FAILING typecheck.** `ServiceHandlerFor<Ops>` is
   a non-optional mapped type, so declaring an Operation obliges a matching handler at
