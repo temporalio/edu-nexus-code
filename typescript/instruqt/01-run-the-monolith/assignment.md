@@ -206,8 +206,13 @@ The diagram claims Compliance owns a Namespace with nothing in it. Confirm it.
 Click the [button label="Temporal UI" background="#444CE7"](tab-1) tab and switch the
 Namespace selector to `compliance-namespace`.
 
-Empty. Compliance has a Namespace of its own, and nothing runs there, because their code
-is executing inside the Payments Worker.
+No Workflows. Compliance has a Namespace of its own and nothing of theirs runs in it,
+because their code is executing inside the Payments Worker.
+
+If you look under **Workers** you will see one Go Worker on a `temporal-sys-` Task Queue.
+Ignore it — Temporal Server is written in Go and runs an internal Worker in every
+Namespace for its own background work. No Worker of the Compliance team's exists yet.
+You start one in challenge 3.
 
 Switch back to `payments-namespace`, open `payment-TXN-C` again, and read the Event
 History. Find **Activity Task Scheduled** for the compliance check. That single event is

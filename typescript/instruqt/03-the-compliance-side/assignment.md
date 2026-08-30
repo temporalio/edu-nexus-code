@@ -181,11 +181,24 @@ which is exactly the kind of thing that is easy to miss — so look for it delib
 
 **Two: the Temporal UI.** Click the
 [button label="Temporal UI" background="#444CE7"](tab-1) tab, switch the Namespace
-selector to `compliance-namespace`, and open **Workers** in the left menu. Your Worker
-is listed as **Running**.
+selector to `compliance-namespace`, and open **Workers** in the left menu.
 
-That is Compliance appearing in its own Namespace for the first time. In challenge 1
-this Namespace was empty.
+You will see **two** Workers, and only one of them is yours:
+
+| Task Queue | SDK | Whose |
+|---|---|---|
+| `compliance-risk` | TypeScript | **yours** — the one you just started |
+| `temporal-sys-per-ns-tq` | Go | Temporal's own |
+
+The Go one is not something you started and not something you can break. Temporal Server
+is written in Go and runs an internal Worker in **every** Namespace to handle its own
+background work — batch operations, schedules, deletion. It was there before you began
+and it will show `Tasks Processed: 0` all day. Anything on `temporal-sys-` is the system
+talking to itself.
+
+Yours is the one on `compliance-risk`, listed as **Running**. That is Compliance running
+in its own Namespace for the first time — in challenge 1 there was no Worker of yours
+here at all.
 
 If something went wrong:
 
