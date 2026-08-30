@@ -279,7 +279,7 @@ not reintroduce a comparison into attendee-facing material.
 
 ### Challenges
 
-Six TODOs, numbered 1 to 6, plus one worked example.
+Five TODOs, numbered 1 to 5, plus one worked example.
 
 `checkCompliance` in `compliance/nexus-handler.ts` is **given, not a TODO**. It is the
 harder of the two Nexus Operations and the one whose shape carries the lesson, so a
@@ -292,7 +292,14 @@ lands better from a working example than from two blank functions.
 | 01 | run-the-monolith | observe | none | — |
 | 02 | the-shared-contract | code | `shared/nexus-service.ts` | 1 |
 | 03 | the-compliance-side | code | `compliance/nexus-handler.ts`, `compliance/worker.ts`, plus the Endpoint CLI | 2, 3 (+ worked example) |
-| 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 4, 5, 6 |
+
+TODO 4 has two parts on purpose. Both build the same `createNexusServiceClient` — one for
+`checkCompliance` at `'10 minutes'`, one for `submitReview` at `'10 seconds'` — and the
+pair of numbers is the lesson: async Operations budget for the whole call including
+retries, sync Operations must answer inside the handler deadline. They were two separate
+TODOs at opposite ends of the file, which read as duplicated busywork rather than a
+contrast.
+| 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 4 (a+b), 5 |
 | 05 | durability-and-human-review | observe | none | — |
 
 ### Tabs

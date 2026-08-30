@@ -20,37 +20,8 @@ const { validatePayment, executePayment } = wf.proxyActivities<typeof paymentAct
   retry: { initialInterval: '1 second', backoffCoefficient: 2 },
 });
 
-// ── TODO 4 ──────────────────────────────────────────────────────────────────────────
-// Delete the `checkCompliance` proxy below and build a Nexus Service client instead.
-//
-// What that proxy is: a fake object you call like a normal function. It does not run the
-// code — it tells Temporal to schedule an Activity, and Activities run on THIS Worker.
-// That is the coupling you are removing.
-//
-// A Nexus Service client is the same idea, but calls on it go out through an Endpoint to
-// whichever Worker owns the Service. Build it INSIDE the Workflow function, like this:
-//
-//     const compliance = wf.createNexusServiceClient({
-//       service: complianceService,          // import from '../shared/nexus-service'
-//       endpoint: COMPLIANCE_ENDPOINT,       // import from '../shared/types'
-//     });
-//
-// then in Step 2, replace the call with:
-//
-//     await compliance.executeOperation('checkCompliance', compReq, {
-//       scheduleToCloseTimeout: '10 minutes',
-//     })
-//
-// The 10 minutes is the budget for the whole call, retries included. It is what lets the
-// Operation survive the Compliance Worker going away, instead of failing the moment it
-// does. You prove that in challenge 05.
-//
-// Note what the Workflow names: a contract and an Endpoint, and nothing else. No
-// Namespace, no Task Queue, no address. The Registry resolves the Endpoint name into
-// those, which is what keeps this Workflow unchanged when Compliance moves.
-//
-// Stuck? "Ask AI" on https://docs.temporal.io:
-//   "how do I call a Nexus Operation from a Workflow in TypeScript?"
+// TODO 4(a) deletes this proxy. Until then it is what couples the two teams: a call on it
+// schedules an Activity, and Activities run on THIS Worker.
 const { checkCompliance } = wf.proxyActivities<typeof complianceActivities>({
   startToCloseTimeout: '30 seconds',
 });
@@ -80,8 +51,29 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
 
   logger.info(`Step 2: calling compliance check for ${request.transactionId}`);
 
-  // This one line is the entire difference between running Compliance code in this
-  // process and calling another team's service across a durable boundary.
+  // ── TODO 4 ────────────────────────────────────────────────────────────────────
+  // Two calls, one client. Do both — (b) is at the bottom of this file.
+  //
+  // (a) HERE. Replace this Activity call, then delete the proxy above and its
+  //     `complianceActivities` import:
+  //
+  //       const compliance = wf.createNexusServiceClient({
+  //         service: complianceService,      // '../shared/nexus-service'
+  //         endpoint: COMPLIANCE_ENDPOINT,   // '../shared/types'
+  //       });
+  //       const result = await compliance.executeOperation('checkCompliance', compReq, {
+  //         scheduleToCloseTimeout: '10 minutes',
+  //       });
+  //
+  // (b) reviewCallerWorkflow. Same client, but 'submitReview' at '10 seconds'.
+  //
+  // The two numbers are the lesson. checkCompliance is asynchronous: ten minutes covers
+  // the whole call including retries, which is what lets it outlive the Compliance
+  // Worker going away. submitReview is synchronous: the handler must answer in ten.
+  //
+  // Note what the Workflow names — a contract and an Endpoint. No Namespace, no Task
+  // Queue, no address. The Registry resolves those, so this Workflow does not change
+  // when Compliance moves.
   const result: ComplianceResult = await checkCompliance(compReq);
 
   logger.info(`Compliance result: ${result.riskLevel} | approved=${result.approved}`);
@@ -112,15 +104,11 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
   };
 }
 
-// ── TODO 5 ──────────────────────────────────────────────────────────────────────────
-// You come back to this one in challenge 05, once the Nexus path works end to end.
+// ── TODO 4 (b) ──────────────────────────────────────────────────────────────────────
+// The second half. Same client as above; 'submitReview' at '10 seconds'.
 //
-// Submitting a human review through the Endpoint respects the team boundary: neither
-// team needs to know the other's Workflow IDs or internal method names.
-//
-// submitReview is a SYNCHRONOUS Operation, so the Compliance handler must finish inside
-// the 10-second handler deadline. Use a 10-second scheduleToCloseTimeout here, not the
-// 10 minutes used for the async check.
+// Routing the review through the Endpoint is what keeps the boundary: neither team
+// learns the other's Workflow IDs.
 export async function reviewCallerWorkflow(_request: ReviewRequest): Promise<ComplianceResult> {
-  throw new Error('TODO 5: submit the review decision through the Nexus Endpoint');
+  throw new Error('TODO 4(b): submit the review decision through the Nexus Endpoint');
 }

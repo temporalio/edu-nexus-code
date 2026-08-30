@@ -64,10 +64,10 @@ enhanced_loading: null
 # Swap the Proxy for a Nexus Client
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
-`exercise/src/payments/workflows.ts`, and follow TODO 4.
+`exercise/src/payments/workflows.ts`, and follow TODO 4. It has two parts, both in this
+file, and they are the same client twice.
 
-The call site barely changes. Same operation name, same input, same result type. What
-changes is everything underneath it.
+**(a)** The compliance check, in Step 2:
 
 ```ts,nocopy
 // before — runs in this process
@@ -79,35 +79,32 @@ const result = await compliance.executeOperation('checkCompliance', compReq, {
 });
 ```
 
-The ten minutes is the budget for the whole call, retries included. It is what lets the
-Operation survive the Compliance Worker going away rather than failing the moment it does.
-You prove that in challenge 5.
+Then delete the proxy above it and its `complianceActivities` import.
+
+**(b)** `reviewCallerWorkflow`, at the bottom of the file. Same client, one operation and
+one number different: `'submitReview'` at `'10 seconds'`.
+
+The two numbers are the whole reason both exist. `checkCompliance` is **asynchronous** —
+ten minutes covers the entire call including retries, which is what lets it outlive the
+Compliance Worker going away, as you prove in challenge 5. `submitReview` is
+**synchronous** — the handler must answer inside ten seconds. One Service, two Operations,
+two budgets.
 
 # Where the Endpoint Name Lives
 
-Look at what you just wrote. The Workflow names two things: a **contract** and an
-**Endpoint**. It does not name a Namespace, a Task Queue, a hostname, or a port.
+Look at what you just wrote, in both places. The Workflow names two things: a **contract**
+and an **Endpoint**. It does not name a Namespace, a Task Queue, a hostname, or a port.
 
 That is the boundary. An Endpoint is a name the Registry resolves into an address. Move
 Compliance to a different Namespace or a different Task Queue tomorrow, update the
 Endpoint, and not one line of this Workflow changes.
 
-The name itself is a single constant, `COMPLIANCE_ENDPOINT` in `exercise/src/shared/types.ts`, so there
-is exactly one place to edit if it is ever renamed.
-
-# Write the Review Caller
-
-Still in `exercise/src/payments/workflows.ts`, follow TODO 5.
-
-`submitReview` is a **synchronous** Operation, so the Compliance handler must finish inside
-the ten second handler deadline. Use a `scheduleToCloseTimeout` of `'10 seconds'` here, not
-the ten minutes above. Two Operations on one Service, two very different budgets.
-
-Challenge 5 uses this.
+The name itself is a single constant, `COMPLIANCE_ENDPOINT` in
+`exercise/src/shared/types.ts`, so there is exactly one place to edit if it is renamed.
 
 # Delete the Coupling
 
-Open `exercise/src/payments/worker.ts` and follow TODO 6.
+Open `exercise/src/payments/worker.ts` and follow TODO 5.
 
 Remove `...complianceActivities` from the `activities` object, and delete its import.
 

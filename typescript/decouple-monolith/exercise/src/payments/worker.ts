@@ -7,7 +7,7 @@
 //
 // That last line is the problem. A bug in compliance code takes payments down with it.
 //
-// Do TODO 6 last, after TODO 4 has moved the Workflow onto a Nexus client.
+// Do TODO 5 last, after TODO 4 has moved the Workflow onto a Nexus client.
 import { NativeConnection, Worker } from '@temporalio/worker';
 import * as paymentActivities from './activities';
 import * as complianceActivities from '../compliance/activities';
@@ -22,7 +22,7 @@ async function run() {
       taskQueue: PAYMENTS_TASK_QUEUE,
       workflowsPath: require.resolve('./workflows'),
 
-      // ── TODO 6 ────────────────────────────────────────────────────────────────
+      // ── TODO 5 ────────────────────────────────────────────────────────────────
       // Once the Workflow calls Compliance over Nexus, this Worker has no reason to run
       // the Compliance team's code. Remove `...complianceActivities` from the object
       // below, and delete the import at the top of this file.
