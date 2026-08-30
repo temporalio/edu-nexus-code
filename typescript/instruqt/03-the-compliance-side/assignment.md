@@ -20,14 +20,14 @@ notes:
     Two handlers, two different shapes, plus the Worker registration and the
     Endpoint.
 
-    The Solution tab is one click away. Use it if you stall. Learning the shape
-    beats staring at a blank function.
+    The finished code sits in solution/ in the same file tree. Use it if you
+    stall. Learning the shape beats staring at a blank function.
 tabs:
 - id: gok4feicejlo
   title: Exercise
   type: service
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src
+  path: /?folder=/root/workshop
   port: 8080
 - id: rhie9uzgyhfq
   title: Temporal UI
@@ -50,12 +50,6 @@ tabs:
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- id: xp7aoiijy8bj
-  title: Solution
-  type: service
-  hostname: workshop
-  path: /?folder=/root/workshop/solution/src
-  port: 8080
 - id: ujvrlheqjxnv
   title: Monolith Architecture
   type: service
@@ -78,7 +72,7 @@ Three pieces, all on this team's side of the boundary.
 # Read the Worked Example First
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab and open
-`compliance/nexus-handler.ts`.
+`exercise/src/compliance/nexus-handler.ts`.
 
 `checkCompliance` is already written. Read it before you write anything, because the
 Operation you are about to write is the other half of the same pattern, and the contrast
@@ -105,7 +99,7 @@ When you have written it, the `TS2345` error from challenge 2 disappears.
 
 # Register the Handler
 
-Open `compliance/worker.ts` and follow TODO 3.
+Open `exercise/src/compliance/worker.ts` and follow TODO 3.
 
 The Worker already knows its Workflows and Activities. One option is missing: the one
 that makes this team callable by Payments at all.
@@ -127,7 +121,7 @@ perfectly valid — you change that in challenge 4.
 error TS7006: Parameter '_ctx' implicitly has an 'any' type.
 ```
 
-That error points at `nexus-handler.ts`, but the fix is in `shared/nexus-service.ts`.
+That error points at `nexus-handler.ts`, but the fix is in `exercise/src/shared/nexus-service.ts`.
 
 You never annotate a handler's parameter types — they are inferred **from the contract**.
 So if TODO 1 from challenge 2 is unfinished, the Service has no Operations, there is
@@ -147,7 +141,7 @@ It is the one piece of Nexus that lives outside your code.
 temporal operator nexus endpoint create --name compliance-endpoint --target-namespace compliance-namespace --target-task-queue compliance-risk
 ```
 
-`--target-task-queue` must match `COMPLIANCE_TASK_QUEUE` in `shared/types.ts` exactly.
+`--target-task-queue` must match `COMPLIANCE_TASK_QUEUE` in `exercise/src/shared/types.ts` exactly.
 If it points at a queue no Worker is polling, the calls are never answered.
 
 # Start the Worker

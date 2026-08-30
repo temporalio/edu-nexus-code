@@ -61,6 +61,7 @@ RUN for d in /root/.cs-exercise /root/.cs-solution; do \
         '    "editor.inlayHints.fontSize": 11,' \
         '    "workbench.editor.enablePreview": false,' \
         '    "explorer.compactFolders": false,' \
+        '    "files.exclude": { "**/node_modules": true, "**/package-lock.json": true },' \
         '    "errorLens.enabledDiagnosticLevels": ["error", "warning"],' \
         '    "errorLens.messageMaxChars": 0' \
         '}' > "$d/User/settings.json"; \

@@ -135,7 +135,7 @@ done
 # So we check the two things that ARE true only once the workbench is up: the
 # exact URL a tab opens returns 200 (bare "/" still 302s at that point), and
 # code-server logs that the extension host is running.
-EX_FOLDER=/root/workshop/exercise/src
+EX_FOLDER=/root/workshop
 
 code_server_ready() {
     [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 \

@@ -27,7 +27,7 @@ tabs:
   title: Exercise
   type: service
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src
+  path: /?folder=/root/workshop
   port: 8080
 - id: kirogybfummw
   title: Temporal UI
@@ -50,12 +50,6 @@ tabs:
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- id: rynbymolm35m
-  title: Solution
-  type: service
-  hostname: workshop
-  path: /?folder=/root/workshop/solution/src
-  port: 8080
 - id: dwrcskq7wzji
   title: Monolith Architecture
   type: service

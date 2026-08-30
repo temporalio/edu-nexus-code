@@ -27,7 +27,7 @@ tabs:
   title: Exercise
   type: service
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src
+  path: /?folder=/root/workshop
   port: 8080
 - id: xrdqvojuovik
   title: Temporal UI
@@ -50,12 +50,6 @@ tabs:
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- id: xpohqyhbtdz3
-  title: Solution
-  type: service
-  hostname: workshop
-  path: /?folder=/root/workshop/solution/src
-  port: 8080
 - id: slczt2wyuij1
   title: Monolith Architecture
   type: service
@@ -70,7 +64,7 @@ enhanced_loading: null
 # Swap the Proxy for a Nexus Client
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
-`payments/workflows.ts`, and follow TODO 4.
+`exercise/src/payments/workflows.ts`, and follow TODO 4.
 
 The call site barely changes. Same operation name, same input, same result type. What
 changes is everything underneath it.
@@ -98,12 +92,12 @@ That is the boundary. An Endpoint is a name the Registry resolves into an addres
 Compliance to a different Namespace or a different Task Queue tomorrow, update the
 Endpoint, and not one line of this Workflow changes.
 
-The name itself is a single constant, `COMPLIANCE_ENDPOINT` in `shared/types.ts`, so there
+The name itself is a single constant, `COMPLIANCE_ENDPOINT` in `exercise/src/shared/types.ts`, so there
 is exactly one place to edit if it is ever renamed.
 
 # Write the Review Caller
 
-Still in `payments/workflows.ts`, follow TODO 5.
+Still in `exercise/src/payments/workflows.ts`, follow TODO 5.
 
 `submitReview` is a **synchronous** Operation, so the Compliance handler must finish inside
 the ten second handler deadline. Use a `scheduleToCloseTimeout` of `'10 seconds'` here, not
@@ -113,7 +107,7 @@ Challenge 5 uses this.
 
 # Delete the Coupling
 
-Open `payments/worker.ts` and follow TODO 6.
+Open `exercise/src/payments/worker.ts` and follow TODO 6.
 
 Remove `...complianceActivities` from the `activities` object, and delete its import.
 

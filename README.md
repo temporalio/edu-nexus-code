@@ -295,9 +295,33 @@ lands better from a working example than from two blank functions.
 | 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 4, 5, 6 |
 | 05 | durability-and-human-review | observe | none | — |
 
-Tab order, the seven-tab layout, and the `tab-N`-is-a-position rule are identical to the
-Kotlin track. Port 8090 is served by `node /opt/serve-diagrams.mjs` rather than
-`jwebserver`, since there is no JDK in this image.
+### Tabs
+
+Six, not seven. There is **one** editor tab, rooted at `/root/workshop` so both project
+folders are in the same file tree:
+
+| Index | Tab | Type |
+|-------|-----|------|
+| tab-0 | Exercise | service, port 8080 (code-server, shows `exercise/` and `solution/`) |
+| tab-1 | Temporal UI | service, port 8233 |
+| tab-2 | Terminal | terminal |
+| tab-3 | Payments Worker | terminal |
+| tab-4 | Compliance Worker | terminal |
+| tab-5 | Monolith Architecture | service, port 8090 (`node /opt/serve-diagrams.mjs`) |
+
+A separate Solution tab was removed on purpose. Instruqt loads every service tab's iframe
+at challenge start including hidden ones, and code-server cannot lay itself out in a 0x0
+iframe — which is why the Kotlin track's Solution tab "may still need one refresh". One
+editor instance with one visible iframe removes that failure mode rather than documenting
+it.
+
+The cost is that source paths are now two levels deeper, and `solution/` is visible while
+a learner works. Both are handled by writing paths in full: assignments say
+`exercise/src/payments/workflows.ts`, never `payments/workflows.ts`, so nobody edits the
+solution copy by accident. `node_modules` and lockfiles are hidden via `files.exclude`.
+
+The `tab-N`-is-a-position rule still applies: these are zero-indexed positions, not ids,
+so reordering means remapping every button.
 
 ### What the sandbox image bakes in
 

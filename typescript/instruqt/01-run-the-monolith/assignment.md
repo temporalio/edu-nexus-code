@@ -27,7 +27,7 @@ tabs:
   title: Exercise
   type: service
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src
+  path: /?folder=/root/workshop
   port: 8080
 - id: osmynelncext
   title: Temporal UI
@@ -50,12 +50,6 @@ tabs:
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- id: bwvwdih1vjnt
-  title: Solution
-  type: service
-  hostname: workshop
-  path: /?folder=/root/workshop/solution/src
-  port: 8080
 - id: kaxawqn9yd2g
   title: Monolith Architecture
   type: service
@@ -153,7 +147,7 @@ look exactly like this.
 
 Before you hunt for the coupling in code, look at the shape of what you just ran.
 
-Click the [button label="Monolith Architecture" background="#444CE7"](tab-6) tab.
+Click the [button label="Monolith Architecture" background="#444CE7"](tab-5) tab.
 
 Two shaded zones, one per team. Payments is blue, Compliance is amber. Every box carries
 its file name and the function that matters.
@@ -177,7 +171,7 @@ box inside that outline is polled by the same Worker.
 # Find the Coupling
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab and open
-`payments/worker.ts`.
+`exercise/src/payments/worker.ts`.
 
 Look at what this one Worker registers. One object, two different teams:
 
@@ -191,7 +185,7 @@ the same blast radius. Compliance cannot ship a fix without Payments shipping to
 
 That second spread is the one you delete in challenge 4. That deletion is the decoupling.
 
-Now open `payments/workflows.ts` and find step 2:
+Now open `exercise/src/payments/workflows.ts` and find step 2:
 
 ```ts,nocopy
 const result: ComplianceResult = await checkCompliance(compReq);

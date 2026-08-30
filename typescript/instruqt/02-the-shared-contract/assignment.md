@@ -27,7 +27,7 @@ tabs:
   title: Exercise
   type: service
   hostname: workshop
-  path: /?folder=/root/workshop/exercise/src
+  path: /?folder=/root/workshop
   port: 8080
 - id: 7iygieqqyuko
   title: Temporal UI
@@ -50,12 +50,6 @@ tabs:
   type: terminal
   hostname: workshop
   workdir: /root/workshop/exercise
-- id: 4m8yg9ygjnkm
-  title: Solution
-  type: service
-  hostname: workshop
-  path: /?folder=/root/workshop/solution/src
-  port: 8080
 - id: 1wdriwhm5mby
   title: Monolith Architecture
   type: service
@@ -77,7 +71,7 @@ It lives in `shared/` on purpose. Neither team owns it alone.
 # Write It
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
-`shared/nexus-service.ts`, and follow TODO 1.
+`exercise/src/shared/nexus-service.ts`, and follow TODO 1.
 
 Two Operations. Each is a name paired with `nexus.operation<Input, Output>()`, which
 carries no implementation — only the types both teams agree on.
