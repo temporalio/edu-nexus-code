@@ -1,0 +1,18 @@
+#!/bin/bash
+# ABOUTME: Challenge 01 solve. Runs the monolith end to end so the next
+# challenge inherits three completed payment Workflows.
+set -euxo pipefail
+
+cd /root/workshop/exercise
+
+pkill -f "payments/worker.ts" || true
+sleep 1
+
+nohup npm run payments-worker > /tmp/payments-worker.log 2>&1 &
+for i in $(seq 1 120); do
+    grep -q "Payments Worker started" /tmp/payments-worker.log && break
+    sleep 1
+done
+
+npm run starter > /tmp/starter.log 2>&1 || true
+cat /tmp/starter.log

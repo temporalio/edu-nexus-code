@@ -1,0 +1,26 @@
+{
+  "name": "decouple-monolith-solution",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --build",
+    "payments-worker": "ts-node src/payments/worker.ts",
+    "compliance-worker": "ts-node src/compliance/worker.ts",
+    "starter": "ts-node src/payments/starter.ts",
+    "review-starter": "ts-node src/payments/review-starter.ts"
+  },
+  "dependencies": {
+    "@temporalio/activity": "^1.23.0",
+    "@temporalio/client": "^1.23.0",
+    "@temporalio/nexus": "^1.23.0",
+    "@temporalio/worker": "^1.23.0",
+    "@temporalio/workflow": "^1.23.0",
+    "nexus-rpc": "^0.0.3"
+  },
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.0",
+    "@types/node": "^22.9.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

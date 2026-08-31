@@ -1,0 +1,12 @@
+#!/bin/bash
+# ABOUTME: Challenge 02 solve. Copies only this challenge's file from the
+# solution so a skipped challenge does not hand the learner the rest of the lab.
+#
+# No typecheck here, deliberately. Declaring the two Operations makes
+# the contract complete, and TypeScript then requires matching handlers that do
+# not exist until challenge 03 — so `tsc` FAILS at the end of this challenge by
+# design. See the assignment.
+set -euxo pipefail
+
+cp /root/workshop/solution/src/shared/nexus-service.ts \
+   /root/workshop/exercise/src/shared/nexus-service.ts

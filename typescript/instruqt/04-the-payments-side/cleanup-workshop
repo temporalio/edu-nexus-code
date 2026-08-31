@@ -1,0 +1,9 @@
+#!/bin/bash
+# ABOUTME: Challenge 04 cleanup. Challenge 05 starts its own Workers.
+set -euo pipefail
+
+pkill -f "payments/worker.ts"        || true
+pkill -f "compliance/worker.ts"      || true
+pkill -f "npm run payments-worker"   || true
+pkill -f "npm run compliance-worker" || true
+sleep 1

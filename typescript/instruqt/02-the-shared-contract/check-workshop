@@ -1,0 +1,15 @@
+#!/bin/bash
+# ABOUTME: Instant pass. This is a live instructor-led workshop, so the
+# instructor is the feedback loop and progression is never gated on a script.
+#
+# Two reasons this is deliberate rather than lazy:
+#   1. Skip runs solve-workshop, which copies solution files over the learner's
+#      work. Gating progression pushes stuck learners toward destroying their
+#      own code to move on.
+#   2. Check-click latency costs real minutes across a room of 20 in a 40 minute
+#      lab block.
+#
+# Challenge 04 is the exception: a mistyped Nexus Endpoint hangs silently, so
+# that one keeps a diagnostic. Everything the removed checks used to explain now
+# lives in the assignment bodies.
+exit 0

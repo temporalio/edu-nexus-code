@@ -1,0 +1,10 @@
+#!/bin/bash
+# ABOUTME: Challenge 03 cleanup. Clean slate. Challenge 04 starts both Workers
+# itself rather than depending on a process surviving the transition.
+set -euo pipefail
+
+pkill -f "compliance/worker.ts"      || true
+pkill -f "payments/worker.ts"        || true
+pkill -f "npm run compliance-worker" || true
+pkill -f "npm run payments-worker"   || true
+sleep 1

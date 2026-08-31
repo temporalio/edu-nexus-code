@@ -1,0 +1,16 @@
+#!/bin/bash
+# ABOUTME: Track-level cleanup. Runs once when the track is torn down.
+# One pkill per pattern. Alternation does not work on macOS and the scripts
+# are authored there.
+#
+# Two patterns per process: `npm run x` leaves an npm parent as well as the node
+# child that actually holds the port, and killing only one leaves the other.
+set -euo pipefail
+
+pkill -f "payments/worker.ts"         || true
+pkill -f "compliance/worker.ts"       || true
+pkill -f "payments/starter.ts"        || true
+pkill -f "payments/review-starter.ts" || true
+pkill -f "npm run payments-worker"    || true
+pkill -f "npm run compliance-worker"  || true
+pkill -f "temporal server"            || true

@@ -1,0 +1,17 @@
+version: "3"
+containers:
+- name: workshop
+  # Pinned by digest, not :latest. A moving tag let a sandbox boot a cached older
+  # image that had no code-server in it, so the editor tabs showed "Please wait"
+  # forever. Re-pin this after every image rebuild with:
+  #   docker buildx imagetools inspect ghcr.io/nadvolod/edu-nexus-typescript-sandbox:latest --format "{{.Manifest.Digest}}"
+  image: ghcr.io/nadvolod/edu-nexus-typescript-sandbox@sha256:79ea7e304f7374b5c0db5bc574555294f75778a7a0a895511e5581b1822951d0
+  shell: /bin/bash
+  # Sized for two Node Workers, a Temporal dev server, and one code-server.
+  memory: 4096
+  # Every port a challenge tab points at MUST be listed here. Instruqt's proxy
+  # cannot reach an undeclared port, and the tab shows "Please wait" forever.
+  ports:
+  - 8233   # Temporal UI
+  - 8080   # code-server, both editor tabs
+  - 8090   # architecture diagram (node serve-diagrams.mjs)

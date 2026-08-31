@@ -1,0 +1,7 @@
+# node_modules is reinstalled inside the image with `npm ci`, so shipping the
+# host copy would send ~600 MB of build context and then be thrown away.
+# It would also be the wrong architecture: the host is arm64, the image amd64,
+# and @temporalio ships a native core bridge binary.
+**/node_modules
+**/lib
+**/.DS_Store

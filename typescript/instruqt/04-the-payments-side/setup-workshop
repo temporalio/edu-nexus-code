@@ -1,0 +1,7 @@
+#!/bin/bash
+# ABOUTME: Challenge 04 setup. Clean slate. This challenge starts both Workers.
+set -euxo pipefail
+
+pkill -f "payments/worker.ts"   || true
+pkill -f "compliance/worker.ts" || true
+true

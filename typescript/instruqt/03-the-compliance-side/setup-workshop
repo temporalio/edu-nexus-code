@@ -1,0 +1,7 @@
+#!/bin/bash
+# ABOUTME: Challenge 03 setup. Clears Workers from earlier challenges.
+set -euxo pipefail
+
+pkill -f "payments/worker.ts"   || true
+pkill -f "compliance/worker.ts" || true
+true
