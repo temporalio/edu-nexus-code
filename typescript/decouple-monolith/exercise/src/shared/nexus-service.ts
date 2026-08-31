@@ -9,7 +9,9 @@
 // language. Try "how do I define a Nexus Service contract in TypeScript?" Get used to
 // it now — the later TODOs are harder.
 //
-// Note: TypeScript SDK support for Nexus is at Pre-release and its APIs are experimental.
+// You may see `@experimental` when you hover `nexus.service` or `nexus.operation`. That
+// is `nexus-rpc`, the contract package, which is versioned separately and still pre-1.0.
+// Nexus itself is GA in the Temporal TypeScript SDK as of v1.23.0.
 import * as nexus from 'nexus-rpc';
 import { ComplianceRequest, ComplianceResult, ReviewRequest } from './types';
 

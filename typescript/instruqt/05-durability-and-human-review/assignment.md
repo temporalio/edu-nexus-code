@@ -170,5 +170,6 @@ The business logic never changed. The call site barely changed. Compliance moved
 its own Namespace, its own Task Queue, and its own deployment schedule, and Payments
 kept working through an outage while it happened.
 
-TypeScript SDK support for Nexus is at Pre-release and its APIs are marked experimental,
-so expect the surface to move before it is stable.
+Everything you just used is generally available: Nexus went GA in the TypeScript SDK in
+v1.23.0, for calling Operations from Workflows and for Workflow-backed Operation
+handlers. You can take this shape to production as it stands.

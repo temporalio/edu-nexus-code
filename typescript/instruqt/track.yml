@@ -15,8 +15,8 @@ description: |-
   Then break it on purpose. Stop the Compliance Worker mid-operation and watch the
   payment Workflow wait instead of fail.
 
-  TypeScript on the Temporal TypeScript SDK. Five challenges, three of them hands-on.
-  Nexus support in the TypeScript SDK is at Pre-release and its APIs are experimental.
+  TypeScript on the Temporal TypeScript SDK, where Nexus went generally available in
+  v1.23.0. Five challenges, three of them hands-on.
 icon: ""
 tags:
 - nexus

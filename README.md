@@ -241,9 +241,20 @@ typescript/
     └── 01-run-the-monolith/ ... 05-durability-and-human-review/
 ```
 
-**Nexus support in the TypeScript SDK is at Pre-release and its APIs are marked
-experimental.** The deck and challenge 2 both say so out loud rather than letting an
-attendee discover it later.
+**Nexus is GA in the TypeScript SDK as of v1.23.0**, the version this workshop pins —
+specifically for calling Operations from Workflows and for Workflow-backed Operation
+handlers, which is exactly what the lab builds (SDK release notes, PR #2299).
+
+Two things are easy to get wrong here, so they are stated in the deck and in
+`shared/nexus-service.ts` rather than left to be discovered:
+
+- `nexus-rpc` is a **separately versioned** package, still at `0.0.3`, and it does tag
+  `service()`, `operation()` and `serviceHandler()` `@experimental`. An attendee hovering
+  `nexus.service` will see that and reasonably conclude Nexus is experimental. It is not;
+  the contract package is.
+- **Standalone Nexus Operations** — running an Operation with no caller Workflow, via
+  `client.nexus.createServiceClient()` — *are* still Pre-release and need a special CLI
+  build. This workshop does not use them.
 
 ### Three lessons that do not survive the port
 
