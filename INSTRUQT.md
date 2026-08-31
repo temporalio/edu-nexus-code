@@ -276,6 +276,34 @@ if [ -f "$CONTRACT" ] && ! grep -q "TODO" "$CONTRACT"; then
 fi
 ```
 
+### Better: have the solve script run `solution/`, not overwrite `exercise/`
+
+The restore guard above patches a self-inflicted wound. The wound is avoidable.
+
+A solve script exists to make Skip work and to let `instruqt track test` prove the
+track end to end. Neither needs the learner's tree. Point the script at the
+solution instead:
+
+```bash
+cd /root/workshop/<project>/solution || exit 0
+nohup npm run c1:worker > /tmp/solve-c1-worker.log 2>&1 &
+sleep 15
+timeout 120 npm run c1:client -- "..."
+```
+
+Skip then cannot destroy anyone's work, no restore guard is needed, and the
+sandbox never ends up permanently solved. It also removes the reason to keep a
+read-only `/opt/workshop` and stage a writable copy at track setup — the image can
+bake straight to `/root/workshop`.
+
+The one rule this creates: **do not add an overwriting solve script to a track
+built this way** without also adding a pristine copy to restore from. The two
+designs are each coherent and must not be mixed.
+
+Used by the TypeScript AI Agents track in
+`temporal-community/ai-agents-workshop-v4`. The Kotlin and TypeScript Nexus tracks
+here still use the overwrite-plus-guard shape.
+
 ### `pkill -f "a|b"` does not work on macOS
 
 Alternation is unsupported there. One `pkill` per pattern, or scripts authored on
