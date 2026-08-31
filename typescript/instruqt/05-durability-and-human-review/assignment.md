@@ -173,3 +173,8 @@ kept working through an outage while it happened.
 Everything you just used is generally available: Nexus went GA in the TypeScript SDK in
 v1.23.0, for calling Operations from Workflows and for Workflow-backed Operation
 handlers. You can take this shape to production as it stands.
+
+---
+
+**Please share your feedback so we can make better content for you.** The **Feedback**
+tab takes a few seconds, and it is the only way we find out which parts of this landed.

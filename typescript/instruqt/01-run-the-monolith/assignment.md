@@ -220,3 +220,8 @@ Click **Check** when your three transactions have finished.
 - The compliance check is an ordinary Activity call.
 - A declined payment completes. It does not fail.
 - Compliance has a Namespace, and it is empty.
+
+---
+
+**Please share your feedback so we can make better content for you.** The **Feedback**
+tab takes a few seconds, and it is the only way we find out which parts of this landed.

@@ -80,6 +80,27 @@ Three things move with it, and two fail silently:
 The cost is that source sits two levels deeper in the tree. Worth it; the refresh bug
 was hit by every attendee, the extra clicks are hit once.
 
+### Feedback is lab chrome, not a tab you add
+
+Do not add a Feedback entry to every challenge's `tabs:` list. It renumbers every tab
+after it and breaks every `[button](tab-N)` in the track, for a tab Instruqt already
+provides.
+
+Turn it on in `track.yml` instead:
+
+```yaml
+lab_config:
+  feedback_tab_enabled: true    # Feedback tab in the lab UI
+  feedback_recap_enabled: true  # prompt at the end of the track
+```
+
+Verified against `temporal-community/ai-agents-workshop-v4`, which sets both and has no
+Feedback entry in any challenge's `tabs:`. Because it is chrome, `tab-N` indices are
+untouched.
+
+There is no `tab-N` to link to, so a per-challenge call to action references it by name:
+"the **Feedback** tab".
+
 ### Reordering tabs breaks every button, silently
 
 `tab-N` is a **zero-indexed position, not an id**. Move a tab and every

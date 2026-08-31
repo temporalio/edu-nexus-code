@@ -212,3 +212,8 @@ stop this one with **Ctrl+C** afterwards.
 - A Worker starts fine with nothing registered. A clean banner proves nothing.
 - The Endpoint maps a name to a Namespace and a Task Queue.
 - Compliance now runs in its own Namespace, with its own Worker.
+
+---
+
+**Please share your feedback so we can make better content for you.** The **Feedback**
+tab takes a few seconds, and it is the only way we find out which parts of this landed.

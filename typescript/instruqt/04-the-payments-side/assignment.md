@@ -183,3 +183,8 @@ Click **Check**.
   resolves that name to a Namespace and Task Queue.
 - One Service can carry a slow async Operation and a fast sync one, with different budgets.
 - The work moved to another Namespace, and the business logic never changed.
+
+---
+
+**Please share your feedback so we can make better content for you.** The **Feedback**
+tab takes a few seconds, and it is the only way we find out which parts of this landed.

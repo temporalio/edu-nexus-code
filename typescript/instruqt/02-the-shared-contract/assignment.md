@@ -118,3 +118,8 @@ Click **Check** when the two Operations are declared.
 - `nexus.service()` names the contract; `nexus.operation<I, O>()` declares each call.
 - The contract is shared. The implementation is not.
 - Declaring an Operation obliges someone to handle it, and the compiler enforces that.
+
+---
+
+**Please share your feedback so we can make better content for you.** The **Feedback**
+tab takes a few seconds, and it is the only way we find out which parts of this landed.
