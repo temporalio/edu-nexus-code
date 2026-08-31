@@ -28,10 +28,13 @@ You can launch an exercise environment for this tutorial using GitHub Codespaces
 Two hands-on lab versions of this material exist as Instruqt tracks, in addition to the
 Java tutorial under `java/`:
 
-| Language | Directory | Track slug | Sandbox image |
-|---|---|---|---|
-| Kotlin | `kotlin/` | `nexus-kotlin-decouple-monolith` | `ghcr.io/nadvolod/edu-nexus-kotlin-sandbox` |
-| TypeScript | `typescript/` | `nexus-typescript-decouple-monolith` | `ghcr.io/nadvolod/edu-nexus-typescript-sandbox` |
+| Language | Directory | Track slug | Live lab | Sandbox image |
+|---|---|---|---|---|
+| Kotlin | `kotlin/` | `nexus-kotlin-decouple-monolith` | — | `ghcr.io/nadvolod/edu-nexus-kotlin-sandbox` |
+| TypeScript | `typescript/` | `nexus-typescript-decouple-monolith` | [Open](https://play.instruqt.com/temporal/invite/lxlcmj1tat0c) | `ghcr.io/nadvolod/edu-nexus-typescript-sandbox` |
+
+The TypeScript lab is live and launchable by anyone with that invite link. It is the same
+invite the deck's closing slide points at, so change both together.
 
 The slide decks are **not** in this repo. They live in
 [`temporalio/temporal-devdays-ts`](https://github.com/temporalio/temporal-devdays-ts)
