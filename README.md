@@ -293,13 +293,15 @@ lands better from a working example than from two blank functions.
 | 02 | the-shared-contract | code | `shared/nexus-service.ts` | 1 |
 | 03 | the-compliance-side | code | `compliance/nexus-handler.ts`, `compliance/worker.ts`, plus the Endpoint CLI | 2, 3 (+ worked example) |
 
-TODO 4 has two parts on purpose. Both build the same `createNexusServiceClient` — one for
-`checkCompliance` at `'10 minutes'`, one for `submitReview` at `'10 seconds'` — and the
-pair of numbers is the lesson: async Operations budget for the whole call including
-retries, sync Operations must answer inside the handler deadline. They were two separate
-TODOs at opposite ends of the file, which read as duplicated busywork rather than a
-contrast.
-| 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 4 (a+b), 5 |
+TODO 4 is lettered rather than split into separate numbers, because its three parts are
+one idea: put the Nexus boundary in. 4a deletes the Activity proxy, 4b replaces the call
+that used it, 4c writes the review caller. Each comment sits on the code it changes.
+
+4b and 4c build the same `createNexusServiceClient` with different numbers — `'10 minutes'`
+for `checkCompliance`, `'10 seconds'` for `submitReview` — and that pair is the lesson:
+async Operations budget for the whole call including retries, sync Operations must answer
+inside the handler deadline.
+| 04 | the-payments-side | code | `payments/workflows.ts`, `payments/worker.ts` | 4a, 4b, 4c, 5 |
 | 05 | durability-and-human-review | observe | none | — |
 
 ### Tabs

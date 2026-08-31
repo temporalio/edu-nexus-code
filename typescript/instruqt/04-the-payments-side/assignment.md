@@ -64,31 +64,18 @@ enhanced_loading: null
 # Swap the Proxy for a Nexus Client
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
-`exercise/src/payments/workflows.ts`, and follow TODO 4. It has two parts, both in this
-file, and they are the same client twice.
+`exercise/src/payments/workflows.ts`, and follow TODO 4a, 4b and 4c. Each sits on the
+code it changes: the proxy to delete, the call to replace, and the review caller to
+write.
 
-**(a)** The compliance check, in Step 2:
+The call site barely changes — same operation name, same input, same result type. What
+changes is everything underneath it: the compliance check leaves this process entirely.
 
-```ts,nocopy
-// before — runs in this process
-const result = await checkCompliance(compReq);
-
-// after — goes out through the Endpoint to another team's Worker
-const result = await compliance.executeOperation('checkCompliance', compReq, {
-  scheduleToCloseTimeout: '10 minutes',
-});
-```
-
-Then delete the proxy above it and its `complianceActivities` import.
-
-**(b)** `reviewCallerWorkflow`, at the bottom of the file. Same client, one operation and
-one number different: `'submitReview'` at `'10 seconds'`.
-
-The two numbers are the whole reason both exist. `checkCompliance` is **asynchronous** —
-ten minutes covers the entire call including retries, which is what lets it outlive the
-Compliance Worker going away, as you prove in challenge 5. `submitReview` is
-**synchronous** — the handler must answer inside ten seconds. One Service, two Operations,
-two budgets.
+What is worth your attention is the pair of timeouts the two parts use.
+`checkCompliance` is **asynchronous** — its budget covers the entire call including
+retries, which is what lets it outlive the Compliance Worker going away, as you prove in
+challenge 5. `submitReview` is **synchronous** — the handler must answer inside the Nexus
+handler deadline. One Service, two Operations, two very different budgets.
 
 # Where the Endpoint Name Lives
 
@@ -106,9 +93,8 @@ The name itself is a single constant, `COMPLIANCE_ENDPOINT` in
 
 Open `exercise/src/payments/worker.ts` and follow TODO 5.
 
-Remove `...complianceActivities` from the `activities` object, and delete its import.
-
-That deletion is the decoupling. Everything else is wiring.
+That deletion is the decoupling. Everything else was wiring: once it is gone the Payments
+Worker has no way to run the Compliance team's code, even by accident.
 
 # Run It Decoupled
 

@@ -46,6 +46,40 @@ fixed code-server for us. Confirmed working.
 Only one tab can be first, so a second embedded app (our Solution editor) may
 still need a refresh. Accept it, or serve both views from one instance.
 
+### Use ONE editor tab, not an Exercise tab and a Solution tab
+
+This is the fix for the 0x0 iframe problem above rather than a workaround for it.
+
+Two editor tabs means two code-server iframes, and Instruqt boots every service tab's
+iframe at challenge start including the hidden ones. Only the first tab has real
+dimensions, so the second reliably needs a manual refresh. Making the Solution tab
+position 5 does not help; it just moves which one is broken.
+
+Point a single tab at the directory that contains BOTH trees:
+
+```yaml
+- title: Exercise
+  type: service
+  path: /?folder=/root/workshop      # holds exercise/ and solution/
+  port: 8080
+```
+
+One iframe, nothing hidden, no refresh. It also drops the tab count from seven to six.
+
+Three things move with it, and two fail silently:
+
+- **`tab-N` is a position.** Removing a tab renumbers every tab after it. Re-verify
+  every `[button label="..."](tab-N)` by label, not by arithmetic.
+- **File paths in assignments become ambiguous.** With `solution/` visible, "open
+  `payments/workflows.ts`" matches two files, and a learner editing the solution copy
+  watches their changes do nothing. Write paths in full:
+  `exercise/src/payments/workflows.ts`.
+- **Any readiness probe that polls `?folder=` must use the new path.** Ours still
+  pointed at the old folder, so setup would have reported the editor not ready forever.
+
+The cost is that source sits two levels deeper in the tree. Worth it; the refresh bug
+was hit by every attendee, the extra clicks are hit once.
+
 ### Reordering tabs breaks every button, silently
 
 `tab-N` is a **zero-indexed position, not an id**. Move a tab and every
@@ -323,6 +357,60 @@ grep -rn '^ *==*$' */assignment.md
 "Look at what this Worker registers" makes the learner hunt and guess. Paste the two
 lines in a `kotlin,nocopy` fence and then say what they mean. Costs four lines of
 assignment, removes all the guessing.
+
+### Implementation steps belong in the TODO, not the assignment
+
+The assignment names the file and the TODO, and says why the change matters. The TODO
+comment, three lines from the cursor, says how. When both say how you have two copies to
+keep in sync, and the learner reads the same recipe twice.
+
+This does not contradict "Show the line, do not describe it" above, and the difference is
+worth stating precisely:
+
+- Code the learner is meant to **read** belongs in the assignment. Pasting it stops them
+  hunting through a file for the two lines you meant.
+- Code the learner is meant to **write** belongs in the TODO. That is the recipe, and the
+  recipe goes next to the cursor.
+
+What it looks like when it leaks, from challenge 4 of the TypeScript track:
+
+```
+Then delete the proxy above it and its `complianceActivities` import.
+Remove `...complianceActivities` from the `activities` object, and delete its import.
+```
+
+Both were already in the TODO comment. Grep for the shape — an imperative aimed at a
+named symbol:
+
+```bash
+grep -nE '^(Remove|Delete|Add|Replace|Change) `' */assignment.md
+```
+
+The assignment keeps the part the TODO cannot carry: why the change matters, and what to
+notice once it works.
+
+### One action, one lettered TODO, sited on the code it changes
+
+A TODO that says "replace this call, then delete the declaration above, then write the
+function at the bottom" makes the learner hold three locations in their head and scroll
+between them. They finish one, lose the list, and re-read the whole block.
+
+Split by action, letter them so they still read as one idea, and put each comment on the
+code it acts on:
+
+```
+TODO 4a   on the proxy to delete
+TODO 4b   on the call site to replace
+TODO 4c   on the function to write
+```
+
+Letters rather than new numbers when the parts are one concept — here, putting the Nexus
+boundary in. New numbers imply separate concepts and inflate the count.
+
+The failure this fixes is real and was reported from a live sandbox: a note reading
+"TODO 4(a) deletes this proxy" sat on the proxy while the instructions for 4(a) were
+thirty lines away at the call site, so the two halves of one instruction pointed at each
+other.
 
 ### A long edge label will cover your diagram
 

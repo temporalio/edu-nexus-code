@@ -20,8 +20,12 @@ const { validatePayment, executePayment } = wf.proxyActivities<typeof paymentAct
   retry: { initialInterval: '1 second', backoffCoefficient: 2 },
 });
 
-// TODO 4(a) deletes this proxy. Until then it is what couples the two teams: a call on it
-// schedules an Activity, and Activities run on THIS Worker.
+// ── TODO 4a ─────────────────────────────────────────────────────────────────────────
+// Delete this proxy, and the `complianceActivities` import at the top of the file.
+//
+// This is the coupling. A call on this proxy schedules an Activity, and Activities run
+// on THIS Worker — so the Compliance team's code executes inside the Payments process.
+// TODO 4b replaces the one place that calls it.
 const { checkCompliance } = wf.proxyActivities<typeof complianceActivities>({
   startToCloseTimeout: '30 seconds',
 });
@@ -51,25 +55,19 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
 
   logger.info(`Step 2: calling compliance check for ${request.transactionId}`);
 
-  // ── TODO 4 ────────────────────────────────────────────────────────────────────
-  // Two calls, one client. Do both — (b) is at the bottom of this file.
+  // ── TODO 4b ───────────────────────────────────────────────────────────────────
+  // Replace this Activity call with a Nexus call:
   //
-  // (a) HERE. Replace this Activity call, then delete the proxy above and its
-  //     `complianceActivities` import:
+  //     const compliance = wf.createNexusServiceClient({
+  //       service: complianceService,      // '../shared/nexus-service'
+  //       endpoint: COMPLIANCE_ENDPOINT,   // '../shared/types'
+  //     });
+  //     const result = await compliance.executeOperation('checkCompliance', compReq, {
+  //       scheduleToCloseTimeout: '10 minutes',
+  //     });
   //
-  //       const compliance = wf.createNexusServiceClient({
-  //         service: complianceService,      // '../shared/nexus-service'
-  //         endpoint: COMPLIANCE_ENDPOINT,   // '../shared/types'
-  //       });
-  //       const result = await compliance.executeOperation('checkCompliance', compReq, {
-  //         scheduleToCloseTimeout: '10 minutes',
-  //       });
-  //
-  // (b) reviewCallerWorkflow. Same client, but 'submitReview' at '10 seconds'.
-  //
-  // The two numbers are the lesson. checkCompliance is asynchronous: ten minutes covers
-  // the whole call including retries, which is what lets it outlive the Compliance
-  // Worker going away. submitReview is synchronous: the handler must answer in ten.
+  // Ten minutes covers the whole call including retries, which is what lets it outlive
+  // the Compliance Worker going away. You prove that in challenge 5.
   //
   // Note what the Workflow names — a contract and an Endpoint. No Namespace, no Task
   // Queue, no address. The Registry resolves those, so this Workflow does not change
@@ -104,11 +102,13 @@ export async function paymentProcessingWorkflow(request: PaymentRequest): Promis
   };
 }
 
-// ── TODO 4 (b) ──────────────────────────────────────────────────────────────────────
-// The second half. Same client as above; 'submitReview' at '10 seconds'.
+// ── TODO 4c ─────────────────────────────────────────────────────────────────────────
+// Same client as 4b, but call 'submitReview' with a scheduleToCloseTimeout of
+// '10 seconds'.
 //
-// Routing the review through the Endpoint is what keeps the boundary: neither team
-// learns the other's Workflow IDs.
+// Seconds, not minutes: submitReview is a SYNCHRONOUS Operation, so the handler has to
+// answer inside the Nexus handler deadline. Routing the review through the Endpoint is
+// what keeps the boundary — neither team learns the other's Workflow IDs.
 export async function reviewCallerWorkflow(_request: ReviewRequest): Promise<ComplianceResult> {
-  throw new Error('TODO 4(b): submit the review decision through the Nexus Endpoint');
+  throw new Error('TODO 4c: submit the review decision through the Nexus Endpoint');
 }
