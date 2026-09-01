@@ -328,6 +328,21 @@ expects and nothing on screen saying so.
 
 Keep `|| true` on `pkill` - "no such process" is not an error - and nowhere else.
 
+One gotcha comes with strictness, and it bites immediately. **`yes y | cmd` under
+`pipefail` is a guaranteed status 141.** `yes` never stops on its own, so it always
+outlives its consumer and dies of SIGPIPE, and pipefail promotes that to a script
+failure even when `cmd` exited 0. Feed the prompt by redirect instead, which keeps
+`yes` out of the foreground pipeline:
+
+```bash
+timeout 180 npm run c2:client -- "..." < <(yes y)
+```
+
+This cost a full test run to find. Worth reading the exit code before assuming the
+challenge is broken: with `pipefail` the status is the LAST command to exit
+non-zero, so a rightmost client that genuinely failed reports its own code. A bare
+141 from a `yes` pipeline means the opposite of a failure - the client succeeded.
+
 The trade-off is real and worth stating: strict mode means a transient failure
 makes Skip fail visibly instead of advancing someone quietly into a broken
 sandbox. That is the right side to err on. A visible failure gets retried; a
