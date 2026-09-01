@@ -366,6 +366,38 @@ itself when someone adds the secret.
 
 ## Assignment wording
 
+### The opening card cannot use vocabulary the challenge has not taught yet
+
+Challenge 1's intro card opened with:
+
+> **What breaks when two teams share one Worker?**
+>
+> A payment cannot execute until Compliance clears it. Both teams' code runs in the
+> same process, on the same Task Queue, in the same Namespace.
+
+Three Temporal terms in two sentences, and the card is the first thing a learner reads -
+before the challenge that teaches any of them. Worse, the terms were doing the
+explaining. "The same Namespace" is the whole point of the workshop and it lands as a
+noun the reader cannot cash.
+
+Reported as "riddled with Temporal terminology and doesn't explain the real crux."
+
+Write the opening card for someone in their first year of the job, using words they
+already own - function call, one program, one process, deploy, crash. Say what sharing
+costs, as consequences:
+
+> - A bug in Compliance's code takes Payments down with it.
+> - Compliance cannot ship a fix unless Payments ships at the same time.
+> - Nothing in the code marks where one team ends and the other begins.
+
+Then introduce **one** term, and define it in the same breath:
+
+> Temporal gives each team a **Namespace** - a walled-off space of their own to run in.
+> Compliance has one. It is empty, because all of their code is running inside Payments'.
+
+The rest of the assignment can use the vocabulary freely. The card that runs before it
+cannot, because it is the only text a learner reads with no way to look anything up.
+
 ### Name UI elements the way the UI names them
 
 The Web UI renders history event types with spaces: **Activity Task Scheduled**, not
