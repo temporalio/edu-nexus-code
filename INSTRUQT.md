@@ -285,7 +285,8 @@ track end to end. Neither needs the learner's tree. Point the script at the
 solution instead:
 
 ```bash
-cd /root/workshop/<project>/solution || exit 0
+set -euxo pipefail
+cd /root/workshop/<project>/solution
 nohup npm run c1:worker > /tmp/solve-c1-worker.log 2>&1 &
 sleep 15
 timeout 120 npm run c1:client -- "..."
@@ -303,6 +304,34 @@ designs are each coherent and must not be mixed.
 Used by the TypeScript AI Agents track in
 `temporal-community/ai-agents-workshop-v4`. The Kotlin and TypeScript Nexus tracks
 here still use the overwrite-plus-guard shape.
+
+### A solve script must fail loudly
+
+`set -euxo pipefail`, and no trailing `exit 0`. A lenient solve script breaks two
+things at once, and it hides both.
+
+The TypeScript AI Agents track shipped all four with `set -uo pipefail` (no `-e`),
+`cd ... || exit 0` on the way in, and `exit 0` on the way out. Every failure inside
+was discarded.
+
+**It makes `instruqt track test` worthless for the only thing it can prove.** The
+run reported `Running solve OK` for all four challenges. That was compatible with
+every agent call failing, because the script's exit code never depended on them.
+The genuinely verified steps in that run were the ones that fail the harness
+directly - image boot, Terraform, the LiteLLM mint, per-challenge setup and
+cleanup.
+
+**It makes Skip actively harmful.** Skip runs the solve script. A learner clicks
+it, the script fails internally, Instruqt sees `exit 0` and advances them, and
+they land in the next challenge with an environment that is not in the state it
+expects and nothing on screen saying so.
+
+Keep `|| true` on `pkill` - "no such process" is not an error - and nowhere else.
+
+The trade-off is real and worth stating: strict mode means a transient failure
+makes Skip fail visibly instead of advancing someone quietly into a broken
+sandbox. That is the right side to err on. A visible failure gets retried; a
+silent one gets discovered mid-challenge, in front of a room.
 
 ### `pkill -f "a|b"` does not work on macOS
 
@@ -325,6 +354,27 @@ hang with no error anywhere the learner can see.
 
 When you do write one, assert on final state, never on clean first-attempt
 output, if anything in the system retries by design.
+
+### `instruqt track test` needs `--skip-fail-check` on an instructor-led track
+
+The command assumes a shape that instant-pass checks do not have. Per challenge it
+sets up, **runs the check expecting it to fail** because nothing is solved yet, runs
+solve, then runs the check expecting a pass. An `exit 0` check passes that second
+step, so the run stops at challenge 1 with:
+
+```
+Running check, expecting failure  FAIL
+[ERROR] Error verifying check: Check completed successfully, but we expect a fail here.
+```
+
+That is the tool working correctly against a track it was not designed for, not a
+defect in the track. Pass `--skip-fail-check` and the rest of the protocol - setup,
+solve, check-for-pass - runs normally.
+
+Worth knowing because the failure reads like a broken track and invites a hunt for
+a problem that is not there. Both tracks in this repo and the TypeScript AI Agents
+track went unverified end to end for weeks over this one flag, while the blocker
+was recorded as needing credentials it already had.
 
 ---
 
