@@ -431,6 +431,43 @@ itself when someone adds the secret.
 
 ## Assignment wording
 
+### Reading the Event History belongs in every step, not once at the end
+
+Console output is the easy evidence and it is the weaker evidence. A workshop that
+proves its point with `console.log` has taught the learner to trust the program's
+own account of itself. The Event History is the durable record, it is what they
+will actually have in production, and reading it is the skill worth building.
+
+The Saga workshop originally checked the Temporal UI once, in a section near the
+end. Reported as: "checking console is good. Checking the Temporal UI is even more
+important and must be part of the analysis phase of every relevant activity."
+
+So: after every run that changes behaviour, send them to the UI and say what to
+look for. Name the events the way the UI renders them - **Activity Task Failed**,
+not `ActivityTaskFailed`.
+
+The highest-value habit to teach is reading for the **absent** event:
+
+> There is no `refundPaymentIfCharged` event at all - the Workflow never scheduled
+> one, because it never knew it owed one.
+
+A missing event is invisible in console output and obvious in history, which is
+exactly why the UI earns its place at each step rather than one recap at the end.
+
+It also catches conclusions a log line cannot support. In that same workshop the
+idempotency fix does NOT remove the compensation from history - the Activity still
+runs and still completes, it just does nothing. A learner watching only the console
+sees a line disappear and concludes the call was skipped. The history shows them
+otherwise, and the real lesson (idempotency is about the effect, not about skipping
+the call) is only visible there.
+
+Verify what you claim the history shows by capturing a real one, rather than
+describing it from memory:
+
+```bash
+temporal workflow show --workflow-id <id> -o json | jq -r '.events[] | .eventType'
+```
+
 ### The opening card cannot use vocabulary the challenge has not taught yet
 
 Challenge 1's intro card opened with:
