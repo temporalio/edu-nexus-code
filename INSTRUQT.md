@@ -393,6 +393,37 @@ was recorded as needing credentials it already had.
 
 ---
 
+## Challenge directories must start at `01`
+
+A challenge directory numbered `00-` is **silently ignored**. Not warned about,
+not rejected - `instruqt track validate` passes, the publish reports
+`Checking challenges OK`, and the challenge simply is not there.
+
+Found the expensive way: a workshop gained an opening challenge as `00-the-loop`,
+was validated, published, and only `instruqt track test` revealed it, by reporting
+`Testing challenge [1/4]` for what should have been five. Two cheap confirmations
+once you suspect it:
+
+```bash
+grep -E "^id:" 00-something/assignment.md     # still empty afterwards
+instruqt track pull <team>/<slug>             # into a temp dir; count what the server has
+```
+
+An unpublished challenge keeps `id: ""` while its siblings carry server-assigned
+ids, and pulling the live track shows exactly what the server believes exists.
+
+Every track in this org numbers from `01`. If you need a new challenge at the
+front, either renumber the whole directory set - and remember the code directories
+the Editor tab exposes will then disagree with the lab's numbering unless you
+rename those too - or fold the new material into what is currently the first
+challenge.
+
+Folding is usually better than it sounds. A "watch it fail" opening belongs
+against the fix anyway, and putting it inside challenge 1 costs one assignment
+edit rather than a renumber across two trees.
+
+---
+
 ## Push behaviour
 
 `instruqt track push` rewrites `track.yml` and every `assignment.md` **frontmatter**:
