@@ -276,6 +276,78 @@ if [ -f "$CONTRACT" ] && ! grep -q "TODO" "$CONTRACT"; then
 fi
 ```
 
+### Better: have the solve script run `solution/`, not overwrite `exercise/`
+
+The restore guard above patches a self-inflicted wound. The wound is avoidable.
+
+A solve script exists to make Skip work and to let `instruqt track test` prove the
+track end to end. Neither needs the learner's tree. Point the script at the
+solution instead:
+
+```bash
+set -euxo pipefail
+cd /root/workshop/<project>/solution
+nohup npm run c1:worker > /tmp/solve-c1-worker.log 2>&1 &
+sleep 15
+timeout 120 npm run c1:client -- "..."
+```
+
+Skip then cannot destroy anyone's work, no restore guard is needed, and the
+sandbox never ends up permanently solved. It also removes the reason to keep a
+read-only `/opt/workshop` and stage a writable copy at track setup — the image can
+bake straight to `/root/workshop`.
+
+The one rule this creates: **do not add an overwriting solve script to a track
+built this way** without also adding a pristine copy to restore from. The two
+designs are each coherent and must not be mixed.
+
+Used by the TypeScript AI Agents track in
+`temporal-community/ai-agents-workshop-v4`. The Kotlin and TypeScript Nexus tracks
+here still use the overwrite-plus-guard shape.
+
+### A solve script must fail loudly
+
+`set -euxo pipefail`, and no trailing `exit 0`. A lenient solve script breaks two
+things at once, and it hides both.
+
+The TypeScript AI Agents track shipped all four with `set -uo pipefail` (no `-e`),
+`cd ... || exit 0` on the way in, and `exit 0` on the way out. Every failure inside
+was discarded.
+
+**It makes `instruqt track test` worthless for the only thing it can prove.** The
+run reported `Running solve OK` for all four challenges. That was compatible with
+every agent call failing, because the script's exit code never depended on them.
+The genuinely verified steps in that run were the ones that fail the harness
+directly - image boot, Terraform, the LiteLLM mint, per-challenge setup and
+cleanup.
+
+**It makes Skip actively harmful.** Skip runs the solve script. A learner clicks
+it, the script fails internally, Instruqt sees `exit 0` and advances them, and
+they land in the next challenge with an environment that is not in the state it
+expects and nothing on screen saying so.
+
+Keep `|| true` on `pkill` - "no such process" is not an error - and nowhere else.
+
+One gotcha comes with strictness, and it bites immediately. **`yes y | cmd` under
+`pipefail` is a guaranteed status 141.** `yes` never stops on its own, so it always
+outlives its consumer and dies of SIGPIPE, and pipefail promotes that to a script
+failure even when `cmd` exited 0. Feed the prompt by redirect instead, which keeps
+`yes` out of the foreground pipeline:
+
+```bash
+timeout 180 npm run c2:client -- "..." < <(yes y)
+```
+
+This cost a full test run to find. Worth reading the exit code before assuming the
+challenge is broken: with `pipefail` the status is the LAST command to exit
+non-zero, so a rightmost client that genuinely failed reports its own code. A bare
+141 from a `yes` pipeline means the opposite of a failure - the client succeeded.
+
+The trade-off is real and worth stating: strict mode means a transient failure
+makes Skip fail visibly instead of advancing someone quietly into a broken
+sandbox. That is the right side to err on. A visible failure gets retried; a
+silent one gets discovered mid-challenge, in front of a room.
+
 ### `pkill -f "a|b"` does not work on macOS
 
 Alternation is unsupported there. One `pkill` per pattern, or scripts authored on
@@ -297,6 +369,58 @@ hang with no error anywhere the learner can see.
 
 When you do write one, assert on final state, never on clean first-attempt
 output, if anything in the system retries by design.
+
+### `instruqt track test` needs `--skip-fail-check` on an instructor-led track
+
+The command assumes a shape that instant-pass checks do not have. Per challenge it
+sets up, **runs the check expecting it to fail** because nothing is solved yet, runs
+solve, then runs the check expecting a pass. An `exit 0` check passes that second
+step, so the run stops at challenge 1 with:
+
+```
+Running check, expecting failure  FAIL
+[ERROR] Error verifying check: Check completed successfully, but we expect a fail here.
+```
+
+That is the tool working correctly against a track it was not designed for, not a
+defect in the track. Pass `--skip-fail-check` and the rest of the protocol - setup,
+solve, check-for-pass - runs normally.
+
+Worth knowing because the failure reads like a broken track and invites a hunt for
+a problem that is not there. Both tracks in this repo and the TypeScript AI Agents
+track went unverified end to end for weeks over this one flag, while the blocker
+was recorded as needing credentials it already had.
+
+---
+
+## Challenge directories must start at `01`
+
+A challenge directory numbered `00-` is **silently ignored**. Not warned about,
+not rejected - `instruqt track validate` passes, the publish reports
+`Checking challenges OK`, and the challenge simply is not there.
+
+Found the expensive way: a workshop gained an opening challenge as `00-the-loop`,
+was validated, published, and only `instruqt track test` revealed it, by reporting
+`Testing challenge [1/4]` for what should have been five. Two cheap confirmations
+once you suspect it:
+
+```bash
+grep -E "^id:" 00-something/assignment.md     # still empty afterwards
+instruqt track pull <team>/<slug>             # into a temp dir; count what the server has
+```
+
+An unpublished challenge keeps `id: ""` while its siblings carry server-assigned
+ids, and pulling the live track shows exactly what the server believes exists.
+
+Every track in this org numbers from `01`. If you need a new challenge at the
+front, either renumber the whole directory set - and remember the code directories
+the Editor tab exposes will then disagree with the lab's numbering unless you
+rename those too - or fold the new material into what is currently the first
+challenge.
+
+Folding is usually better than it sounds. A "watch it fail" opening belongs
+against the fix anyway, and putting it inside challenge 1 costs one assignment
+edit rather than a renumber across two trees.
 
 ---
 
@@ -337,6 +461,75 @@ itself when someone adds the secret.
 ---
 
 ## Assignment wording
+
+### Reading the Event History belongs in every step, not once at the end
+
+Console output is the easy evidence and it is the weaker evidence. A workshop that
+proves its point with `console.log` has taught the learner to trust the program's
+own account of itself. The Event History is the durable record, it is what they
+will actually have in production, and reading it is the skill worth building.
+
+The Saga workshop originally checked the Temporal UI once, in a section near the
+end. Reported as: "checking console is good. Checking the Temporal UI is even more
+important and must be part of the analysis phase of every relevant activity."
+
+So: after every run that changes behaviour, send them to the UI and say what to
+look for. Name the events the way the UI renders them - **Activity Task Failed**,
+not `ActivityTaskFailed`.
+
+The highest-value habit to teach is reading for the **absent** event:
+
+> There is no `refundPaymentIfCharged` event at all - the Workflow never scheduled
+> one, because it never knew it owed one.
+
+A missing event is invisible in console output and obvious in history, which is
+exactly why the UI earns its place at each step rather than one recap at the end.
+
+It also catches conclusions a log line cannot support. In that same workshop the
+idempotency fix does NOT remove the compensation from history - the Activity still
+runs and still completes, it just does nothing. A learner watching only the console
+sees a line disappear and concludes the call was skipped. The history shows them
+otherwise, and the real lesson (idempotency is about the effect, not about skipping
+the call) is only visible there.
+
+Verify what you claim the history shows by capturing a real one, rather than
+describing it from memory:
+
+```bash
+temporal workflow show --workflow-id <id> -o json | jq -r '.events[] | .eventType'
+```
+
+### The opening card cannot use vocabulary the challenge has not taught yet
+
+Challenge 1's intro card opened with:
+
+> **What breaks when two teams share one Worker?**
+>
+> A payment cannot execute until Compliance clears it. Both teams' code runs in the
+> same process, on the same Task Queue, in the same Namespace.
+
+Three Temporal terms in two sentences, and the card is the first thing a learner reads -
+before the challenge that teaches any of them. Worse, the terms were doing the
+explaining. "The same Namespace" is the whole point of the workshop and it lands as a
+noun the reader cannot cash.
+
+Reported as "riddled with Temporal terminology and doesn't explain the real crux."
+
+Write the opening card for someone in their first year of the job, using words they
+already own - function call, one program, one process, deploy, crash. Say what sharing
+costs, as consequences:
+
+> - A bug in Compliance's code takes Payments down with it.
+> - Compliance cannot ship a fix unless Payments ships at the same time.
+> - Nothing in the code marks where one team ends and the other begins.
+
+Then introduce **one** term, and define it in the same breath:
+
+> Temporal gives each team a **Namespace** - a walled-off space of their own to run in.
+> Compliance has one. It is empty, because all of their code is running inside Payments'.
+
+The rest of the assignment can use the vocabulary freely. The card that runs before it
+cannot, because it is the only text a learner reads with no way to look anything up.
 
 ### Name UI elements the way the UI names them
 

@@ -3,17 +3,27 @@ slug: run-the-monolith
 id: nwdcc4mlob8f
 type: challenge
 title: 1. Run the Monolith
-teaser: Three payments, two teams, one Worker. Find the coupling before you fix it.
+teaser: Three payments, two teams, one program. Find the coupling before you fix it.
 notes:
 - type: text
   contents: |-
-    # What breaks when two teams share one Worker?
+    # Two teams, one program
 
-    A payment cannot execute until Compliance clears it. Both teams' code runs in
-    the same process, on the same Task Queue, in the same Namespace.
+    A payment cannot go through until the Compliance team clears it. Today that
+    check is an ordinary function call: both teams' code is bundled into one
+    program and runs as one process.
 
-    It works. That is the problem. Nobody notices the coupling until the night
-    a compliance bug takes payments down with it.
+    It works, which is why nobody has touched it. What it costs:
+
+    - A bug in Compliance's code takes Payments down with it.
+    - Compliance cannot ship a fix unless Payments ships at the same time.
+    - Nothing in the code marks where one team ends and the other begins.
+
+    Temporal gives each team a **Namespace** - a walled-off space of their own to
+    run in. Compliance has one. It is empty, because all of their code is running
+    inside Payments'.
+
+    **Author:** [Nikolay Advolodkin](https://www.linkedin.com/in/nikolayadvolodkin/), Staff Developer Advocate
 - type: text
   contents: |-
     # Ziggy is warming up your sandbox
