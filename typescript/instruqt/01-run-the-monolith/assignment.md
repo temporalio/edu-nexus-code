@@ -22,6 +22,8 @@ notes:
     Temporal gives each team a **Namespace** - a walled-off space of their own to
     run in. Compliance has one. It is empty, because all of their code is running
     inside Payments'.
+
+    **Author:** [Nikolay Advolodkin](https://www.linkedin.com/in/nikolayadvolodkin/), Staff Developer Advocate
 - type: text
   contents: |-
     # Ziggy is warming up your sandbox
