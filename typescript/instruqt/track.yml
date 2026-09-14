@@ -4,18 +4,18 @@ title: Decouple a Monolith with Temporal Nexus (TypeScript)
 teaser: Split a payments monolith into two independently deployable services connected
   by Nexus.
 description: |-
-  Payments and Compliance share one Worker, one Namespace, one blast radius. A bug
-  in compliance code at 3 AM takes payments down with it.
+  Payments and Compliance share one Worker and one Namespace. A bug in compliance
+  code at 3 AM takes payments down with it.
 
   You will put a Nexus boundary between them without changing a line of business
   logic. Define the shared Service contract, implement the handler on the Compliance
   side, register the Endpoint, then swap the caller from an Activity proxy to a Nexus
-  client. One call changes at the call site. The architecture underneath does not.
+  client. One call changes at the call site.
 
   Then break it on purpose. Stop the Compliance Worker mid-operation and watch the
   payment Workflow wait instead of fail.
 
-  TypeScript on the Temporal TypeScript SDK, where Nexus went generally available in
+  Built on the Temporal TypeScript SDK, where Nexus went generally available in
   v1.23.0. Five challenges, three of them hands-on.
 icon: ""
 tags:

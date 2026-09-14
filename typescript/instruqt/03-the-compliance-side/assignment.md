@@ -2,26 +2,26 @@
 slug: the-compliance-side
 id: lwb2jpje3u96
 type: challenge
-title: 3. The Compliance Side
+title: 3. The compliance side
 teaser: Implement both handlers, register them on a Worker, and create the Endpoint.
 notes:
 - type: text
   contents: |-
     # A compliance check can wait on a human. How do you put that behind an RPC?
 
-    Some checks clear in milliseconds. A $12,000 international transfer waits for
-    an officer to click approve, and that officer is at lunch.
+    Some checks clear in milliseconds. A $12,000 international transfer waits
+    for an officer to click approve, and that can take an afternoon.
 
-    A synchronous handler has ten seconds. Lunch takes longer.
+    A synchronous handler has ten seconds.
 - type: text
   contents: |-
     # This is the hardest challenge in the lab
 
-    Two handlers, two different shapes, plus the Worker registration and the
+    Two handlers in two different shapes, plus the Worker registration and the
     Endpoint.
 
     The finished code sits in solution/ in the same file tree. Use it if you
-    stall. Learning the shape beats staring at a blank function.
+    stall.
 tabs:
 - id: gok4feicejlo
   title: Exercise
@@ -61,48 +61,40 @@ timelimit: 1800
 enhanced_loading: null
 ---
 
-# Everything Compliance Owns
+# Everything Compliance owns
 
-Three pieces, all on this team's side of the boundary.
+Three pieces, all on this team's side of the boundary: the handlers that answer Nexus
+calls, the Worker that runs them, and the Endpoint that tells Temporal where to route.
 
-1. The handlers that answer Nexus calls.
-2. The Worker that runs them.
-3. The Endpoint that tells Temporal where to route.
-
-# Read the Worked Example First
+# Read the worked example first
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab and open
-`exercise/src/compliance/nexus-handler.ts`.
-
-`checkCompliance` is already written. Read it before you write anything, because the
-Operation you are about to write is the other half of the same pattern, and the contrast
-between the two is the whole point of this challenge.
+`exercise/src/compliance/nexus-handler.ts`. `checkCompliance` is written for you, and the
+Operation you are about to write is the other half of the same pattern.
 
 | Operation | Shape | Why |
 |---|---|---|
 | `checkCompliance` *(given)* | `new temporalNexus.WorkflowRunOperationHandler(...)` | Slow. Starts a Workflow and returns a reference to it. |
 | `submitReview` *(yours)* | a plain `async (ctx, input) => {...}` | Fast. Answers inside the call, in milliseconds. |
 
-Notice why the given one has to be that shape. Written as a plain async function it would
-be a synchronous Operation: cut off at the ten second handler deadline, and every retry
-would start a **second** compliance check for the same payment.
+Written as a plain async function, `checkCompliance` would be a synchronous Operation,
+cut off at the ten second handler deadline, and every retry would start a second
+compliance check for the same payment.
 
-# Write the Other Handler
+# Write the other handler
 
-Follow TODO 2 in the same file.
+Follow TODO 2 in the same file. Once you have written it, the `TS2345` error from
+challenge 2 disappears.
 
-`submitReview` is the fast path, so it is the plain async function. It gets a Client,
-finds the Workflow the example started, and hands it the decision. Slow work starts a
-Workflow and returns a reference; fast work answers in the call.
+If you get `TS7006: Parameter '_ctx' implicitly has an 'any' type` instead, TODO 1 from
+challenge 2 is unfinished. Handler parameter types are inferred from the contract, so an
+empty Service leaves nothing to infer from.
 
-When you have written it, the `TS2345` error from challenge 2 disappears.
+# Register the handler
 
-# Register the Handler
-
-Open `exercise/src/compliance/worker.ts` and follow TODO 3.
-
-The Worker already knows its Workflows and Activities. One option is missing: the one
-that makes this team callable by Payments at all.
+Open `exercise/src/compliance/worker.ts` and follow TODO 3. The Worker already knows its
+Workflows and Activities. One option is missing, the one that makes this team callable by
+Payments at all.
 
 # Typecheck
 
@@ -113,36 +105,20 @@ npx tsc --noEmit
 ```
 
 Silence means it passed. The Payments side still calls the Activity proxy, which is
-perfectly valid — you change that in challenge 4.
-
-### If you see an error about `_ctx`
-
-```bash,nocopy
-error TS7006: Parameter '_ctx' implicitly has an 'any' type.
-```
-
-That error points at `nexus-handler.ts`, but the fix is in `exercise/src/shared/nexus-service.ts`.
-
-You never annotate a handler's parameter types — they are inferred **from the contract**.
-So if TODO 1 from challenge 2 is unfinished, the Service has no Operations, there is
-nothing to infer from, and the parameter falls back to `any`, which `strict` rejects.
-
-Go back and declare the two Operations. Then this file compiles unchanged.
-
-It is worth noticing what just happened: the contract is not documentation sitting beside
-the code. Delete it and the handlers stop type checking.
+valid. You change that in challenge 4.
 
 # Create the Endpoint
 
-The Endpoint is the routing rule: a name, a target Namespace, and a target Task Queue.
-It is the one piece of Nexus that lives outside your code.
+The Endpoint is the routing rule: a name, a target Namespace, and a target Task Queue. It
+is the one piece of Nexus that lives outside your code.
 
 ```bash,run
 temporal operator nexus endpoint create --name compliance-endpoint --target-namespace compliance-namespace --target-task-queue compliance-risk
 ```
 
-`--target-task-queue` must match `COMPLIANCE_TASK_QUEUE` in `exercise/src/shared/types.ts` exactly.
-If it points at a queue no Worker is polling, the calls are never answered.
+`--target-task-queue` must match `COMPLIANCE_TASK_QUEUE` in
+`exercise/src/shared/types.ts` exactly. Point it at a queue no Worker polls and the calls
+are never answered.
 
 # Start the Worker
 
@@ -152,68 +128,40 @@ Click the [button label="Compliance Worker" background="#444CE7"](tab-4) tab:
 npm run compliance-worker
 ```
 
-```bash,nocopy
-=========================================================
-  Compliance Worker started on: compliance-risk
-  Namespace: compliance-namespace
-=========================================================
-[INFO] Worker state changed { state: 'RUNNING' }
-```
-
-The banner only tells you the process is alive. It prints whether or not you registered
-anything, so it is not proof. Two things are.
-
-**One: a line that should NOT be there.** Scroll the Worker output and look for this:
+The startup banner prints whether or not you registered anything, so it proves nothing.
+Two things do. First, scroll the Worker output and look for a line that should be absent:
 
 ```bash,nocopy
 [INFO] No Nexus services registered, not polling for Nexus tasks
 ```
 
-If you see it, your handler is not registered even though the Worker started happily.
-When `nexusServices` is set, that line does not appear at all. Absence is the signal here,
-which is exactly the kind of thing that is easy to miss — so look for it deliberately.
+If it is there, your handler is not registered even though the Worker started happily.
+With `nexusServices` set, that line does not appear at all.
 
-**Two: the Temporal UI.** Click the
-[button label="Temporal UI" background="#444CE7"](tab-1) tab, switch the Namespace
-selector to `compliance-namespace`, and open **Workers** in the left menu.
-
-You will see **two** Workers, and only one of them is yours:
-
-| Task Queue | SDK | Whose |
-|---|---|---|
-| `compliance-risk` | TypeScript | **yours** — the one you just started |
-| `temporal-sys-per-ns-tq` | Go | Temporal's own |
-
-The Go one is not something you started and not something you can break. Temporal Server
-is written in Go and runs an internal Worker in **every** Namespace to handle its own
-background work — batch operations, schedules, deletion. It was there before you began
-and it will show `Tasks Processed: 0` all day. Anything on `temporal-sys-` is the system
-talking to itself.
-
-Yours is the one on `compliance-risk`, listed as **Running**. That is Compliance running
-in its own Namespace for the first time — in challenge 1 there was no Worker of yours
-here at all.
-
-If something went wrong:
+Second, click the [button label="Temporal UI" background="#444CE7"](tab-1) tab, switch
+the Namespace selector to `compliance-namespace`, and open **Workers**. Yours is the
+TypeScript Worker on `compliance-risk`, listed as **Running**. The Go one on
+`temporal-sys-per-ns-tq` is Temporal Server's own and shows `Tasks Processed: 0` all day.
+In challenge 1 no Worker of yours was here at all.
 
 | What you see | What it means |
 |---|---|
 | `TS2345 ... missing ... checkCompliance` | A handler is missing from the object. |
+| `TS7006 ... '_ctx' implicitly has an 'any' type` | TODO 1 is unfinished. |
 | `No Nexus services registered` | You skipped `nexusServices` on `Worker.create`. |
 | Worker starts, calls never answered | The Task Queue does not match the Endpoint's target. |
 
-Click **Check** once it is up. Challenge 4 starts both Workers fresh, so you can
-stop this one with **Ctrl+C** afterwards.
+Click **Check** once it is up. Challenge 4 starts both Workers fresh, so you can stop
+this one with **Ctrl+C** afterwards.
 
-# What You Know Now
+# What you know now
 
 - Slow work starts a Workflow and returns. Fast work answers in the call.
 - `WorkflowRunOperationHandler` makes a retry re-attach instead of starting a duplicate.
-- A Worker starts fine with nothing registered. A clean banner proves nothing.
+- A Worker starts fine with nothing registered, so a clean banner proves nothing.
 - The Endpoint maps a name to a Namespace and a Task Queue.
 - Compliance now runs in its own Namespace, with its own Worker.
 
 ---
 
-**Please share your feedback so we can make better content for you.** The **Feedback**
-tab takes a few seconds, and it is the only way we find out which parts of this landed.
+Tell us what worked in the **Feedback** tab. It takes a few seconds.

@@ -2,7 +2,7 @@
 slug: the-shared-contract
 id: ynazxaoijxil
 type: challenge
-title: 2. The Shared Contract
+title: 2. The shared contract
 teaser: Write the interface both teams depend on. One file, two Operations.
 notes:
 - type: text
@@ -61,24 +61,24 @@ timelimit: 900
 enhanced_loading: null
 ---
 
-# One Contract, Two Teams
+# One contract, two teams
 
 A Nexus Service is a contract both teams compile against. Payments builds a client from
 it. Compliance implements a handler for it. Neither team sees the other's code.
 
-It lives in `shared/` on purpose. Neither team owns it alone.
+It lives in `shared/` because neither team owns it alone.
 
-# Write It
+# Write it
 
 Click the [button label="Exercise" background="#444CE7"](tab-0) tab, open
 `exercise/src/shared/nexus-service.ts`, and follow TODO 1.
 
-Two Operations. Each is a name paired with `nexus.operation<Input, Output>()`, which
-carries no implementation — only the types both teams agree on.
+Two Operations. Each one is a name paired with `nexus.operation<Input, Output>()`, which
+carries the types both teams agree on and no implementation.
 
 The editor saves as you type. There is no save button.
 
-# Now Break the Build on Purpose
+# Break the build on purpose
 
 Click the [button label="Terminal" background="#444CE7"](tab-2) tab:
 
@@ -86,40 +86,31 @@ Click the [button label="Terminal" background="#444CE7"](tab-2) tab:
 npx tsc --noEmit
 ```
 
-**This is supposed to fail.** Read what it says:
+This is supposed to fail:
 
 ```bash,nocopy
-src/compliance/nexus-handler.ts(29,81): error TS2345: Argument of type
-'{ checkCompliance: WorkflowRunOperationHandler<...>; }' is not assignable to
-parameter of type 'ServiceHandlerFor<...>'.
+src/compliance/nexus-handler.ts(29,81): error TS2345:
   Property 'submitReview' is missing in type
   '{ checkCompliance: WorkflowRunOperationHandler<...>; }' but required in type
   'ServiceHandlerFor<...>'.
 ```
 
-You declared two Operations, and TypeScript immediately went looking for the handlers
-that answer them. One of them, `checkCompliance`, is already written for you. The other
-is not, so it refuses to compile and names the one that is missing.
+You declared two Operations. `checkCompliance` already has a handler, written for you.
+`submitReview` does not, so the build stops and names it.
 
-That is the contract doing its job, and it is worth sitting with for a second. You have
-not run anything. No Worker has started. No call has been made. The compiler already knows
-Compliance owes Payments two implementations, purely from the shape of the Service.
+Nothing has run yet, and the compiler already knows Compliance owes Payments two
+implementations. A Service with an unanswered Operation never reaches a running Worker.
 
-Notice *when* it told you: at compile time, before anything ran. A Service with an
-unanswered Operation cannot reach a running Worker, because the code carrying the gap does
-not build.
-
-You fix this in challenge 3, by writing the handlers. Leave it red.
+You write the handlers in challenge 3. Leave it red.
 
 Click **Check** when the two Operations are declared.
 
-# What You Know Now
+# What you know now
 
-- `nexus.service()` names the contract; `nexus.operation<I, O>()` declares each call.
+- `nexus.service()` names the contract. `nexus.operation<I, O>()` declares each call.
 - The contract is shared. The implementation is not.
 - Declaring an Operation obliges someone to handle it, and the compiler enforces that.
 
 ---
 
-**Please share your feedback so we can make better content for you.** The **Feedback**
-tab takes a few seconds, and it is the only way we find out which parts of this landed.
+Tell us what worked in the **Feedback** tab. It takes a few seconds.
